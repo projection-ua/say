@@ -1,0 +1,7 @@
+#root{
+    width: 100%;
+}
+.container{
+    max-width: 83.33vw;
+    margin: 0 auto;
+}

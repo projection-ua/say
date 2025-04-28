@@ -1,0 +1,224 @@
+.container{
+    width: 83.33vw;
+    margin: 0 auto;
+}
+
+
+.header {
+    display: flex;
+    flex-direction: column;
+    padding-top: 1.04vw;
+    padding-bottom: 0.83vw;
+    background-color: white;
+    position: relative;
+    z-index: 999;
+}
+
+.topBar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 0.625vw;
+    width: 100%;
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: 1.66vw;
+}
+
+.searchInput {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    padding: 0.3rem;
+    outline: none;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.phone {
+    color: var(--Green-Black, #0C1618);
+    font-variant-numeric: lining-nums proportional-nums;
+    font-family: Raleway;
+    font-size: 0.72vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.66vw;
+}
+
+.lang {
+    font-weight: bold;
+}
+
+.iconBlock {
+    display: flex;
+    align-items: center;
+    gap: 0.41vw;
+    color: #333;
+    cursor: pointer;
+}
+.wrapTextIcon{
+    display: flex;
+    align-items: center;
+    gap: 0.20vw;
+    color: var(--Green-Black, #0C1618);
+    font-variant-numeric: lining-nums proportional-nums;
+    font-family: Raleway;
+    font-size: 0.72vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%; /* 14px */
+    text-transform: uppercase;
+}
+
+.icon {
+    width: 1.25vw;
+    height: 1.25vw;
+}
+
+.navBar {
+    display: flex;
+    align-items: center;
+}
+
+.menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-weight: 600;
+    color: #222;
+    width: 100%;
+}
+.menu li a{
+    color: #222;
+    padding: 0.83vw 1.25vw;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.20vw;
+    text-transform: uppercase;
+    text-wrap: nowrap;
+}
+
+.hasSubmenu {
+    position: relative;
+}
+
+.overlay {
+    position: fixed;
+    top: 0; /* або висота вашого header */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2); /* прозорий фон */
+    z-index: 998;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.overlay.active{
+    opacity: 1;
+}
+
+
+.submenu {
+    position: absolute;
+    top: 100%;
+    left: -0.5vw;
+    list-style: none;
+    display: flex;
+    z-index: 1000;
+    transition-duration: 0.3s;
+    opacity: 0;
+    transform: translateY(10%);
+    pointer-events: none;
+}
+.contentSubMenu{
+    border-radius: 0.83vw;
+    background: #FFF;
+    padding: 1.66vw;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.66vw;
+    margin-top: 1.2vw;
+}
+
+.hasSubmenu:hover .submenu {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0%);
+    pointer-events: auto;
+}
+.itemsSubMeny{
+    display: flex;
+    flex-direction: column;
+    gap: 1.06vw;
+    min-width: 14.58vw;
+    a{
+        padding: 0 !important;
+        color: #282828;
+        font-size: 0.83vw;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 130%; /* 20.8px */
+        text-transform: none !important;
+    }
+}
+.newsBaner{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.31vw;
+    width: 14.58vw;
+    height: 14.58vw;
+    object-fit: cover;
+    padding: 0 !important;
+    img{
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+    }
+
+    span{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #FFF;
+        -webkit-text-stroke-width: 0.2px;
+        -webkit-text-stroke-color: #FFF;
+        font-family: "Playfair Display";
+        font-size: 1.25vw;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 120%; /* 28.8px */
+        letter-spacing: 0.72px;
+        text-transform: none;
+    }
+}
+
+.logo, .logo svg {
+    height: 1.66vw;
+    margin: 0 auto;
+}
+
+.new {
+    color: #1b7a78;
+    font-size: 0.7rem;
+    margin-left: 0.3rem;
+}

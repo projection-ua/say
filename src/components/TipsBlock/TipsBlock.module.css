@@ -1,0 +1,204 @@
+.tipsSection {
+    padding: 60px 0;
+}
+
+.title {
+    color: var(--Green-Black, #0C1618);
+    -webkit-text-stroke-width: 0.4px;
+    -webkit-text-stroke-color: var(--Green-Black, #0C1618);
+    font-family: "Playfair Display";
+    font-size: 2.60vw;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%; /* 60px */
+    letter-spacing: 0.05vw;
+    text-transform: uppercase;
+    margin-bottom: 2.91vw;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+}
+
+.imageWrap {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.25vw;
+}
+
+.image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.icon {
+    position: absolute;
+    top: 0.83vw;
+    padding: 0.83vw;
+    left: 0.83vw;
+    background-color: #003c3a;
+    width: 3.33vw;
+    height: 3.33vw;
+    border-radius: 0.625vw;
+    background: var(--GreenLight, #003C3A);
+}
+
+.category {
+    color: var(--GreenLight, #003C3A);
+    font-family: Raleway;
+    font-size: 0.83vw;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 137%; /* 21.92px */
+    letter-spacing: 0.1vw;
+    text-transform: uppercase;
+    margin-bottom: 0.83vw;
+}
+
+.wrapContentTip{
+    padding: 0 1.25vw;
+}
+.tipTitle {
+    color: #1A1A1A;
+    font-family: Raleway;
+    font-size: 1.25vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 120%; /* 28.8px */
+    margin-bottom: 0.83vw;
+}
+
+.link{
+    display: flex;
+    align-items: center;
+}
+.spanLink {
+    color: var(--Green-Black, #0C1618);
+    font-size: 0.93vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 110%; /* 19.8px */
+    border-bottom: 1px solid #000;
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.41vw;
+    padding-bottom: 0.20vw;
+}
+.iconLink{
+    width: 1.04vw;
+    height: 1.04vw;
+}
+
+.link:hover {
+    opacity: 0.75;
+}
+
+
+
+
+
+
+
+.overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s ease;
+}
+
+.overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 1.45vw;
+    padding: 2.6vw;
+    max-width: 64.58vw;
+    width: 64.58vw;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.popup.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%);
+}
+
+.closeBtn {
+    position: absolute;
+    top: 2.60vw;
+    right: 2.60vw;
+    cursor: pointer;
+    display: flex;
+    width: 2.39vw;
+    height: 2.39vw;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.41vw;
+    background: #F2F2F2;
+    svg{
+        width: 1.25vw;
+    }
+}
+
+.gridPopup {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(300px, 1fr));
+    gap: 1.66vw;
+    margin-top: 2.60vw;
+}
+
+.cardPopup {
+    background: #FBFBFB;
+    border-radius: 1.25vw;
+    padding: 1.66vw;
+
+    h4{
+        color: var(--Green-Black, #0C1618);
+        font-size: 1.14vw;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 120%; /* 26.4px */
+    }
+    p{
+        color: var(--Green-Black, #0C1618);
+        font-size: 0.83vw;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 130%; /* 20.8px */
+        margin-top: 1.45vw;
+    }
+}
+.titlePopup{
+    color: var(--Green-Black, #0C1618);
+    -webkit-text-stroke-width: 0.4px;
+    -webkit-text-stroke-color: var(--Green-Black, #0C1618);
+    font-family: "Playfair Display";
+    font-size: 2.08vw;
+    width: 50%;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 125%; /* 50px */
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}

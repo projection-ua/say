@@ -1,0 +1,134 @@
+:root{
+    --Green-Black: #0C1618;
+}
+
+* {
+    font-family: 'Raleway', sans-serif;
+    font-variant-numeric: lining-nums proportional-nums;
+}
+html {
+    scroll-behavior: smooth;
+}
+
+
+
+.swiper-pagination-bullet{
+    background: #FFFFFF !important;
+    opacity: 0.4 !important;
+    margin: 0 !important;
+    border-radius: 0.10vw !important;
+}
+.swiper-pagination-bullet.swiper-pagination-bullet-active{
+    opacity: 1 !important;
+}
+
+.rc-slider{
+    height: 28px !important;
+}
+
+.swiper-pagination{
+    display: flex;
+    gap: 0.52vw;
+    justify-content: center;
+    bottom: 1.25vw !important;
+}
+
+.screen-reader-text{
+    display: none !important;
+}
+
+
+input[type="radio"], input[type="checkbox"] {
+    appearance: none;
+    width: 1.04vw;
+    height: 1.04vw;
+    border: 1px solid rgba(180, 186, 182, 0.7) !important;
+    border-radius: 0.2vw;
+    position: relative;
+    background: #fff;
+    flex-shrink: 0;
+    margin: 0px;
+    padding: 0px;
+}
+
+input[type="radio"]:checked, input[type="checkbox"]:checked {
+    border-color: #003C3A !important;
+    background-color: transparent;
+}
+
+input[type="radio"]:checked::after, input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 60%;
+    height: 60%;
+    background: #003C3A;
+    border-radius: 0.2vw;
+}
+
+
+.text-gray-300{
+    fill: #d1cfd0;
+}
+
+
+
+.custom-select__indicator-separator{
+    display: none;
+}
+.custom-select__value-container{
+    padding: 1.04vw 0.83vw !important;
+}
+.custom-select__control{
+    margin: 0px !important;
+    border: none !important;
+    border-radius: 0.46vw !important;
+    background: #FBFBFB !important;
+    box-shadow: none !important;
+}
+.custom-select__menu-list{
+    padding: 0px !important;
+}
+.custom-select__menu{
+    margin: 0px !important;
+    border-radius: 0.46vw !important;
+    overflow: hidden;
+    box-shadow: none !important;
+    background: #FBFBFB !important;
+}
+.custom-select__option--is-focused{
+    background: #F1F1F1 !important;
+}
+.custom-select__option--is-selected{
+    background: #003C3A !important;
+}
+.custom-select__option{
+    color: #0C1618;
+    font-size: 0.72vw !important;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 120%; /* 16.8px */
+    letter-spacing: 0.42px;
+}
+
+.custom-select__placeholder{
+    color: rgba(141, 141, 141, 0.70);
+    font-size: 0.72vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 120%; /* 16.8px */
+    letter-spacing: 0.42px;
+}
+.custom-select__input-container, .custom-select__input, .custom-select__single-value{
+    color: #0C1618;
+    font-size: 0.72vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 120%; /* 16.8px */
+    letter-spacing: 0.42px;
+    margin: 0 !important;
+}
+.heroBanner .breadcrumbs{
+    position: absolute;
+}

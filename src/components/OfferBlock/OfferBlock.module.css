@@ -1,0 +1,86 @@
+.heroSlider, .slide{
+    height: 49.16vw;
+}
+.slide{
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.heroSlider{
+    margin: 0 0.83vw;
+    border-radius: 0.83vw;
+    overflow: hidden;
+    position: relative;
+}
+.content{
+    position: absolute;
+    bottom: 9.84vw;
+    left: 7.5vw;
+}
+.content h2{
+    color: #FFF;
+    -webkit-text-stroke-width: 0.5px;
+    -webkit-text-stroke-color: #FFF;
+    font-family: "Playfair Display";
+    font-size: 3.125vw;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%; /* 72px */
+    letter-spacing: 1.8px;
+    margin: 0;
+    margin-bottom: 0.83vw;
+}
+.content p{
+    color: #FFF;
+    font-size: 0.83vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 110%; /* 17.6px */
+    margin: 0;
+}
+.content a{
+    display: flex;
+    padding: 1.04vw 1.25vw;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.83vw;
+    background: #FFF;
+    width: max-content;
+    color: var(--Green-Black, #0C1618);
+    font-family: Raleway;
+    font-size: 0.83vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%; /* 16px */
+    text-transform: uppercase;
+    margin-top: 2.5vw;
+}
+
+
+
+.arrowsWrap{
+    position: absolute;
+    bottom: 2.08vw;
+    right: 7.5vw;
+    border-radius: 0.83vw;
+    border: 0.05vw solid #FFF;
+    background: rgba(0, 0, 0, 0.10);
+    backdrop-filter: blur(2px);
+    display: inline-flex;
+    padding: 0.83vw 1.66vw;
+    align-items: center;
+    gap: 3.125vw;
+    z-index: 99;
+}
+.swiperPagination{
+    display: flex;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    position: absolute;
+    top: auto !important;
+    bottom: 3.43vw !important;
+    left: 7.5vw !important;
+    height: max-content;
+    gap: 0.41vw;
+    z-index: 99;
+}

@@ -1,0 +1,215 @@
+.succesCard {
+    position: relative;
+    margin: 0 auto;
+    width: 42.5vw;
+    background-color: #FBFBFB;
+    padding: 1.66vw;
+    margin-top: 4.47vw;
+    margin-bottom: 10vw;
+    border-radius: 1.66vw;
+}
+
+.succesTitle {
+    text-align: center;
+    margin-bottom: 2.5vw;
+
+    svg {
+        width: 2.9vw;
+        height: 2.9vw;
+        margin: 0 auto;
+        margin-bottom: 1.2vw;
+    }
+
+    p {
+           
+        font-weight: 700;
+        font-size: 0.9vw;
+        line-height: 100%;
+        margin-bottom: 0.6vw;
+    }
+
+    h3 {
+        margin-bottom: 2.7vw;
+        color: #1A1A1A;
+        -webkit-text-stroke-width: 0.2px;
+        -webkit-text-stroke-color: #000;
+        font-family: "Playfair Display";
+        font-size: 2.08vw;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 100%; /* 40px */
+
+        span {
+            display: block;
+        }
+    }
+
+    span {
+        color: #302215;
+        font-variant-numeric: lining-nums proportional-nums;
+        font-size: 1.04vw;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+}
+
+.imageList {
+    display: flex;
+    justify-content: center;
+    gap: 0.8vw;
+    margin-bottom: 2.5vw;
+
+    li {
+        position: relative;
+        aspect-ratio: 1;
+        overflow: hidden;
+        img {
+            width: 7.6vw;
+        }
+
+        span {
+            position: absolute;
+            bottom: 0.5vw;
+            right: 0.5vw;
+               
+            font-weight: 600;
+            font-size: 0.6vw;
+            line-height: 100%;
+
+            width: 1.6vw;
+            height: 1.6vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            background: var(--GreenLight, #003C3A);
+            color: #fff;
+        }
+    }
+}
+
+.orderInfo {
+    padding-bottom: 2.5vw;
+    border-bottom: 1px solid rgba(239, 237, 238, 1);
+    margin-bottom: 2.5vw;
+
+    div:not(:last-child) {
+        margin-bottom: 1.6vw;
+    }
+
+    div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        span {
+            font-weight: 600;
+            font-size: 0.8vw;
+            line-height: 137%;
+            letter-spacing: -0.01vw;
+            color: #1A1A1A;
+            opacity: 0.8;
+        }
+
+        p {
+            color: #302215;
+            font-variant-numeric: lining-nums proportional-nums;
+            font-size: 0.93vw;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 140%; /* 25.2px */
+            letter-spacing: -0.36px;
+            max-width: 60%;
+            text-align: right;
+        }
+    }
+}
+
+.orderAmount {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    width: auto;
+
+    .orderDetails {
+        margin-bottom: 1.6vw;
+
+        p {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+               
+            font-weight: 600;
+            font-size: 0.8vw;
+            line-height: 137%;
+            letter-spacing: 0.01vw;
+            color: rgba(26, 26, 26, 0.7);
+
+            span:nth-child(2) {
+                display: flex;
+                align-items: center;
+                gap: 0.2vw;
+                   
+                font-weight: 700;
+                font-size: 0.8vw;
+                line-height: 100%;
+                color: rgb(0, 0, 0);
+
+                svg {
+                    stroke: #1a1a1a;
+                    width: 1vw;
+                    height: 1vw;
+                }
+            }
+
+            .discount {
+                color: rgba(117, 117, 117, 1) !important;
+            }
+        }
+
+        P:not(:last-child) {
+            margin-bottom: 0.6vw;
+        }
+    }
+
+    .totalAmount {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2.5vw;
+
+        p {
+            font-family: Raleway;
+            font-weight: 700;
+            font-size: 1vw;
+            line-height: 100%;
+            letter-spacing: 0.01vw;
+            text-transform: uppercase;
+        }
+
+        span {
+            font-weight: 700;
+            font-size: 1.6vw;
+            line-height: 100%;
+            color: #003C3A;
+        }
+    }
+}
+
+.homeBackLink {
+    background-color: #003C3A;
+    padding: 1.1vw;
+    display: block;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.8vw;
+    line-height: 100%;
+    letter-spacing: -0.01vw;
+    transition: 0.3s;
+    border-radius: 0.52vw;
+}
+
+.homeBackLink:hover {
+    background-color: #1A1A1A;
+    color: #fff;
+}

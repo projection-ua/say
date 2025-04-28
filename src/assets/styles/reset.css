@@ -1,0 +1,92 @@
+:root {
+    --primary: rgba(214, 61, 68, 1);
+}
+
+body {
+    scroll-behavior: smooth;
+    width: 100%;
+    margin: 0px;
+}
+
+main {
+    min-height: 100vh;
+}
+
+*,
+::after,
+::before {
+    box-sizing: border-box;
+}
+
+button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+li {
+    list-style: none;
+    margin: 0;
+}
+ul{
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+img {
+    max-width: 100%;
+    object-fit: cover;
+}
+
+.swiper-button-disabled {
+    opacity: 0;
+}
+
+input,
+textarea {
+    border: none !important;
+    outline: none !important;
+}
+
+/* ProductPage.module.css */
+.breadcrumbs {
+    display: flex;
+    margin: 1.6vw 0 !important;
+
+    ol {
+        gap: 0.4vw;
+
+        .MuiBreadcrumbs-separator {
+            background-color: black;
+            overflow: hidden;
+            width: 0.2vw;
+            height: 0.2vw;
+            border-radius: 50%;
+        }
+    }
+}
+.breadcrumbs a {
+    color: #1a1a1a;
+    font-family: Manrope;
+    font-size: 0.7vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 0.7vw; /* 100% */
+    letter-spacing: 0.28px;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumbs span {
+    color: #6c757d;
+}
+
+h1, h2, h3, h4, h5, p, a{
+    margin: 0;
+}

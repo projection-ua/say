@@ -1,0 +1,100 @@
+.brandSection {
+    display: flex;
+    margin: 8.33vw 0;
+    flex-wrap: wrap;
+    position: relative;
+    width: 100%;
+}
+
+.imageWrap {
+    flex: 1 1 400px;
+}
+
+.image {
+    width: 51.71vw;
+    height: auto;
+    object-fit: cover;
+}
+
+.content {
+    width: 41.14vw;
+    background-color: #003C3A;
+    color: white;
+    padding: 7.8vw 4.84vw;
+    border-radius: 1.66vw;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+}
+
+.label {
+    color: var(--White, #FFFEFC);
+    -webkit-text-stroke-width: 0.1px;
+    -webkit-text-stroke-color: var(--White, #FFFEFC);
+    font-family: "Playfair Display";
+    font-size: 1.25vw;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 120%; /* 28.8px */
+    letter-spacing: 0.48px;
+}
+
+.title {
+    color: var(--White, #FFFEFC);
+    leading-trim: both;
+    text-edge: cap;
+    font-size: 2.76vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 110%; /* 58.325px */
+    letter-spacing: 0.06vw;
+    text-transform: uppercase;
+    margin-bottom: 2.08vw;
+    margin-top: 2.08vw;
+}
+
+.description {
+    color: var(--White, #FFFEFC);
+    font-size: 1.04vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 140%; /* 28px */
+    opacity: 0.8;
+}
+
+.button {
+    background-color: white;
+    color: black;
+    display: inline-flex;
+    padding: 1.04vw 1.25vw;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.83vw;
+    background: #FFF;
+    color: var(--Green-Black, #0C1618);
+    font-size: 0.83vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%; /* 16px */
+    text-transform: uppercase;
+    margin-top: 2.91vw;
+}
+
+.button:hover {
+    background-color: #f3f3f3;
+}
+
+.marker{
+    color: var(--White, #FFFEFC);
+    font-size: 30.36vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 72%; /* 699.894px */
+    letter-spacing: 0.625vw;
+    text-transform: uppercase;
+    position: absolute;
+    opacity: 0.05;
+    top: 6.66vw;
+    left: 1.19vw;
+}

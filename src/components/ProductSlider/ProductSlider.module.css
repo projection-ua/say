@@ -1,0 +1,97 @@
+.slider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  gap: 0.83vw;
+  height: max-content;
+}
+.slider img{
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.sliderThumbnails {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 1vw;
+  gap: 0.5vw;
+}
+
+.thumbnail {
+  width: 5vw;
+  min-width: 5vw;
+  height: 5vw;
+  object-fit: cover;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.thumbnail.active {
+  border: 2px solid #003C3A;
+}
+
+.customLeftNav,
+.customRightNav {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.sliderMain {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+
+.sliderImage {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.markersBlock {
+  display: flex;
+  gap: 0.20vw;
+  align-items: center;
+  position: absolute;
+  top: 0.83vw;
+  left: 0.83vw;
+  width: calc(100% - 1.66vw);
+  color: var(--White, #FFFEFC);
+  font-variant-numeric: lining-nums proportional-nums;
+  font-family: Raleway;
+  font-size: 0.625vw;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 100%; /* 12px */
+  text-transform: uppercase;
+  z-index: 0;
+}
+
+.markersBlock div:not(:last-child) {
+  margin-bottom: 0.4vw;
+}
+
+.bestMarker {
+  padding: 0.625vw;
+  border-radius: 0.41vw;
+  color: var(--GreenLight, #003C3A);
+  background: var(--White, #FFFEFC);
+}
+
+.topMarker,
+.newMarker {
+  padding: 0.625vw;
+  border-radius: 0.41vw;
+  background: var(--GreenLight, #003C3A);
+}
+
+.saleMarker {
+  padding: 0.625vw;
+  border-radius: 0.41vw;
+  background: #D63D44;
+}

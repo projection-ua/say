@@ -1,0 +1,93 @@
+.sliderSection{
+    margin: 8.33vw 0;
+}
+
+
+.titleSectionSlider{
+    color: var(--Green-Black, #0C1618);
+    -webkit-text-stroke-width: 0.4px;
+    -webkit-text-stroke-color: var(--Green-Black, #0C1618);
+    font-family: "Playfair Display";
+    font-size: 2.6vw;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 100%; /* 60px */
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0;
+}
+.topSectionWrap{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2.91vw;
+}
+.titleWrap{
+    display: flex;
+    align-items: flex-start;
+    gap: 0.78vw;
+}
+.countProduct{
+    margin-top: 0.02vw;
+    color: var(--Green-Black, #0C1618);
+    leading-trim: both;
+    text-edge: cap;
+    font-variant-numeric: lining-nums proportional-nums;
+    font-family: Raleway;
+    font-size: 1.04vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 120%; /* 24px */
+    letter-spacing: -0.4px;
+    text-transform: uppercase;
+}
+
+.linkAllProducts{
+    color: var(--Green-Black, #0C1618);
+    font-family: Raleway;
+    font-size: 0.93vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 110%; /* 19.8px */
+    letter-spacing: 0.36px;
+    padding-bottom: 0.36vw;
+    position: relative;
+}
+.linkAllProducts:before{
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    background: var(--Green-Black, #0C1618);
+    height: 0.05vw;
+    transition-duration: 0.3s;
+}
+.linkAllProducts:hover:before{
+    width: 0px;
+}
+.arrow{
+    z-index: 99;
+    display: flex;
+    padding: 0.625vw 1.25vw;
+    align-items: center;
+    border-radius: 0.83vw;
+    border: 0.05vw solid rgba(12, 22, 24, 0.10);
+    background: #FFF;
+    backdrop-filter: blur(0.104vw);
+}
+.arrowPrev{
+    position: absolute;
+    left: -0.83vw;
+    top: 50%;
+    transform: translateY(-50%) translateX(-100%);
+}
+.arrowNext{
+    position: absolute;
+    right: -0.83vw;
+    top: 50%;
+    transform: translateY(-50%) translateX(100%);
+}
+.sliderWrap{
+    position: relative;
+}
