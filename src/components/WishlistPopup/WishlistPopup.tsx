@@ -9,19 +9,39 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
 import { removeFromWishlist } from '../../store/slices/wishlistSlice';
 import React from "react";
+import { useEffect, useState } from 'react';
 
 interface Props {
     isOpen: boolean;
     onClose: () => void;
 }
 
+export const useIsMobile = (breakpoint: number = 768) => {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkIsMobile = () => setIsMobile(window.innerWidth < breakpoint);
+
+        checkIsMobile(); // перевірка при завантаженні
+        window.addEventListener('resize', checkIsMobile);
+
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, [breakpoint]);
+
+    return isMobile;
+};
+
+
 export const WishlistPopup: React.FC<Props> = ({ isOpen, onClose }) => {
     const wishlist = useSelector((state: RootState) => state.wishlist.items);
     const dispatch = useDispatch();
 
+    const isMobile = useIsMobile(); // 👈 додай цей рядок
+
     const handleRemove = (id: number) => {
         dispatch(removeFromWishlist(id));
     };
+
 
     return (
         <div className={s.wrapWishlist}>
@@ -39,6 +59,29 @@ export const WishlistPopup: React.FC<Props> = ({ isOpen, onClose }) => {
 
                 {wishlist.length === 0 ? (
                     <p className={s.empty}>Ваш список обраного порожній</p>
+                ) : isMobile ? (
+                        <div className={s.mobileGrid}>
+                            {wishlist.map((product: ProductInfo) => (
+                                <div key={product.id} className={s.productCard}>
+                                    <button
+                                        className={s.removeBtn}
+                                        onClick={() => handleRemove(product.id)}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <path d="M1.51863 15.6603L8.00044 9.17851L14.4823 15.6603L15.6608 14.4818L9.17895 8L15.6608 1.51819L14.4823 0.339676L8.00044 6.82149L1.51863 0.339677L0.340119 1.51819L6.82193 8L0.340119 14.4818L1.51863 15.6603Z" fill="#003C3A"/>
+                                        </svg>
+                                    </button>
+                                    <Link to={`/product/${product.slug}`}>
+                                        <img src={product.images[0]?.src} alt={product.name} />
+                                        <p>{product.name}</p>
+                                        <div
+                                            className={s.priceWrapHtml}
+                                            dangerouslySetInnerHTML={{ __html: product.price_html }}
+                                        />
+                                    </Link>
+                                </div>
+                            ))}
+                        </div>
                 ) : (
                     <div className={s.sliderWrap}>
                         <Swiper

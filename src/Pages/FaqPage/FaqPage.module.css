@@ -79,3 +79,64 @@
     line-height: 130%; /* 23.4px */
     margin-top: 1.45vw;
 }
+
+
+@media (max-width: 1024px) {
+    .container {
+        max-width: 91.46vw;
+        margin: 0 auto;
+        margin-top: 2.13vw;
+    }
+
+    .heroBanner {
+        height: 54.4vw;
+        margin: 4.26vw;
+        border-radius: 2.13vw;
+    }
+
+    .categoryTitle {
+        font-size: 8.53vw;
+    }
+
+
+
+
+    .grid {
+        display: grid;
+        gap: 4.26vw;
+        grid-template-columns: repeat(1, minmax(10px, 1fr));
+        max-width: 91.46vw;
+        margin: 0 auto;
+        margin-top: 12.8vw;
+        margin-bottom: 21.33vw;
+    }
+
+    .card {
+        border-radius: 2.13vw;
+        padding: 4.26vw;
+    }
+
+    .question {
+        color: var(--Green-Black, #0C1618);
+        font-size: 4.8vw;
+    }
+
+    .arrow {
+        transform: rotate(180deg);
+        transition: transform 0.2s ease;
+        margin-left: 3vw;
+    }
+
+    .arrow.open {
+        transform: rotate(0);
+    }
+
+    .answer {
+        color: var(--Green-Black, #0C1618);
+        font-size: 4.26vw;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 130%; /* 23.4px */
+        margin-top: 4.26vw;
+    }
+}

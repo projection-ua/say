@@ -2,7 +2,6 @@
     background-color: #003c3a;
     color: #fff;
     padding: 5.20vw 0vw 3.125vw;
-    font-family: 'Inter', sans-serif;
 }
 
 .top {
@@ -186,9 +185,199 @@
     font-size: 14px;
     flex-wrap: wrap;
     gap: 12px;
+    .payment{
+        display: none;
+    }
 }
 
 .bottom a {
     color: #fff;
     text-decoration: underline;
+}
+
+@media (max-width: 1024px) {
+    .footer {
+        background-color: #003c3a;
+        color: #fff;
+        padding: 16vw 0vw;
+    }
+
+    .top {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 40px;
+        justify-content: space-between;
+        padding: 0 4.26vw;
+        padding-bottom: 10.66vw;
+    }
+
+
+
+    .logo {
+        margin-bottom: 10.66vw;
+        display: block;
+        height: 8.53vw;
+        svg{
+            height: 8.53vw;
+            width: 25.33vw;
+        }
+    }
+
+    .contactEmail, .contactPhone {
+        font-size: 6.4vw;
+        margin-bottom: 2.13vw;
+    }
+
+    .schedule {
+        font-size: 4.26vw;
+        opacity: 0.7;
+    }
+
+    .title {
+        text-transform: uppercase;
+        font-weight: 500;
+        opacity: 0.4;
+        margin-bottom: 5.33vw;
+        font-size: 5.33vw;
+    }
+
+    .socialList, .links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .iconSocial{
+        width: 11.2vw;
+        height: 11.2vw;
+        padding: 3.2vw;
+        border-radius: 3.2vw;
+        border: 1px solid rgba(255, 254, 252, 0.80);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .socialList li,
+    .links li {
+        margin-bottom: 4.26vw;
+    }
+    .socialList a{
+        gap: 4.26vw;
+        font-size: 4.26vw;
+    }
+    .links a{
+        font-size: 4.26vw;
+    }
+    .socialList a, .links a {
+        text-decoration: none;
+        color: #fff;
+        transition: opacity 0.2s ease;
+    }
+
+    .socialList a:hover,
+    .links a:hover {
+        opacity: 0.8;
+    }
+
+    .subscribeTitle {
+        color: #FFF;
+        font-family: "Playfair Display";
+        font-size: 6.4vw;
+        margin-bottom: 5.33vw;
+    }
+
+    .subscribeTitle em {
+        font-family: "Playfair Display";
+        font-style: italic;
+        font-weight: 600;
+    }
+
+    .inputFooter{
+        padding: 0.83vw 0;
+    }
+
+    .subscribeForm {
+        display: flex;
+        border-bottom: 2px solid rgba(255, 254, 252, 0.50);
+    }
+
+    .subscribeForm input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-variant-numeric: lining-nums proportional-nums;
+        font-size: 4.26vw;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        outline: none;
+        padding: 4.8vw 0;
+    }
+    .subscribeForm input::placeholder{
+        color: rgba(255, 254, 252, 0.50);
+    }
+
+    .subscribeForm button {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .middle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: none;
+        padding: 0vw 4.26vw;
+        margin-bottom: 6.4vw;
+        flex-wrap: wrap;
+        .payment{
+            display: none;
+        }
+    }
+
+    .privacy {
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .payment {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        gap: 1.8vw;
+        padding-top: 10.66vw;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        margin-top: 10.66vw;
+    }
+
+    .payment img {
+        max-height: 4.26vw;
+        max-width: 16vw;
+        object-fit: contain;
+        filter: brightness(1000%);
+    }
+
+    .bottom {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 4.26vw;
+        padding-top: 0vw;
+        border-top: none;
+        font-size: 3.73vw;
+        flex-wrap: wrap;
+        gap: 6.4vw;
+        .payment{
+            display: flex;
+        }
+    }
+
+    .bottom a {
+        color: #fff;
+        text-decoration: underline;
+    }
 }

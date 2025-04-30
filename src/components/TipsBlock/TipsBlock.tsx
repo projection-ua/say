@@ -1,7 +1,8 @@
 import s from './TipsBlock.module.css';
 import { TipsPopup } from '../TipsBlock/TipsPopup';
-import { useState } from 'react';
-
+import { useState, useEffect } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 
 
 const tips = [
@@ -110,33 +111,75 @@ const tips = [
         ]
     },
 ];
+const useIsMobile = () => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 1024);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return isMobile;
+};
 
 const TipsBlock = () => {
     const [activeTip, setActiveTip] = useState<null | typeof tips[0]>(null);
+    const isMobile = useIsMobile();
 
     return (
         <section className={s.tipsSection}>
             <h2 className={s.title}>Поради від SAY</h2>
-            <div className={s.grid}>
-                {tips.map((tip) => (
-                    <div key={tip.id} className={s.card}>
-                        <div className={s.imageWrap}>
-                            <img src={tip.image} alt={tip.title} className={s.image} />
-                            <img src={tip.icon} alt="" className={s.icon} />
+
+            {isMobile ? (
+                <Swiper
+                    spaceBetween={16}
+                    slidesPerView={1.5}
+                >
+                    {tips.map((tip) => (
+                        <SwiperSlide key={tip.id}>
+                            <div className={s.card}>
+                                <div className={s.imageWrap}>
+                                    <img src={tip.image} alt={tip.title} className={s.image} />
+                                    <img src={tip.icon} alt="" className={s.icon} />
+                                </div>
+                                <div className={s.wrapContentTip}>
+                                    <p className={s.category}>{tip.category}</p>
+                                    <h3 className={s.tipTitle}>{tip.title}</h3>
+                                    <button className={s.link} onClick={() => setActiveTip(tip)}>
+                                        <span className={s.spanLink}>Читати детальніше</span>
+                                        <svg className={s.iconLink} xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21" fill="none">
+                                            <path d="M5.83325 14.6668L14.1666 6.3335M14.1666 6.3335H5.83325M14.1666 6.3335V14.6668" stroke="#0C1618" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            ) : (
+                <div className={s.grid}>
+                    {tips.map((tip) => (
+                        <div key={tip.id} className={s.card}>
+                            <div className={s.imageWrap}>
+                                <img src={tip.image} alt={tip.title} className={s.image} />
+                                <img src={tip.icon} alt="" className={s.icon} />
+                            </div>
+                            <div className={s.wrapContentTip}>
+                                <p className={s.category}>{tip.category}</p>
+                                <h3 className={s.tipTitle}>{tip.title}</h3>
+                                <button className={s.link} onClick={() => setActiveTip(tip)}>
+                                    <span className={s.spanLink}>Читати детальніше</span>
+                                    <svg className={s.iconLink} xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21" fill="none">
+                                        <path d="M5.83325 14.6668L14.1666 6.3335M14.1666 6.3335H5.83325M14.1666 6.3335V14.6668" stroke="#0C1618" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                        <div className={s.wrapContentTip}>
-                            <p className={s.category}>{tip.category}</p>
-                            <h3 className={s.tipTitle}>{tip.title}</h3>
-                            <button className={s.link} onClick={() => setActiveTip(tip)}>
-                                <span className={s.spanLink}>Читати детальніше</span>
-                                <svg className={s.iconLink} xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21" fill="none">
-                                    <path d="M5.83325 14.6668L14.1666 6.3335M14.1666 6.3335H5.83325M14.1666 6.3335V14.6668" stroke="#0C1618" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
+
             {activeTip && (
                 <TipsPopup
                     isOpen={!!activeTip}

@@ -4,3 +4,9 @@
 .star{
     width: 1.3vw;
 }
+
+@media (max-width: 1024px) {
+    .star{
+        width: 5.33vw;
+    }
+}

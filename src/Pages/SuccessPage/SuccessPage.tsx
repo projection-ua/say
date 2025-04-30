@@ -108,7 +108,7 @@ export const OrderSucces: FC<SuccesProps> = ({ data }) => {
                     <p>
                         {data?.payment_method === "cod"
                             ? "Накладений платіж"
-                            : "Онлайн-оплата WayForPay"}
+                            : "Онлайн-оплата MonoPAY"}
                     </p>
                 </div>
 

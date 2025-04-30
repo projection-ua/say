@@ -7,7 +7,17 @@ import ProductItem from '../../components/ProductItem/ProductItem';
 import s from './CategoryPage.module.css';
 import CatalogFilters from '../../components/CatalogFilters/CatalogFilters';
 import Loader from '../../components/Loader/Loader';
-import {Breadcrumbs} from "../../components/Breadcrumbs/Breadcrumbs.tsx";
+import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs.tsx';
+
+const useIsMobile = () => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 1024);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return isMobile;
+};
 
 const CategoryPage = () => {
     const { slug } = useParams();
@@ -15,8 +25,12 @@ const CategoryPage = () => {
     const [loading, setLoading] = useState(true);
     const [category, setCategory] = useState<CategoryInfo | null>(null);
     const [subcategories, setSubcategories] = useState<CategoryInfo[]>([]);
-
     const [searchParams, setSearchParams] = useSearchParams();
+    const isMobile = useIsMobile();
+
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isSortOpen, setIsSortOpen] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(18);
 
     const [selectedSubcategory, setSelectedSubcategory] = useState(() => searchParams.get('subcat') || null);
     const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string[]>>(() => {
@@ -32,32 +46,7 @@ const CategoryPage = () => {
         min: parseFloat(searchParams.get('min') || '0'),
         max: parseFloat(searchParams.get('max') || '10000'),
     });
-
-    const applyFilters = () => {
-        const params: Record<string, string> = {};
-
-        if (selectedSubcategory) params.subcat = selectedSubcategory;
-
-        Object.entries(selectedAttributes).forEach(([attr, options]) => {
-            if (options.length > 0) {
-                params[`attr_${attr}`] = options.join(',');
-            }
-        });
-
-        params.min = String(priceRange.min);
-        params.max = String(priceRange.max);
-
-        setSearchParams(params);
-    };
-
-    const resetFilters = () => {
-        setSelectedSubcategory(null);
-        setSelectedAttributes({});
-        setPriceRange({ min: 0, max: 10000 });
-        setSearchParams({});
-    };
-
-    const [visibleCount, setVisibleCount] = useState(18);
+    const [sortOption, setSortOption] = useState(() => searchParams.get('sort') || 'default');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -65,10 +54,8 @@ const CategoryPage = () => {
             try {
                 const allProducts = await getProducts();
                 const categories = await getCategories();
-
                 const current = slug ? categories.find(cat => cat.slug === slug) || null : null;
                 setCategory(current);
-
                 const children = slug
                     ? categories.filter(cat => cat.parent === current?.id && cat.name.toLowerCase() !== 'без категорії')
                     : categories.filter(cat => cat.parent === 0 && cat.name.toLowerCase() !== 'без категорії');
@@ -99,7 +86,7 @@ const CategoryPage = () => {
         });
         return Object.entries(attributesMap).map(([name, options]) => ({
             name,
-            slug: name.toLowerCase().replace(/\s+/g, '-'), // ← генеруємо slug
+            slug: name.toLowerCase().replace(/\s+/g, '-'),
             options: Array.from(options),
         }));
     }, [products]);
@@ -126,12 +113,68 @@ const CategoryPage = () => {
         });
     }, [products, selectedSubcategory, selectedAttributes, priceRange]);
 
+    const sortedProducts = useMemo(() => {
+        let sorted = [...filteredProducts];
+        if (sortOption === 'bestsellers') {
+            sorted = sorted.filter(product => product.featured);
+        }
+        if (sortOption === 'new') {
+            sorted = sorted.sort((a, b) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime());
+        }
+        if (sortOption === 'sale') {
+            sorted = sorted.filter(product => parseFloat(product.sale_price) < parseFloat(product.regular_price));
+        }
+        if (sortOption === 'price_asc') {
+            sorted = sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        }
+        if (sortOption === 'price_desc') {
+            sorted = sorted.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        }
+        return sorted;
+    }, [filteredProducts, sortOption]);
+
     const visibleProducts = useMemo(() => {
-        return filteredProducts.slice(0, visibleCount);
-    }, [filteredProducts, visibleCount]);
+        return sortedProducts.slice(0, visibleCount);
+    }, [sortedProducts, visibleCount]);
 
     const handleLoadMore = () => {
         setVisibleCount(prev => prev + 18);
+    };
+
+    const applyFilters = () => {
+        const params: Record<string, string> = {};
+        if (selectedSubcategory) params.subcat = selectedSubcategory;
+        Object.entries(selectedAttributes).forEach(([attr, options]) => {
+            if (options.length > 0) params[`attr_${attr}`] = options.join(',');
+        });
+        params.min = String(priceRange.min);
+        params.max = String(priceRange.max);
+        if (sortOption !== 'default') {
+            params.sort = sortOption;
+        }
+
+        setSearchParams(params);
+        if (isMobile) setIsFilterOpen(false);
+    };
+
+    const resetFilters = () => {
+        setSelectedSubcategory(null);
+        setSelectedAttributes({});
+        setPriceRange({ min: 0, max: 10000 });
+        setSearchParams({});
+    };
+
+    const handleSortChange = (option: string) => {
+        setSortOption(option);
+        setIsSortOpen(false);
+
+        const params = new URLSearchParams(searchParams);
+        if (option === 'default') {
+            params.delete('sort');
+        } else {
+            params.set('sort', option);
+        }
+        setSearchParams(params);
     };
 
     return (
@@ -173,51 +216,115 @@ const CategoryPage = () => {
                 )}
 
                 <div className={s.contentWrapper}>
-                    <div className={s.filtersHeader}>
-                        <h3 className={s.titleFilter}>Фільтр</h3>
+                    <div className={s.filtersTop}>
+                        {isMobile && (
+                            <button className={s.filterButton} onClick={() => setIsFilterOpen(true)}>
+                                <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9.83333 15.625H13.1667V13.75H9.83333V15.625ZM4 4.375V6.25H19V4.375H4ZM6.5 10.9375H16.5V9.0625H6.5V10.9375Z" fill="black" />
+                                </svg>
+                                Фільтр
+                            </button>
+                        )}
+                        {!isMobile && (
+                            <div className={s.filtersHeader}>
+                                <h3 className={s.titleFilter}>Фільтр</h3>
+                            </div>
+                        )}
+
+                        <div className={`${s.sortWrapper} ${isSortOpen ? s.active : ''}`}>
+                            <button className={s.sortButton} onClick={() => setIsSortOpen(prev => !prev)}>
+                                Сортування
+                                <span className={s.arrow}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="9" viewBox="0 0 16 9" fill="none">
+                                      <path d="M2 2L8 8L14 2" stroke="#1A1A1A" stroke-width="2" stroke-linecap="square" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+
+                            {isSortOpen && (
+                                <div className={s.sortDropdown}>
+                                    <button onClick={() => handleSortChange('bestsellers')}>Бестселери</button>
+                                    <button onClick={() => handleSortChange('new')}>Новинки</button>
+                                    <button onClick={() => handleSortChange('sale')}>Акційні товари</button>
+                                    <button onClick={() => handleSortChange('price_desc')}>Ціна за зменшенням</button>
+                                    <button onClick={() => handleSortChange('price_asc')}>Ціна за зростанням</button>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className={s.productListWrapper}>
-                        <div className={s.sortingBar}>
-                            <CatalogFilters
-                                subcategories={subcategories}
-                                allAttributes={allAttributes}
-                                priceRange={priceRange}
-                                selectedSubcategory={selectedSubcategory}
-                                selectedAttributes={selectedAttributes}
-                                onChangeSubcategory={setSelectedSubcategory}
-                                onChangeAttributes={setSelectedAttributes}
-                                onChangePrice={setPriceRange}
-                            />
-                            <div className={s.buttons}>
-                                <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
-                                <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                        {!isMobile && (
+                            <div className={s.sortingBar}>
+                                <CatalogFilters
+                                    subcategories={subcategories}
+                                    allAttributes={allAttributes}
+                                    priceRange={priceRange}
+                                    selectedSubcategory={selectedSubcategory}
+                                    selectedAttributes={selectedAttributes}
+                                    onChangeSubcategory={setSelectedSubcategory}
+                                    onChangeAttributes={setSelectedAttributes}
+                                    onChangePrice={setPriceRange}
+                                />
+                                <div className={s.buttons}>
+                                    <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
+                                    <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className={s.productGrid}>
                             {loading ? (
                                 <Loader />
                             ) : visibleProducts.length ? (
-                                <>
-                                    {visibleProducts.map((product) => (
-                                        <ProductItem key={product.id} product={product} />
-                                    ))}
-                                    {visibleProducts.length < filteredProducts.length && (
-                                        <div className={s.loadMoreWrapper}>
-                                            <button className={s.loadMoreBtn} onClick={handleLoadMore}>
-                                                Завантажити ще
-                                            </button>
-                                        </div>
-                                    )}
-                                </>
+                                visibleProducts.map((product) => (
+                                    <ProductItem key={product.id} product={product} />
+                                ))
                             ) : (
                                 <p>Товари не знайдено.</p>
                             )}
                         </div>
+
+                        {!loading && visibleProducts.length < sortedProducts.length && (
+                            <div className={s.loadMoreWrapper}>
+                                <button className={s.loadMoreBtn} onClick={handleLoadMore}>
+                                    Завантажити ще
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {isMobile && isFilterOpen && (
+                <div className={s.popupOverlay}>
+                    <div className={s.popupContent}>
+                        <div className={s.popupHeader}>
+                            <h3>Фільтри</h3>
+                            <button className={s.closeButton} onClick={() => setIsFilterOpen(false)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M1.26935 15.955L8.00046 9.22384L14.7316 15.955L15.9554 14.7311L9.2243 8L15.9554 1.26889L14.7316 0.0450475L8.00046 6.77616L1.26935 0.0450488L0.0455065 1.26889L6.77662 8L0.0455065 14.7311L1.26935 15.955Z" fill="#1A1A1A"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <CatalogFilters
+                            subcategories={subcategories}
+                            allAttributes={allAttributes}
+                            priceRange={priceRange}
+                            selectedSubcategory={selectedSubcategory}
+                            selectedAttributes={selectedAttributes}
+                            onChangeSubcategory={setSelectedSubcategory}
+                            onChangeAttributes={setSelectedAttributes}
+                            onChangePrice={setPriceRange}
+                        />
+                        <div className={s.popupButtons}>
+                            <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
+                            <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

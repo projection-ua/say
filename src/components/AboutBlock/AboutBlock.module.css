@@ -98,3 +98,82 @@
     top: 6.66vw;
     left: 1.19vw;
 }
+
+
+@media (max-width: 1024px) {
+    .brandSection {
+        display: flex;
+        margin: 21.33vw 0;
+        flex-direction: column;
+        background: #003C3A;
+        padding: 6.4vw;
+    }
+
+    .imageWrap {
+        flex: 1;
+    }
+
+    .image {
+        width: 100%;
+        height: 82.13vw;
+        object-fit: cover;
+    }
+
+    .content {
+        width: 100%;
+        background-color: #003C3A;
+        color: white;
+        padding: 0vw;
+        border-radius: 0vw;
+        position: relative;
+        top: 0;
+        right: 0;
+        transform: translateY(0%);
+        margin-top: 8.53vw;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .label {
+        font-size: 4.8vw;
+    }
+
+    .title {
+        color: var(--White, #FFFEFC);
+        font-size: 7.46vw;
+        text-transform: uppercase;
+        margin-bottom: 8.53vw;
+        margin-top: 8.53vw;
+        width: 100%;
+    }
+
+    .description {
+        font-size: 4.26vw;
+    }
+
+    .button {
+        padding: 4.26vw 5.33vw;
+        border-radius: 2.13vw;
+        font-size: 3.73vw;
+        margin: 0 auto;
+        margin-top: 8.53vw;
+    }
+
+    .button:hover {
+        background-color: #f3f3f3;
+    }
+
+    .marker{
+        color: var(--White, #FFFEFC);
+        font-size: 75vw;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 72%; /* 699.894px */
+        letter-spacing: 0.625vw;
+        text-transform: uppercase;
+        position: absolute;
+        opacity: 0.05;
+        top: 2.66vw;
+        left: -8vw;
+    }
+}

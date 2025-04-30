@@ -56,3 +56,32 @@
     color: #fff;
     opacity: 0.5;
 }
+
+@media (max-width: 1024px) {
+    .breadcrumbs {
+        display: flex;
+        align-items: center;
+        color: var(--Green-Black, #0C1618);
+        font-size: 3.2vw;
+        gap: 2.13vw;
+        margin-top: 4.26vw;
+    }
+    .breadcrumbs.catalog{
+        position: absolute;
+        top: 4.26vw;
+        left: 4.26vw;
+        margin-top: 0px;
+        color: #fff;
+    }
+    .crumb {
+        display: flex;
+        align-items: center;
+        gap: 2.13vw;
+    }
+
+    .separator {
+        display: flex;
+        align-items: center;
+        width: 1.06vw;
+    }
+}

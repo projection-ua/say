@@ -11,7 +11,7 @@ import Select from 'react-select';
 import { NpLocation } from "../../types/npTypes";
 import { NovaPoshtaMapPopup } from "../../components/MapPopup/MapPopup";
 import { LoaderMini } from "../../components/LoaderMini/LoaderMini";
-
+import { StepNavigation } from '../../components/StepNavigation/StepNavigation';
 
 
 interface ShippingMethod {
@@ -179,6 +179,16 @@ const CheckoutPage: React.FC = () => {
     const [giftAmount, setGiftAmount] = useState<number | null>(null);
     const [giftError, setGiftError] = useState('');
     const [isCheckingGift, setIsCheckingGift] = useState(false);
+
+
+
+    const [step, setStep] = useState(1);
+    const isMobile = window.innerWidth < 1024; // або використовуй хук useIsMobile
+
+    const handleStepClick = (targetStep: number) => {
+        setStep(targetStep); // ❗️важливо: не +1
+    };
+
 
 
 
@@ -563,577 +573,983 @@ const CheckoutPage: React.FC = () => {
     };
 
     return (
-        <div className={s.container}>
-            {errorMessage && <div className={s.errorAlert}>{errorMessage}</div>}
-            <div className={s.checkoutPage}>
-                <form onSubmit={formik.handleSubmit} className={s.checkoutForm}>
-                    <div className={s.personalInfo}>
-                        <h2>Персональна інформація</h2>
-                        <div className={s.inputsWrap}>
-                            <div className={s.inputRow}>
-                                <div className={s.inputField}>
-                                    <input placeholder="Прізвище" {...formik.getFieldProps('lastName')} />
-                                    {formik.touched.lastName && formik.errors.lastName && (
-                                        <div className={s.errorText}>{formik.errors.lastName}</div>
-                                    )}
-                                </div>
-                                <div className={s.inputField}>
-                                    <input placeholder="Ім'я" {...formik.getFieldProps('firstName')} />
-                                    {formik.touched.firstName && formik.errors.firstName && (
-                                        <div className={s.errorText}>{formik.errors.firstName}</div>
-                                    )}
-                                </div>
-                            </div>
-                            <div className={s.inputRow}>
-                                <div className={s.inputField}>
-                                    <input placeholder="Телефон" {...formik.getFieldProps('phone')} />
-                                    {formik.touched.phone && formik.errors.phone && (
-                                        <div className={s.errorText}>{formik.errors.phone}</div>
-                                    )}
-                                </div>
-                                <div className={s.inputField}>
-                                    <input placeholder="E-mail" {...formik.getFieldProps('email')} />
-                                    {formik.touched.email && formik.errors.email && (
-                                        <div className={s.errorText}>{formik.errors.email}</div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <>
+            {isMobile && (
+                    <StepNavigation currentStep={step} onStepClick={handleStepClick} />
+            )}
+            <div className={s.container}>
+                {errorMessage && <div className={s.errorAlert}>{errorMessage}</div>}
+                <div className={s.checkoutPage}>
 
-                    <div className={s.shippingInfo}>
-                        <h2>Доставка</h2>
-
-                        {isLoadingCheckoutData ? (
-                            <div className={s.checkoutLoader}>
-                                <LoaderMini />
-                            </div>
-                        ) : (
-
+                    <form onSubmit={formik.handleSubmit} className={s.checkoutForm}>
+                        {isMobile && (
                             <>
+                                {step === 1 && (
+                                    <div className={s.personalInfo}>
+                                        <h2>Персональна інформація</h2>
+                                        <div className={s.inputsWrap}>
+                                            <div className={s.inputRow}>
+                                                <div className={s.inputField}>
+                                                    <input placeholder="Прізвище" {...formik.getFieldProps('lastName')} />
+                                                    {formik.touched.lastName && formik.errors.lastName && (
+                                                        <div className={s.errorText}>{formik.errors.lastName}</div>
+                                                    )}
+                                                </div>
+                                                <div className={s.inputField}>
+                                                    <input placeholder="Ім'я" {...formik.getFieldProps('firstName')} />
+                                                    {formik.touched.firstName && formik.errors.firstName && (
+                                                        <div className={s.errorText}>{formik.errors.firstName}</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className={s.inputRow}>
+                                                <div className={s.inputField}>
+                                                    <input placeholder="Телефон" {...formik.getFieldProps('phone')} />
+                                                    {formik.touched.phone && formik.errors.phone && (
+                                                        <div className={s.errorText}>{formik.errors.phone}</div>
+                                                    )}
+                                                </div>
+                                                <div className={s.inputField}>
+                                                    <input placeholder="E-mail" {...formik.getFieldProps('email')} />
+                                                    {formik.touched.email && formik.errors.email && (
+                                                        <div className={s.errorText}>{formik.errors.email}</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
-                                <div className={s.inputRow}>
-                                    <div className={s.inputField}>
-                                        <Select
-                                            placeholder="Оберіть спосіб"
-                                            options={shippingMethods.map(method => ({
-                                                value: method.id.toString(),
-                                                label: method.title,
-                                            }))}
-                                            value={
-                                                shippingMethods.find(method => method.id.toString() === formik.values.shippingMethod)
-                                                    ? {
-                                                        value: formik.values.shippingMethod,
-                                                        label: shippingMethods.find(method => method.id.toString() === formik.values.shippingMethod)?.title || '',
-                                                    }
-                                                    : null
-                                            }
-                                            onChange={(option) => formik.setFieldValue('shippingMethod', option?.value || '')}
-                                            isSearchable
-                                            classNamePrefix="custom-select"
-                                        />
-                                        {formik.touched.shippingMethod && formik.errors.shippingMethod && (
-                                            <div className={s.errorText}>{formik.errors.shippingMethod}</div>
+                                {step === 2 && (
+                                    <div className={s.shippingInfo}>
+                                        <h2>Доставка</h2>
+
+                                        {isLoadingCheckoutData ? (
+                                            <div className={s.checkoutLoader}>
+                                                <LoaderMini />
+                                            </div>
+                                        ) : (
+
+                                            <>
+
+                                                <div className={s.inputRow}>
+                                                    <div className={s.inputField}>
+                                                        <Select
+                                                            placeholder="Оберіть спосіб"
+                                                            options={shippingMethods.map(method => ({
+                                                                value: method.id.toString(),
+                                                                label: method.title,
+                                                            }))}
+                                                            value={
+                                                                shippingMethods.find(method => method.id.toString() === formik.values.shippingMethod)
+                                                                    ? {
+                                                                        value: formik.values.shippingMethod,
+                                                                        label: shippingMethods.find(method => method.id.toString() === formik.values.shippingMethod)?.title || '',
+                                                                    }
+                                                                    : null
+                                                            }
+                                                            onChange={(option) => formik.setFieldValue('shippingMethod', option?.value || '')}
+                                                            isSearchable
+                                                            classNamePrefix="custom-select"
+                                                        />
+                                                        {formik.touched.shippingMethod && formik.errors.shippingMethod && (
+                                                            <div className={s.errorText}>{formik.errors.shippingMethod}</div>
+                                                        )}
+                                                    </div>
+                                                    <div className={s.inputField}>
+                                                        <Select
+                                                            placeholder="Оберіть спосіб доставки"
+                                                            options={deliveryTypeOptions}
+                                                            value={deliveryTypeOptions.find(opt => opt.value === formik.values.deliveryType) || null}
+                                                            onChange={(option) => {
+                                                                const value = option?.value || '';
+                                                                formik.setFieldValue('deliveryType', value);
+                                                                setSelectedCity('');
+                                                                formik.setFieldValue('shippingCity', '');
+                                                                formik.setFieldValue('shippingStreet', '');
+                                                                formik.setFieldValue('warehouseId', '');
+                                                            }}
+                                                            isSearchable
+                                                            classNamePrefix="custom-select"
+                                                        />
+                                                    </div>
+                                                </div>
+
+
+                                                {formik.values.deliveryType === 'courier' && (
+                                                    <>
+
+                                                        <div className={s.inputRow}>
+                                                            <div className={s.inputField}>
+                                                                <Select
+                                                                    placeholder="Оберіть місто"
+                                                                    options={allCityOptions}
+                                                                    filterOption={filterCityOptions}
+                                                                    value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
+                                                                    onChange={(option) => {
+                                                                        const value = option?.value || '';
+                                                                        formik.setFieldValue('shippingCity', value);
+                                                                        setSelectedCity(value);
+                                                                        formik.setFieldValue('shippingStreet', '');
+                                                                        formik.setFieldValue('warehouseId', '');
+                                                                    }}
+                                                                    isSearchable
+                                                                    classNamePrefix="custom-select"
+                                                                />
+                                                                {formik.touched.shippingCity && formik.errors.shippingCity && (
+                                                                    <div className={s.errorText}>{formik.errors.shippingCity}</div>
+                                                                )}
+                                                            </div>
+
+                                                            {selectedCity && (
+                                                                <div className={s.inputField}>
+                                                                    <Select
+                                                                        placeholder="Оберіть вулицю"
+                                                                        options={getStreetOptions()}
+                                                                        value={
+                                                                            formik.values.shippingStreet
+                                                                                ? { value: formik.values.shippingStreet, label: formik.values.shippingStreet }
+                                                                                : null
+                                                                        }
+                                                                        onChange={(option) => formik.setFieldValue('shippingStreet', option?.value || '')}
+                                                                        isSearchable
+                                                                        classNamePrefix="custom-select"
+                                                                    />
+                                                                    {formik.touched.shippingStreet && formik.errors.shippingStreet && (
+                                                                        <div className={s.errorText}>{formik.errors.shippingStreet}</div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className={s.inputRow}>
+                                                            <div className={s.inputField}>
+                                                                <input placeholder="Будинок" {...formik.getFieldProps('shippingHouse')} />
+                                                                {formik.touched.shippingHouse && formik.errors.shippingHouse && (
+                                                                    <div className={s.errorText}>{formik.errors.shippingHouse}</div>
+                                                                )}
+                                                            </div>
+                                                            <div className={s.inputField}>
+                                                                <input placeholder="Підʼїзд" {...formik.getFieldProps('shippingEntrance')} />
+                                                            </div>
+                                                            <div className={s.inputField}>
+                                                                <input placeholder="Квартира" {...formik.getFieldProps('shippingApartment')} />
+                                                            </div>
+                                                        </div>
+                                                        <textarea placeholder="Залишити коментар курʼєру" {...formik.getFieldProps('shippingComment')} />
+                                                    </>
+                                                )}
+
+                                                {formik.values.deliveryType === 'warehouse' && (
+                                                    <>
+                                                        <div className={s.inputRow}>
+                                                            <div className={s.inputField}>
+                                                                <Select
+                                                                    placeholder="Оберіть місто"
+                                                                    options={allCityOptions}
+                                                                    filterOption={filterCityOptions}
+                                                                    value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
+                                                                    onChange={(option) => {
+                                                                        const value = option?.value || '';
+                                                                        formik.setFieldValue('shippingCity', value);
+                                                                        setSelectedCity(value);
+                                                                        formik.setFieldValue('shippingStreet', '');
+                                                                        formik.setFieldValue('warehouseId', '');
+                                                                    }}
+                                                                    isSearchable
+                                                                    classNamePrefix="custom-select"
+                                                                />
+                                                                {formik.touched.shippingCity && formik.errors.shippingCity && (
+                                                                    <div className={s.errorText}>{formik.errors.shippingCity}</div>
+                                                                )}
+                                                            </div>
+
+                                                            {selectedCity && (
+
+                                                                <>
+
+                                                                    <div className={s.inputField}>
+                                                                        <Select
+                                                                            placeholder="Оберіть відділення"
+                                                                            options={getFilteredWarehouses(formik.values.deliveryType)}
+                                                                            value={
+                                                                                formik.values.warehouseId
+                                                                                    ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
+                                                                                    : null
+                                                                            }
+                                                                            onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
+                                                                            isSearchable
+                                                                            classNamePrefix="custom-select"
+                                                                        />
+                                                                        {formik.touched.warehouseId && formik.errors.warehouseId && (
+                                                                            <div className={s.errorText}>{formik.errors.warehouseId}</div>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <button
+                                                                        className={s.mapBtn}
+                                                                        onClick={() => setShowMapPopup(true)}
+                                                                    >
+                                                                        Обрати на мапі
+                                                                    </button>
+
+                                                                    {showMapPopup && (
+                                                                        <NovaPoshtaMapPopup
+                                                                            cities={npLocations}
+                                                                            selectedCity={selectedCity}
+                                                                            deliveryType={formik.values.deliveryType}
+                                                                            onClose={() => setShowMapPopup(false)}
+                                                                            onSelect={(warehouse) => {
+                                                                                formik.setFieldValue('warehouseId', warehouse);
+                                                                                setShowMapPopup(false);
+                                                                            }}
+                                                                            onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
+                                                                        />
+                                                                    )}
+                                                                </>
+
+
+
+                                                            )}
+
+
+
+                                                        </div>
+                                                    </>
+
+                                                )}
+
+                                                {formik.values.deliveryType === 'postomat' && (
+                                                    <>
+                                                        <div className={s.inputRow}>
+                                                            <div className={s.inputField}>
+                                                                <Select
+                                                                    placeholder="Оберіть місто"
+                                                                    options={allCityOptions}
+                                                                    filterOption={filterCityOptions}
+                                                                    value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
+                                                                    onChange={(option) => {
+                                                                        const value = option?.value || '';
+                                                                        formik.setFieldValue('shippingCity', value);
+                                                                        setSelectedCity(value);
+                                                                        formik.setFieldValue('shippingStreet', '');
+                                                                        formik.setFieldValue('warehouseId', '');
+                                                                    }}
+                                                                    isSearchable
+                                                                    classNamePrefix="custom-select"
+                                                                />
+                                                                {formik.touched.shippingCity && formik.errors.shippingCity && (
+                                                                    <div className={s.errorText}>{formik.errors.shippingCity}</div>
+                                                                )}
+                                                            </div>
+
+                                                            {selectedCity && (
+
+                                                                <>
+                                                                    <div className={s.inputField}>
+                                                                        <Select
+                                                                            placeholder="Оберіть поштомат"
+                                                                            options={getFilteredWarehouses(formik.values.deliveryType)}
+                                                                            value={
+                                                                                formik.values.warehouseId
+                                                                                    ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
+                                                                                    : null
+                                                                            }
+                                                                            onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
+                                                                            isSearchable
+                                                                            classNamePrefix="custom-select"
+                                                                        />
+
+                                                                        {formik.touched.warehouseId && formik.errors.warehouseId && (
+                                                                            <div className={s.errorText}>{formik.errors.warehouseId}</div>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <button
+                                                                        className={s.mapBtn}
+                                                                        onClick={() => setShowMapPopup(true)}
+                                                                    >
+                                                                        Обрати на мапі
+                                                                    </button>
+
+                                                                    {showMapPopup && (
+                                                                        <NovaPoshtaMapPopup
+                                                                            cities={npLocations}
+                                                                            selectedCity={selectedCity}
+                                                                            deliveryType={formik.values.deliveryType}
+                                                                            onClose={() => setShowMapPopup(false)}
+                                                                            onSelect={(warehouse) => {
+                                                                                formik.setFieldValue('warehouseId', warehouse);
+                                                                                setShowMapPopup(false);
+                                                                            }}
+                                                                            onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
+                                                                        />
+                                                                    )}
+
+                                                                </>
+
+
+                                                            )}
+
+
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </>
                                         )}
                                     </div>
-                                    <div className={s.inputField}>
-                                        <Select
-                                            placeholder="Оберіть спосіб доставки"
-                                            options={deliveryTypeOptions}
-                                            value={deliveryTypeOptions.find(opt => opt.value === formik.values.deliveryType) || null}
-                                            onChange={(option) => {
-                                                const value = option?.value || '';
-                                                formik.setFieldValue('deliveryType', value);
-                                                setSelectedCity('');
-                                                formik.setFieldValue('shippingCity', '');
-                                                formik.setFieldValue('shippingStreet', '');
-                                                formik.setFieldValue('warehouseId', '');
-                                            }}
-                                            isSearchable
-                                            classNamePrefix="custom-select"
-                                        />
+                                )}
+
+                                {step === 3 && (
+                                    <div className={s.paymentInfo}>
+                                        <h2>Оплата</h2>
+
+                                        {isLoadingCheckoutData ? (
+                                            <div className={s.checkoutLoader}>
+                                                <LoaderMini />
+                                            </div>
+                                        ) : (
+                                            <>
+
+                                                <div className={s.paymentRow}>
+                                                    {paymentMethods.map((method) => (
+                                                        <label key={method.id}>
+                                                            <input
+                                                                type="radio"
+                                                                name="paymentMethod"
+                                                                value={method.id}
+                                                                checked={formik.values.paymentMethod === method.id}
+                                                                onChange={formik.handleChange}
+                                                            />
+                                                            <div
+                                                                className={s.titlePayment}
+                                                                dangerouslySetInnerHTML={{ __html: method.title }}
+                                                            />
+                                                        </label>
+                                                    ))}
+                                                </div>
+
+
+                                                {formik.touched.paymentMethod && formik.errors.paymentMethod && (
+                                                    <div className={s.errorText}>{formik.errors.paymentMethod}</div>
+                                                )}
+                                            </>
+                                        )}
+
+
+                                        <div className={s.desctiptionOrder}>
+                                            <h2>Коментар</h2>
+                                            <textarea placeholder="Залишити коментар до замовлення" {...formik.getFieldProps('comment')} />
+
+                                            <button type="submit" className={s.submitButton} disabled={isSubmitting}>
+                                                {isSubmitting ? 'Надсилаємо...' : 'ПІДТВЕРДИТИ ЗАМОВЛЕННЯ'}
+                                            </button>
+                                        </div>
+
+                                        <div className={s.checkboxRow}>
+                                            <label>
+                                                <input type="checkbox" {...formik.getFieldProps('newsletter')} />
+                                                Підписатися на e-mail розсилку
+                                            </label>
+                                            <label>
+                                                <input type="checkbox" {...formik.getFieldProps('acceptTerms')} />
+                                                Приймаю умови оферти, політики конфіденційності та заяви про обробку персональних даних
+                                            </label>
+                                            {formik.touched.acceptTerms && formik.errors.acceptTerms && (
+                                                <div className={s.errorText}>{formik.errors.acceptTerms}</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className={s.stepButtons}>
+                                    {step > 1 && (
+                                        <button type="button" className={s.buttonPrev} onClick={() => setStep((prev) => prev - 1)}>
+                                            Назад
+                                        </button>
+                                    )}
+                                    {step < 3 && (
+                                        <button type="button" className={s.buttonNext} onClick={() => setStep((prev) => prev + 1)}>
+                                            Далі
+                                        </button>
+                                    )}
+                                </div>
+                            </>
+                        )}
+
+                        {!isMobile && (
+                            <div>
+                                <div className={s.personalInfo}>
+                                    <h2>Персональна інформація</h2>
+                                    <div className={s.inputsWrap}>
+                                        <div className={s.inputRow}>
+                                            <div className={s.inputField}>
+                                                <input placeholder="Прізвище" {...formik.getFieldProps('lastName')} />
+                                                {formik.touched.lastName && formik.errors.lastName && (
+                                                    <div className={s.errorText}>{formik.errors.lastName}</div>
+                                                )}
+                                            </div>
+                                            <div className={s.inputField}>
+                                                <input placeholder="Ім'я" {...formik.getFieldProps('firstName')} />
+                                                {formik.touched.firstName && formik.errors.firstName && (
+                                                    <div className={s.errorText}>{formik.errors.firstName}</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className={s.inputRow}>
+                                            <div className={s.inputField}>
+                                                <input placeholder="Телефон" {...formik.getFieldProps('phone')} />
+                                                {formik.touched.phone && formik.errors.phone && (
+                                                    <div className={s.errorText}>{formik.errors.phone}</div>
+                                                )}
+                                            </div>
+                                            <div className={s.inputField}>
+                                                <input placeholder="E-mail" {...formik.getFieldProps('email')} />
+                                                {formik.touched.email && formik.errors.email && (
+                                                    <div className={s.errorText}>{formik.errors.email}</div>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
+                                <div className={s.shippingInfo}>
+                                    <h2>Доставка</h2>
 
-                                {formik.values.deliveryType === 'courier' && (
-                                    <>
+                                    {isLoadingCheckoutData ? (
+                                        <div className={s.checkoutLoader}>
+                                            <LoaderMini />
+                                        </div>
+                                    ) : (
 
-                                        <div className={s.inputRow}>
-                                            <div className={s.inputField}>
-                                                <Select
-                                                    placeholder="Оберіть місто"
-                                                    options={allCityOptions}
-                                                    filterOption={filterCityOptions}
-                                                    value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
-                                                    onChange={(option) => {
-                                                        const value = option?.value || '';
-                                                        formik.setFieldValue('shippingCity', value);
-                                                        setSelectedCity(value);
-                                                        formik.setFieldValue('shippingStreet', '');
-                                                        formik.setFieldValue('warehouseId', '');
-                                                    }}
-                                                    isSearchable
-                                                    classNamePrefix="custom-select"
-                                                />
-                                                {formik.touched.shippingCity && formik.errors.shippingCity && (
-                                                    <div className={s.errorText}>{formik.errors.shippingCity}</div>
-                                                )}
-                                            </div>
+                                        <>
 
-                                            {selectedCity && (
+                                            <div className={s.inputRow}>
                                                 <div className={s.inputField}>
                                                     <Select
-                                                        placeholder="Оберіть вулицю"
-                                                        options={getStreetOptions()}
+                                                        placeholder="Оберіть спосіб"
+                                                        options={shippingMethods.map(method => ({
+                                                            value: method.id.toString(),
+                                                            label: method.title,
+                                                        }))}
                                                         value={
-                                                            formik.values.shippingStreet
-                                                                ? { value: formik.values.shippingStreet, label: formik.values.shippingStreet }
+                                                            shippingMethods.find(method => method.id.toString() === formik.values.shippingMethod)
+                                                                ? {
+                                                                    value: formik.values.shippingMethod,
+                                                                    label: shippingMethods.find(method => method.id.toString() === formik.values.shippingMethod)?.title || '',
+                                                                }
                                                                 : null
                                                         }
-                                                        onChange={(option) => formik.setFieldValue('shippingStreet', option?.value || '')}
+                                                        onChange={(option) => formik.setFieldValue('shippingMethod', option?.value || '')}
                                                         isSearchable
                                                         classNamePrefix="custom-select"
                                                     />
-                                                    {formik.touched.shippingStreet && formik.errors.shippingStreet && (
-                                                        <div className={s.errorText}>{formik.errors.shippingStreet}</div>
+                                                    {formik.touched.shippingMethod && formik.errors.shippingMethod && (
+                                                        <div className={s.errorText}>{formik.errors.shippingMethod}</div>
                                                     )}
                                                 </div>
-                                            )}
-                                        </div>
-
-                                        <div className={s.inputRow}>
-                                            <div className={s.inputField}>
-                                                <input placeholder="Будинок" {...formik.getFieldProps('shippingHouse')} />
-                                                {formik.touched.shippingHouse && formik.errors.shippingHouse && (
-                                                    <div className={s.errorText}>{formik.errors.shippingHouse}</div>
-                                                )}
-                                            </div>
-                                            <div className={s.inputField}>
-                                                <input placeholder="Підʼїзд" {...formik.getFieldProps('shippingEntrance')} />
-                                            </div>
-                                            <div className={s.inputField}>
-                                                <input placeholder="Квартира" {...formik.getFieldProps('shippingApartment')} />
-                                            </div>
-                                        </div>
-                                        <textarea placeholder="Залишити коментар курʼєру" {...formik.getFieldProps('shippingComment')} />
-                                    </>
-                                )}
-
-                                {formik.values.deliveryType === 'warehouse' && (
-                                    <>
-                                        <div className={s.inputRow}>
-                                            <div className={s.inputField}>
-                                                <Select
-                                                    placeholder="Оберіть місто"
-                                                    options={allCityOptions}
-                                                    filterOption={filterCityOptions}
-                                                    value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
-                                                    onChange={(option) => {
-                                                        const value = option?.value || '';
-                                                        formik.setFieldValue('shippingCity', value);
-                                                        setSelectedCity(value);
-                                                        formik.setFieldValue('shippingStreet', '');
-                                                        formik.setFieldValue('warehouseId', '');
-                                                    }}
-                                                    isSearchable
-                                                    classNamePrefix="custom-select"
-                                                />
-                                                {formik.touched.shippingCity && formik.errors.shippingCity && (
-                                                    <div className={s.errorText}>{formik.errors.shippingCity}</div>
-                                                )}
+                                                <div className={s.inputField}>
+                                                    <Select
+                                                        placeholder="Оберіть спосіб доставки"
+                                                        options={deliveryTypeOptions}
+                                                        value={deliveryTypeOptions.find(opt => opt.value === formik.values.deliveryType) || null}
+                                                        onChange={(option) => {
+                                                            const value = option?.value || '';
+                                                            formik.setFieldValue('deliveryType', value);
+                                                            setSelectedCity('');
+                                                            formik.setFieldValue('shippingCity', '');
+                                                            formik.setFieldValue('shippingStreet', '');
+                                                            formik.setFieldValue('warehouseId', '');
+                                                        }}
+                                                        isSearchable
+                                                        classNamePrefix="custom-select"
+                                                    />
+                                                </div>
                                             </div>
 
-                                            {selectedCity && (
 
+                                            {formik.values.deliveryType === 'courier' && (
                                                 <>
 
-                                                    <div className={s.inputField}>
-                                                        <Select
-                                                            placeholder="Оберіть відділення"
-                                                            options={getFilteredWarehouses(formik.values.deliveryType)}
-                                                            value={
-                                                                formik.values.warehouseId
-                                                                    ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
-                                                                    : null
-                                                            }
-                                                            onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
-                                                            isSearchable
-                                                            classNamePrefix="custom-select"
-                                                        />
-                                                        {formik.touched.warehouseId && formik.errors.warehouseId && (
-                                                            <div className={s.errorText}>{formik.errors.warehouseId}</div>
+                                                    <div className={s.inputRow}>
+                                                        <div className={s.inputField}>
+                                                            <Select
+                                                                placeholder="Оберіть місто"
+                                                                options={allCityOptions}
+                                                                filterOption={filterCityOptions}
+                                                                value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
+                                                                onChange={(option) => {
+                                                                    const value = option?.value || '';
+                                                                    formik.setFieldValue('shippingCity', value);
+                                                                    setSelectedCity(value);
+                                                                    formik.setFieldValue('shippingStreet', '');
+                                                                    formik.setFieldValue('warehouseId', '');
+                                                                }}
+                                                                isSearchable
+                                                                classNamePrefix="custom-select"
+                                                            />
+                                                            {formik.touched.shippingCity && formik.errors.shippingCity && (
+                                                                <div className={s.errorText}>{formik.errors.shippingCity}</div>
+                                                            )}
+                                                        </div>
+
+                                                        {selectedCity && (
+                                                            <div className={s.inputField}>
+                                                                <Select
+                                                                    placeholder="Оберіть вулицю"
+                                                                    options={getStreetOptions()}
+                                                                    value={
+                                                                        formik.values.shippingStreet
+                                                                            ? { value: formik.values.shippingStreet, label: formik.values.shippingStreet }
+                                                                            : null
+                                                                    }
+                                                                    onChange={(option) => formik.setFieldValue('shippingStreet', option?.value || '')}
+                                                                    isSearchable
+                                                                    classNamePrefix="custom-select"
+                                                                />
+                                                                {formik.touched.shippingStreet && formik.errors.shippingStreet && (
+                                                                    <div className={s.errorText}>{formik.errors.shippingStreet}</div>
+                                                                )}
+                                                            </div>
                                                         )}
                                                     </div>
 
-                                                    <button
-                                                        className={s.mapBtn}
-                                                        onClick={() => setShowMapPopup(true)}
-                                                    >
-                                                        Обрати на мапі
-                                                    </button>
-
-                                                    {showMapPopup && (
-                                                        <NovaPoshtaMapPopup
-                                                            cities={npLocations}
-                                                            selectedCity={selectedCity}
-                                                            deliveryType={formik.values.deliveryType}
-                                                            onClose={() => setShowMapPopup(false)}
-                                                            onSelect={(warehouse) => {
-                                                                formik.setFieldValue('warehouseId', warehouse);
-                                                                setShowMapPopup(false);
-                                                            }}
-                                                            onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
-                                                        />
-                                                    )}
-                                                </>
-
-
-
-                                            )}
-
-
-
-                                        </div>
-                                    </>
-
-                                )}
-
-                                {formik.values.deliveryType === 'postomat' && (
-                                    <>
-                                        <div className={s.inputRow}>
-                                            <div className={s.inputField}>
-                                                <Select
-                                                    placeholder="Оберіть місто"
-                                                    options={allCityOptions}
-                                                    filterOption={filterCityOptions}
-                                                    value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
-                                                    onChange={(option) => {
-                                                        const value = option?.value || '';
-                                                        formik.setFieldValue('shippingCity', value);
-                                                        setSelectedCity(value);
-                                                        formik.setFieldValue('shippingStreet', '');
-                                                        formik.setFieldValue('warehouseId', '');
-                                                    }}
-                                                    isSearchable
-                                                    classNamePrefix="custom-select"
-                                                />
-                                                {formik.touched.shippingCity && formik.errors.shippingCity && (
-                                                    <div className={s.errorText}>{formik.errors.shippingCity}</div>
-                                                )}
-                                            </div>
-
-                                            {selectedCity && (
-
-                                                <>
-                                                    <div className={s.inputField}>
-                                                        <Select
-                                                            placeholder="Оберіть поштомат"
-                                                            options={getFilteredWarehouses(formik.values.deliveryType)}
-                                                            value={
-                                                                formik.values.warehouseId
-                                                                    ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
-                                                                    : null
-                                                            }
-                                                            onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
-                                                            isSearchable
-                                                            classNamePrefix="custom-select"
-                                                        />
-
-                                                        {formik.touched.warehouseId && formik.errors.warehouseId && (
-                                                            <div className={s.errorText}>{formik.errors.warehouseId}</div>
-                                                        )}
+                                                    <div className={s.inputRow}>
+                                                        <div className={s.inputField}>
+                                                            <input placeholder="Будинок" {...formik.getFieldProps('shippingHouse')} />
+                                                            {formik.touched.shippingHouse && formik.errors.shippingHouse && (
+                                                                <div className={s.errorText}>{formik.errors.shippingHouse}</div>
+                                                            )}
+                                                        </div>
+                                                        <div className={s.inputField}>
+                                                            <input placeholder="Підʼїзд" {...formik.getFieldProps('shippingEntrance')} />
+                                                        </div>
+                                                        <div className={s.inputField}>
+                                                            <input placeholder="Квартира" {...formik.getFieldProps('shippingApartment')} />
+                                                        </div>
                                                     </div>
-
-                                                    <button
-                                                        className={s.mapBtn}
-                                                        onClick={() => setShowMapPopup(true)}
-                                                    >
-                                                        Обрати на мапі
-                                                    </button>
-
-                                                    {showMapPopup && (
-                                                        <NovaPoshtaMapPopup
-                                                            cities={npLocations}
-                                                            selectedCity={selectedCity}
-                                                            deliveryType={formik.values.deliveryType}
-                                                            onClose={() => setShowMapPopup(false)}
-                                                            onSelect={(warehouse) => {
-                                                                formik.setFieldValue('warehouseId', warehouse);
-                                                                setShowMapPopup(false);
-                                                            }}
-                                                            onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
-                                                        />
-                                                    )}
-
+                                                    <textarea placeholder="Залишити коментар курʼєру" {...formik.getFieldProps('shippingComment')} />
                                                 </>
+                                            )}
 
+                                            {formik.values.deliveryType === 'warehouse' && (
+                                                <>
+                                                    <div className={s.inputRow}>
+                                                        <div className={s.inputField}>
+                                                            <Select
+                                                                placeholder="Оберіть місто"
+                                                                options={allCityOptions}
+                                                                filterOption={filterCityOptions}
+                                                                value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
+                                                                onChange={(option) => {
+                                                                    const value = option?.value || '';
+                                                                    formik.setFieldValue('shippingCity', value);
+                                                                    setSelectedCity(value);
+                                                                    formik.setFieldValue('shippingStreet', '');
+                                                                    formik.setFieldValue('warehouseId', '');
+                                                                }}
+                                                                isSearchable
+                                                                classNamePrefix="custom-select"
+                                                            />
+                                                            {formik.touched.shippingCity && formik.errors.shippingCity && (
+                                                                <div className={s.errorText}>{formik.errors.shippingCity}</div>
+                                                            )}
+                                                        </div>
+
+                                                        {selectedCity && (
+
+                                                            <>
+
+                                                                <div className={s.inputField}>
+                                                                    <Select
+                                                                        placeholder="Оберіть відділення"
+                                                                        options={getFilteredWarehouses(formik.values.deliveryType)}
+                                                                        value={
+                                                                            formik.values.warehouseId
+                                                                                ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
+                                                                                : null
+                                                                        }
+                                                                        onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
+                                                                        isSearchable
+                                                                        classNamePrefix="custom-select"
+                                                                    />
+                                                                    {formik.touched.warehouseId && formik.errors.warehouseId && (
+                                                                        <div className={s.errorText}>{formik.errors.warehouseId}</div>
+                                                                    )}
+                                                                </div>
+
+                                                                <button
+                                                                    className={s.mapBtn}
+                                                                    onClick={() => setShowMapPopup(true)}
+                                                                >
+                                                                    Обрати на мапі
+                                                                </button>
+
+                                                                {showMapPopup && (
+                                                                    <NovaPoshtaMapPopup
+                                                                        cities={npLocations}
+                                                                        selectedCity={selectedCity}
+                                                                        deliveryType={formik.values.deliveryType}
+                                                                        onClose={() => setShowMapPopup(false)}
+                                                                        onSelect={(warehouse) => {
+                                                                            formik.setFieldValue('warehouseId', warehouse);
+                                                                            setShowMapPopup(false);
+                                                                        }}
+                                                                        onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
+                                                                    />
+                                                                )}
+                                                            </>
+
+
+
+                                                        )}
+
+
+
+                                                    </div>
+                                                </>
 
                                             )}
 
+                                            {formik.values.deliveryType === 'postomat' && (
+                                                <>
+                                                    <div className={s.inputRow}>
+                                                        <div className={s.inputField}>
+                                                            <Select
+                                                                placeholder="Оберіть місто"
+                                                                options={allCityOptions}
+                                                                filterOption={filterCityOptions}
+                                                                value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
+                                                                onChange={(option) => {
+                                                                    const value = option?.value || '';
+                                                                    formik.setFieldValue('shippingCity', value);
+                                                                    setSelectedCity(value);
+                                                                    formik.setFieldValue('shippingStreet', '');
+                                                                    formik.setFieldValue('warehouseId', '');
+                                                                }}
+                                                                isSearchable
+                                                                classNamePrefix="custom-select"
+                                                            />
+                                                            {formik.touched.shippingCity && formik.errors.shippingCity && (
+                                                                <div className={s.errorText}>{formik.errors.shippingCity}</div>
+                                                            )}
+                                                        </div>
 
-                                        </div>
-                                    </>
-                                )}
-                            </>
-                        )}
-                    </div>
+                                                        {selectedCity && (
 
-                    <div className={s.paymentInfo}>
-                        <h2>Оплата</h2>
+                                                            <>
+                                                                <div className={s.inputField}>
+                                                                    <Select
+                                                                        placeholder="Оберіть поштомат"
+                                                                        options={getFilteredWarehouses(formik.values.deliveryType)}
+                                                                        value={
+                                                                            formik.values.warehouseId
+                                                                                ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
+                                                                                : null
+                                                                        }
+                                                                        onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
+                                                                        isSearchable
+                                                                        classNamePrefix="custom-select"
+                                                                    />
 
-                        {isLoadingCheckoutData ? (
-                            <div className={s.checkoutLoader}>
-                                <LoaderMini />
-                            </div>
-                        ) : (
-                            <>
+                                                                    {formik.touched.warehouseId && formik.errors.warehouseId && (
+                                                                        <div className={s.errorText}>{formik.errors.warehouseId}</div>
+                                                                    )}
+                                                                </div>
 
-                                <div className={s.paymentRow}>
-                                    {paymentMethods.map((method) => (
-                                        <label key={method.id}>
-                                            <input
-                                                type="radio"
-                                                name="paymentMethod"
-                                                value={method.id}
-                                                checked={formik.values.paymentMethod === method.id}
-                                                onChange={formik.handleChange}
-                                            />
-                                            <div
-                                                className={s.titlePayment}
-                                                dangerouslySetInnerHTML={{ __html: method.title }}
-                                            />
-                                        </label>
-                                    ))}
+                                                                <button
+                                                                    className={s.mapBtn}
+                                                                    onClick={() => setShowMapPopup(true)}
+                                                                >
+                                                                    Обрати на мапі
+                                                                </button>
+
+                                                                {showMapPopup && (
+                                                                    <NovaPoshtaMapPopup
+                                                                        cities={npLocations}
+                                                                        selectedCity={selectedCity}
+                                                                        deliveryType={formik.values.deliveryType}
+                                                                        onClose={() => setShowMapPopup(false)}
+                                                                        onSelect={(warehouse) => {
+                                                                            formik.setFieldValue('warehouseId', warehouse);
+                                                                            setShowMapPopup(false);
+                                                                        }}
+                                                                        onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
+                                                                    />
+                                                                )}
+
+                                                            </>
+
+
+                                                        )}
+
+
+                                                    </div>
+                                                </>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
 
+                                <div className={s.paymentInfo}>
+                                    <h2>Оплата</h2>
 
-                                {formik.touched.paymentMethod && formik.errors.paymentMethod && (
-                                    <div className={s.errorText}>{formik.errors.paymentMethod}</div>
-                                )}
-                            </>
-                        )}
-                    </div>
+                                    {isLoadingCheckoutData ? (
+                                        <div className={s.checkoutLoader}>
+                                            <LoaderMini />
+                                        </div>
+                                    ) : (
+                                        <>
 
-                    <div className={s.desctiptionOrder}>
-                        <h2>Коментар</h2>
-                        <textarea placeholder="Залишити коментар до замовлення" {...formik.getFieldProps('comment')} />
+                                            <div className={s.paymentRow}>
+                                                {paymentMethods.map((method) => (
+                                                    <label key={method.id}>
+                                                        <input
+                                                            type="radio"
+                                                            name="paymentMethod"
+                                                            value={method.id}
+                                                            checked={formik.values.paymentMethod === method.id}
+                                                            onChange={formik.handleChange}
+                                                        />
+                                                        <div
+                                                            className={s.titlePayment}
+                                                            dangerouslySetInnerHTML={{ __html: method.title }}
+                                                        />
+                                                    </label>
+                                                ))}
+                                            </div>
 
-                        <button type="submit" className={s.submitButton} disabled={isSubmitting}>
-                            {isSubmitting ? 'Надсилаємо...' : 'ПІДТВЕРДИТИ ЗАМОВЛЕННЯ'}
-                        </button>
-                    </div>
 
-                    <div className={s.checkboxRow}>
-                        <label>
-                            <input type="checkbox" {...formik.getFieldProps('newsletter')} />
-                            Підписатися на e-mail розсилку
-                        </label>
-                        <label>
-                            <input type="checkbox" {...formik.getFieldProps('acceptTerms')} />
-                            Приймаю умови оферти, політики конфіденційності та заяви про обробку персональних даних
-                        </label>
-                        {formik.touched.acceptTerms && formik.errors.acceptTerms && (
-                            <div className={s.errorText}>{formik.errors.acceptTerms}</div>
-                        )}
-                    </div>
-                </form>
+                                            {formik.touched.paymentMethod && formik.errors.paymentMethod && (
+                                                <div className={s.errorText}>{formik.errors.paymentMethod}</div>
+                                            )}
+                                        </>
+                                    )}
 
-                <div className={s.checkoutSummary}>
-                    <div className={s.headingSummaryWrap}>
-                        <h3 className={s.headingSummary}>ВСЬОГО ДО ОПЛАТИ</h3>
-                        <p className={s.priceMain}>{items.reduce((sum, item) => sum + (item.sale_price || item.price) * item.quantity, 0).toLocaleString()} ₴</p>
-                    </div>
-                    <div className={s.cartItems}>
-                        {items.map((item) => (
-                            <div key={`${item.id}-${item.variationId || 'base'}`} className={s.cartItem}>
-                                <div className={s.cartItemLeft}><img src={item.image} alt={item.name} /></div>
-                                <div className={s.cartItemCenter}>
-                                    <div className={s.skuPriceWrap}>
-                                        <p className={s.skuText}><span className={s.skuItem}>Код товару:</span> {item.sku}</p>
-                                        <button className={s.delateItem} type="button" onClick={() => dispatch(removeFromCart(item))}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                                <path d="M1.51863 15.6603L8.00044 9.17851L14.4823 15.6603L15.6608 14.4818L9.17895 8L15.6608 1.51819L14.4823 0.339676L8.00044 6.82149L1.51863 0.339677L0.340119 1.51819L6.82193 8L0.340119 14.4818L1.51863 15.6603Z" fill="#003C3A"/>
-                                            </svg>
+
+                                    <div className={s.desctiptionOrder}>
+                                        <h2>Коментар</h2>
+                                        <textarea placeholder="Залишити коментар до замовлення" {...formik.getFieldProps('comment')} />
+
+                                        <button type="submit" className={s.submitButton} disabled={isSubmitting}>
+                                            {isSubmitting ? 'Надсилаємо...' : 'ПІДТВЕРДИТИ ЗАМОВЛЕННЯ'}
                                         </button>
                                     </div>
-                                    <p className={s.titleProductItem}>{item.name}</p>
-                                    <div className={s.priceQuanityWrap}>
-                                        <div className={s.quantityControls}>
-                                            <button
-                                                onClick={() => dispatch(updateQuantity({
-                                                    id: item.id,
-                                                    variationId: item.variationId,
-                                                    quantity: item.quantity - 1,
-                                                }))}
-                                                disabled={item.quantity <= 1}
-                                            >
-                                                <svg width="14" height="2" viewBox="0 0 14 2" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M13.05 0.5V0.45H13L7.5 0.45H6.5L1 0.45H0.95V0.5V1.5V1.55H1L6.5 1.55L7.5 1.55L13 1.55H13.05V1.5V0.5Z" fill="#003C3A" stroke="#003C3A" stroke-width="0.1"/>
-                                                </svg>
-                                            </button>
-                                            <span>{item.quantity}</span>
-                                            <button
-                                                onClick={() => dispatch(updateQuantity({
-                                                    id: item.id,
-                                                    variationId: item.variationId,
-                                                    quantity: item.quantity + 1,
-                                                }))}
-                                            >
-                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M13.05 6.5V6.45H13L7.55 6.45V1V0.95H7.5H6.5H6.45V1V6.45H1H0.95V6.5V7.5V7.55H1H6.45L6.45 13V13.05H6.5H7.5H7.55V13L7.55 7.55L13 7.55H13.05V7.5V6.5Z" fill="#003C3A" stroke="#003C3A" stroke-width="0.1"/>
+
+                                    <div className={s.checkboxRow}>
+                                        <label>
+                                            <input type="checkbox" {...formik.getFieldProps('newsletter')} />
+                                            Підписатися на e-mail розсилку
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" {...formik.getFieldProps('acceptTerms')} />
+                                            Приймаю умови оферти, політики конфіденційності та заяви про обробку персональних даних
+                                        </label>
+                                        {formik.touched.acceptTerms && formik.errors.acceptTerms && (
+                                            <div className={s.errorText}>{formik.errors.acceptTerms}</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </form>
+
+                    <div className={s.checkoutSummary}>
+                        <div className={s.headingSummaryWrap}>
+                            <h3 className={s.headingSummary}>ВСЬОГО ДО ОПЛАТИ</h3>
+                            <p className={s.priceMain}>{items.reduce((sum, item) => sum + (item.sale_price || item.price) * item.quantity, 0).toLocaleString()} ₴</p>
+                        </div>
+                        <div className={s.cartItems}>
+                            {items.map((item) => (
+                                <div key={`${item.id}-${item.variationId || 'base'}`} className={s.cartItem}>
+                                    <div className={s.cartItemLeft}><img src={item.image} alt={item.name} /></div>
+                                    <div className={s.cartItemCenter}>
+                                        <div className={s.skuPriceWrap}>
+                                            <p className={s.skuText}><span className={s.skuItem}>Код товару:</span> {item.sku}</p>
+                                            <button className={s.delateItem} type="button" onClick={() => dispatch(removeFromCart(item))}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                    <path d="M1.51863 15.6603L8.00044 9.17851L14.4823 15.6603L15.6608 14.4818L9.17895 8L15.6608 1.51819L14.4823 0.339676L8.00044 6.82149L1.51863 0.339677L0.340119 1.51819L6.82193 8L0.340119 14.4818L1.51863 15.6603Z" fill="#003C3A"/>
                                                 </svg>
                                             </button>
                                         </div>
-                                        <div className={s.priceBlock}>
-                                            {item.sale_price && item.sale_price < item.regular_price ? (
-                                                <>
-                                                    <p className={s.salePrice}>
+                                        <p className={s.titleProductItem}>{item.name}</p>
+                                        <div className={s.priceQuanityWrap}>
+                                            <div className={s.quantityControls}>
+                                                <button
+                                                    onClick={() => dispatch(updateQuantity({
+                                                        id: item.id,
+                                                        variationId: item.variationId,
+                                                        quantity: item.quantity - 1,
+                                                    }))}
+                                                    disabled={item.quantity <= 1}
+                                                >
+                                                    <svg width="14" height="2" viewBox="0 0 14 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M13.05 0.5V0.45H13L7.5 0.45H6.5L1 0.45H0.95V0.5V1.5V1.55H1L6.5 1.55L7.5 1.55L13 1.55H13.05V1.5V0.5Z" fill="#003C3A" stroke="#003C3A" stroke-width="0.1"/>
+                                                    </svg>
+                                                </button>
+                                                <span>{item.quantity}</span>
+                                                <button
+                                                    onClick={() => dispatch(updateQuantity({
+                                                        id: item.id,
+                                                        variationId: item.variationId,
+                                                        quantity: item.quantity + 1,
+                                                    }))}
+                                                >
+                                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M13.05 6.5V6.45H13L7.55 6.45V1V0.95H7.5H6.5H6.45V1V6.45H1H0.95V6.5V7.5V7.55H1H6.45L6.45 13V13.05H6.5H7.5H7.55V13L7.55 7.55L13 7.55H13.05V7.5V6.5Z" fill="#003C3A" stroke="#003C3A" stroke-width="0.1"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div className={s.priceBlock}>
+                                                {item.sale_price && item.sale_price < item.regular_price ? (
+                                                    <>
+                                                        <p className={s.salePrice}>
+                                                            {(item.price * item.quantity).toLocaleString()} ₴
+                                                        </p>
+                                                        <p className={s.oldPrice}>
+                                                            {(item.regular_price * item.quantity).toLocaleString()} ₴
+                                                        </p>
+                                                    </>
+                                                ) : (
+                                                    <p className={s.priceItem}>
                                                         {(item.price * item.quantity).toLocaleString()} ₴
                                                     </p>
-                                                    <p className={s.oldPrice}>
-                                                        {(item.regular_price * item.quantity).toLocaleString()} ₴
-                                                    </p>
-                                                </>
-                                            ) : (
-                                                <p className={s.priceItem}>
-                                                    {(item.price * item.quantity).toLocaleString()} ₴
-                                                </p>
-                                            )}
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
 
 
 
-                    <div className={`${s.wrapCoupon} ${isCouponOpen ? s.active : ''}`}>
-                        <button className={s.accordionToggle} onClick={() => setCouponOpen(!isCouponOpen)}>
-                            Додати промокод
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                                <g clipPath="url(#clip0_2368_15893)">
-                                    <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_2368_15893">
-                                        <rect width="22" height="22" fill="white"/>
-                                    </clipPath>
-                                </defs>
-                            </svg>
-                        </button>
+                        <div className={`${s.wrapCoupon} ${isCouponOpen ? s.active : ''}`}>
+                            <button className={s.accordionToggle} onClick={() => setCouponOpen(!isCouponOpen)}>
+                                Додати промокод
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                    <g clipPath="url(#clip0_2368_15893)">
+                                        <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
+                                    </g>
+                                    <defs>
+                                        <clipPath id="clip0_2368_15893">
+                                            <rect width="22" height="22" fill="white"/>
+                                        </clipPath>
+                                    </defs>
+                                </svg>
+                            </button>
 
-                        {isCouponOpen && (
-                            <div className={s.couponWrapper}>
-                                <div className={s.inputWrap}>
-                                    <input
-                                        type="text"
-                                        {...formik.getFieldProps('coupon')}
-                                        placeholder="Ваш купон"
-                                        className={s.couponInput}
-                                    />
-                                    <button type="button" className={s.checkBtn} onClick={checkCoupon} disabled={isCheckingCoupon}>
-                                        {isCheckingCoupon ? 'Перевірка...' : 'Перевірити'}
-                                    </button>
-                                </div>
-                                {couponValid && couponAmount && (
-                                    <p className={s.couponSuccess}>Знижка: -{couponAmount} ₴</p>
-                                )}
-                                {couponError && (
-                                    <p className={s.couponError}>{couponError}</p>
-                                )}
-                            </div>
-                        )}
-                    </div>
-
-
-
-                    <div className={`${s.wrapCoupon} ${isGiftOpen ? s.active : ''}`}>
-                        <button className={s.accordionToggle} onClick={() => setGiftOpen(!isGiftOpen)}>
-                            Подарунковий сертифікат
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                                <g clipPath="url(#clip0_2368_15893)">
-                                    <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_2368_15893">
-                                        <rect width="22" height="22" fill="white"/>
-                                    </clipPath>
-                                </defs>
-                            </svg>
-                        </button>
-
-                        {isGiftOpen && (
-                            <div className={s.couponWrap}>
-                                <div className={s.inputWrap}>
-                                    <input
-                                        type="text"
-                                        {...formik.getFieldProps('giftCard')}
-                                        placeholder="Ваш сертифікат"
-                                        className={s.couponInput}
-                                    />
-
-                                    <button
-                                        type="button"
-                                        className={s.checkBtn}
-                                        onClick={checkGiftCard} // 👈 твоя функція перевірки
-                                        disabled={isCheckingGift}
-                                    >
-                                        {isCheckingGift ? 'Перевірка...' : 'Перевірити сертифікат'}
-                                    </button>
-                                </div>
-
-                                {giftValid && (
-                                    <div className={s.validText}>
-                                        ✅ Сертифікат дійсний. Знижка: {giftAmount?.toLocaleString()} ₴
+                            {isCouponOpen && (
+                                <div className={s.couponWrapper}>
+                                    <div className={s.inputWrap}>
+                                        <input
+                                            type="text"
+                                            {...formik.getFieldProps('coupon')}
+                                            placeholder="Ваш купон"
+                                            className={s.couponInput}
+                                        />
+                                        <button type="button" className={s.checkBtn} onClick={checkCoupon} disabled={isCheckingCoupon}>
+                                            {isCheckingCoupon ? 'Перевірка...' : 'Перевірити'}
+                                        </button>
                                     </div>
-                                )}
+                                    {couponValid && couponAmount && (
+                                        <p className={s.couponSuccess}>Знижка: -{couponAmount} ₴</p>
+                                    )}
+                                    {couponError && (
+                                        <p className={s.couponError}>{couponError}</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
-                                {giftValid === false && giftError && (
-                                    <div className={s.errorText}>❌ {giftError}</div>
-                                )}
+
+
+                        <div className={`${s.wrapCoupon} ${isGiftOpen ? s.active : ''}`}>
+                            <button className={s.accordionToggle} onClick={() => setGiftOpen(!isGiftOpen)}>
+                                Подарунковий сертифікат
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                    <g clipPath="url(#clip0_2368_15893)">
+                                        <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
+                                    </g>
+                                    <defs>
+                                        <clipPath id="clip0_2368_15893">
+                                            <rect width="22" height="22" fill="white"/>
+                                        </clipPath>
+                                    </defs>
+                                </svg>
+                            </button>
+
+                            {isGiftOpen && (
+                                <div className={s.couponWrap}>
+                                    <div className={s.inputWrap}>
+                                        <input
+                                            type="text"
+                                            {...formik.getFieldProps('giftCard')}
+                                            placeholder="Ваш сертифікат"
+                                            className={s.couponInput}
+                                        />
+
+                                        <button
+                                            type="button"
+                                            className={s.checkBtn}
+                                            onClick={checkGiftCard} // 👈 твоя функція перевірки
+                                            disabled={isCheckingGift}
+                                        >
+                                            {isCheckingGift ? 'Перевірка...' : 'Перевірити сертифікат'}
+                                        </button>
+                                    </div>
+
+                                    {giftValid && (
+                                        <div className={s.validText}>
+                                            ✅ Сертифікат дійсний. Знижка: {giftAmount?.toLocaleString()} ₴
+                                        </div>
+                                    )}
+
+                                    {giftValid === false && giftError && (
+                                        <div className={s.errorText}>❌ {giftError}</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+
+
+                        <div className={s.checkoutSummaryBlock}>
+                            <div className={s.summaryLine}>
+                                <span>Сума замовлення</span>
+                                <span className={s.spanBlack}>{subtotal.toLocaleString()} ₴</span>
                             </div>
-                        )}
+
+                            <div className={s.summaryLine}>
+                                <span>Сума знижки промокода</span>
+                                <span className={s.spanGray}>{appliedCouponDiscount > 0 ? `-${appliedCouponDiscount.toLocaleString()} ₴` : '0 ₴'}</span>
+                            </div>
+
+                            <div className={s.summaryLine}>
+                                <span>Подарунковий сертифікат</span>
+                                <span className={s.spanGray}>{appliedGiftCard > 0 ? `-${appliedGiftCard.toLocaleString()} ₴` : '0 ₴'}</span>
+                            </div>
+
+                            <div className={s.summaryLine}>
+                                <span>Сума знижки</span>
+                                <span className={s.spanGray}>{discountProducts > 0 ? `${discountProducts.toLocaleString()} ₴` : '0 ₴'}</span>
+                            </div>
+
+                            <div className={s.summaryLine}>
+                                <span>Вартість доставки</span>
+                                <span className={s.spanBlack}>{shippingCost > 0 ? `${shippingCost.toLocaleString()} ₴` : 'За тарифами "Нової Пошти"'}</span>
+                            </div>
+
+                            <div className={s.checkoutTotal}>
+                                <h3 className={s.headingSummary}>РАЗОМ</h3>
+                                <p className={s.priceMain}>{finalTotal.toLocaleString()} ₴</p>
+                            </div>
+                        </div>
+
                     </div>
-
-
-
-                    <div className={s.checkoutSummaryBlock}>
-                        <div className={s.summaryLine}>
-                            <span>Сума замовлення</span>
-                            <span className={s.spanBlack}>{subtotal.toLocaleString()} ₴</span>
-                        </div>
-
-                        <div className={s.summaryLine}>
-                            <span>Сума знижки промокода</span>
-                            <span className={s.spanGray}>{appliedCouponDiscount > 0 ? `-${appliedCouponDiscount.toLocaleString()} ₴` : '0 ₴'}</span>
-                        </div>
-
-                        <div className={s.summaryLine}>
-                            <span>Подарунковий сертифікат</span>
-                            <span className={s.spanGray}>{appliedGiftCard > 0 ? `-${appliedGiftCard.toLocaleString()} ₴` : '0 ₴'}</span>
-                        </div>
-
-                        <div className={s.summaryLine}>
-                            <span>Сума знижки</span>
-                            <span className={s.spanGray}>{discountProducts > 0 ? `${discountProducts.toLocaleString()} ₴` : '0 ₴'}</span>
-                        </div>
-
-                        <div className={s.summaryLine}>
-                            <span>Вартість доставки</span>
-                            <span className={s.spanBlack}>{shippingCost > 0 ? `${shippingCost.toLocaleString()} ₴` : 'За тарифами "Нової Пошти"'}</span>
-                        </div>
-
-                        <div className={s.checkoutTotal}>
-                            <h3 className={s.headingSummary}>РАЗОМ</h3>
-                            <p className={s.priceMain}>{finalTotal.toLocaleString()} ₴</p>
-                        </div>
-                    </div>
-
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

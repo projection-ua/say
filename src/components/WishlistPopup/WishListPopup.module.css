@@ -184,3 +184,166 @@
     top: 50%;
     transform: translateY(-50%) translateX(100%);
 }
+
+
+
+
+@media (max-width: 1024px) {
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 9998;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -40%);
+        width: 100vw;
+        max-height: 100vh;
+        height: 100vh;
+        overflow: auto;
+        max-width: 100vw;
+        background: white;
+        border-radius: 0vw;
+        padding: 4.26vw;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.3s ease;
+        z-index: 9999;
+    }
+
+    .popup.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(-50%, -50%);
+    }
+
+    .wrapHeader{
+        margin-bottom: 8.53vw;
+    }
+    .title {
+        font-size: 6.93vw;
+        gap: 2.66vw;
+    }
+
+    .countWishlist{
+        font-size: 4.26vw;
+    }
+
+    .subtitle {
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 40px;
+    }
+    .mobileGrid{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(10px, 1fr));
+        gap: 4vw;
+    }
+
+    .closeBtn {
+        position: relative;
+        top: 0vw;
+        right: 0vw;
+        border-radius: 2.14vw;
+        background: #F2F2F2;
+        width: 12.26vw;
+        height: 12.26vw;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .closeBtn svg{
+        width: 5.33vw;
+    }
+
+    .sliderWrap {
+        position: relative;
+    }
+
+    .productCard {
+        position: relative;
+    }
+
+    .productCard img {
+        max-width: 100%;
+        aspect-ratio: 1;
+    }
+
+    .productCard p {
+        font-size: 3.73vw;
+        margin-bottom: 2.5vw;
+        margin-top: 3.2vw;
+    }
+
+    .priceWrapHtml{
+        font-variant-numeric: lining-nums proportional-nums;
+        font-size: 4.26vw;
+        gap: 2.13vw;
+        color: var(--Green-Black, #0C1618);
+    }
+    .priceWrapHtml ins, .priceWrapHtml ins bdi{
+        color: #D63D44 !important;
+    }
+    .priceWrapHtml bdi{
+        color: var(--Green-Black, #0C1618);
+    }
+    .priceWrapHtml del bdi, .priceWrapHtml del{
+        color: #A7A9AA;
+    }
+    .priceWrapHtml ins{
+        order: 1;
+        text-decoration: none !important;
+    }
+    .priceWrapHtml del{
+        order: 2;
+    }
+
+    .removeBtn {
+        position: absolute;
+        top: 2.13vw;
+        right: 2.13vw;
+        background: #FFFEFC;
+        border-radius: 2.13vw;
+        width: 9.06vw;
+        height: 9.06vw;
+    }
+    .navBtn{
+        z-index: 99;
+        display: flex;
+        padding: 0.625vw 1.25vw;
+        align-items: center;
+        border-radius: 0.83vw;
+        border: 0.05vw solid rgba(12, 22, 24, 0.10);
+        background: #FFF;
+        backdrop-filter: blur(0.104vw);
+    }
+    .prevBtn{
+        position: absolute;
+        left: -0.83vw;
+        top: 50%;
+        transform: translateY(-50%) translateX(-100%);
+    }
+    .nextBtn{
+        position: absolute;
+        right: -0.83vw;
+        top: 50%;
+        transform: translateY(-50%) translateX(100%);
+    }
+}

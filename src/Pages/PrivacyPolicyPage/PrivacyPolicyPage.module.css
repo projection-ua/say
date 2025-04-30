@@ -27,7 +27,6 @@
     text-align: center;
 }
 .pageTitle {
-
     font-weight: 700;
     font-size: 32px;
     text-align: center;
@@ -90,7 +89,92 @@ details{
 }
 
 .item {
-    font-size: 15px;
-    color: #2f2f2f;
-    line-height: 1.5;
+    color: var(--Green-Black, #0C1618);
+    font-variant-numeric: lining-nums proportional-nums;
+    font-family: Raleway;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%; /* 20.8px */
+}
+
+
+
+@media (max-width: 1024px) {
+    .container {
+        max-width: 91.46vw;
+        margin: 0 auto;
+        margin-top: 2.13vw;
+    }
+    .policyPage {
+        padding: 0vw;
+        max-width: 91.46vw;
+        margin: 0 auto;
+        margin-top: 12.8vw;
+        margin-bottom: 21.33vw;
+    }
+
+    .heroBanner {
+        height: 54.4vw;
+        margin: 4.26vw;
+        border-radius: 2.13vw;
+    }
+
+    .categoryTitle {
+        font-size: 8.53vw;
+    }
+
+
+    .columns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4.26vw;
+        margin: 0 auto;
+        margin-top: 4.16vw;
+    }
+    details{
+        width: 100%;
+    }
+    .descMain{
+        color: var(--Green-Black, #0C1618);
+        font-family: Raleway;
+        font-size: 4.26vw;
+        margin-bottom: 4.26vw;
+    }
+    .policyBlock {
+        display: flex;
+        padding: 4.26vw;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        border-radius: 2vw;
+        background: #FBFBFB;
+        width: 100%;
+        height: max-content;
+    }
+
+    .policyTitle {
+        color: var(--Green-Black, #0C1618);
+        font-size: 4.8vw;
+        svg{
+            transform: rotate(180deg);
+        }
+    }
+
+    .list {
+        margin-top: 8.53vw;
+        display: flex;
+        flex-direction: column;
+        gap: 4.26vw;
+    }
+
+    .item {
+        color: var(--Green-Black, #0C1618);
+        font-variant-numeric: lining-nums proportional-nums;
+        font-family: Raleway;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 130%; /* 20.8px */
+    }
 }

@@ -110,6 +110,7 @@
     gap: 0.20vw;
     text-transform: uppercase;
     text-wrap: nowrap;
+    font-size: 0.83vw;
 }
 
 .hasSubmenu {
@@ -221,4 +222,329 @@
     color: #1b7a78;
     font-size: 0.7rem;
     margin-left: 0.3rem;
+}
+@media (max-width: 1024px) {
+    .container{
+        width: 91.46vw;
+        margin: 0 auto;
+    }
+
+
+    .header {
+        padding-top: 4.26vw;
+        padding-bottom: 4.26vw;
+    }
+
+    .topBar {
+        margin-bottom: 0vw;
+        width: 100%;
+    }
+
+    .left {
+        display: flex;
+        align-items: center;
+        gap: 1.66vw;
+    }
+
+    .searchInput {
+        border: none;
+        border-bottom: 1px solid #ccc;
+        padding: 0.3rem;
+        outline: none;
+        color: #888;
+        font-size: 0.9rem;
+    }
+
+    .phone {
+        display: none;
+    }
+
+    .right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 1.66vw;
+    }
+
+    .lang {
+        font-weight: bold;
+    }
+
+    .iconBlock {
+        padding: 3.2vw;
+    }
+    .wrapTextIcon{
+        display: none;
+    }
+
+    .icon {
+        width: 5.33vw;
+        height: 5.33vw;
+    }
+
+    .navBar {
+        display: none;
+    }
+
+    .menu {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 6.4vw;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-weight: 600;
+        color: #222;
+        width: 100%;
+    }
+    .menu li a{
+        color: #222;
+        padding: 0.83vw 1.25vw;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.20vw;
+        text-transform: none;
+        text-wrap: nowrap;
+        font-size: 0.83vw;
+        font-weight: 600;
+    }
+
+    .hasSubmenu {
+        position: relative;
+    }
+    .mobileSubmenu{
+        padding-left: 3.2vw;
+        padding-top: 4.8vw;
+        font-weight: 500;
+        display: flex;
+        flex-direction: column;
+        gap: 3.2vw;
+    }
+    .arrowOpen{
+        transform: rotate(180deg);
+    }
+
+    .contactEmail, .contactPhone {
+        font-size: 4.26vw;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-bottom: 2.13vw;
+        color: #0C1618;
+    }
+    .col{
+        display: flex;
+        flex-direction: column;
+        gap: 4.26vw;
+        padding-top: 10.66vw;
+        margin-top: 10.66vw;
+        border-top: 1px solid rgba(180, 186, 182, 0.70);
+    }
+
+    .overlay {
+        display: none;
+    }
+
+    .menuMobileClick{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 11.73vw;
+        height: 11.73vw;
+        border-radius: 1.6vw;
+        background: var(--GreenLight, #003C3A);
+        margin-right: 2.13vw;
+    }
+    .searchClick{
+        width: 11.73vw;
+        height: 11.73vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .submenu {
+        position: relative;
+        top: 0;
+        left: 0vw;
+        list-style: none;
+        display: flex;
+        z-index: 1000;
+        transition-duration: 0.3s;
+        opacity: 0;
+        transform: translateY(0%);
+        pointer-events: none;
+    }
+    .contentSubMenu{
+        border-radius: 0.83vw;
+        background: #FFF;
+        padding: 1.66vw;
+        display: flex;
+        align-items: flex-start;
+        gap: 1.66vw;
+        margin-top: 1.2vw;
+    }
+    .parentRow{
+        display: flex;
+        align-items: center;
+        gap: 3.2vw;
+    }
+    .submenuToggle{
+        padding: 0;
+    }
+
+    .hasSubmenu:hover .submenu {
+        display: flex;
+        opacity: 1;
+        transform: translateY(0%);
+        pointer-events: auto;
+    }
+    .itemsSubMeny{
+        display: flex;
+        flex-direction: column;
+        gap: 1.06vw;
+        min-width: 14.58vw;
+        a{
+            padding: 0 !important;
+            color: #282828;
+            font-size: 0.83vw;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 130%; /* 20.8px */
+            text-transform: none !important;
+        }
+    }
+    .newsBaner{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.31vw;
+        width: 14.58vw;
+        height: 14.58vw;
+        object-fit: cover;
+        padding: 0 !important;
+        img{
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        span{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FFF;
+            -webkit-text-stroke-width: 0.2px;
+            -webkit-text-stroke-color: #FFF;
+            font-family: "Playfair Display";
+            font-size: 1.25vw;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 120%; /* 28.8px */
+            letter-spacing: 0.72px;
+            text-transform: none;
+        }
+    }
+
+    .logo, .logo svg {
+        height: 8.53vw;
+        margin: 0 auto;
+    }
+
+    .new {
+        color: #1b7a78;
+        font-size: 0.7rem;
+        margin-left: 0.3rem;
+    }
+
+
+
+
+
+
+
+    .mobileNavOverlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        overflow: hidden;
+    }
+
+    .mobileNavContent {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        background-color: #fff;
+        padding: 4.26vw;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .mobileNavBackdrop {
+        flex: 1;
+    }
+
+    .mobileMenu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .mobileMenu li a {
+        text-decoration: none;
+        font-size: 4.8vw;
+        font-weight: 600;
+        color: #0C1618;
+        transition: color 0.2s ease;
+        padding: 0;
+    }
+    .mobileSubmenu li a {
+        font-weight: 500;
+    }
+
+    .topBarMenu{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h3{
+            color: var(--Green-Black, #0C1618);
+            -webkit-text-stroke-width: 0.2px;
+            -webkit-text-stroke-color: #000;
+            font-family: "Playfair Display";
+            font-size: 6.4vw;
+            font-style: normal;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+    }
+
+    .mobileMenu li a:hover {
+        color: #DA3A3A;
+    }
+
+    .closeButton {
+        border-radius: 7px;
+        background: #F2F2F2;
+        display: flex;
+        width: 12.26vw;
+        height: 12.26vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        aspect-ratio: 1/1;
+    }
+
 }

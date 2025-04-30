@@ -1,5 +1,5 @@
 .tipsSection {
-    padding: 60px 0;
+    padding: 8.33vw 0;
 }
 
 .title {
@@ -201,4 +201,175 @@
     line-height: 125%; /* 50px */
     letter-spacing: 0.8px;
     text-transform: uppercase;
+}
+
+
+@media (max-width: 1024px) {
+    .tipsSection {
+        padding: 21.33vw 0;
+    }
+
+    .title {
+        font-size: 8.53vw;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 120%; /* 60px */
+        letter-spacing: 0.05vw;
+        text-transform: uppercase;
+        margin-bottom: 10.66vw;
+    }
+
+    .card {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .imageWrap {
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1.25vw;
+    }
+
+    .image {
+        width: 100%;
+        height: 64vw;
+        display: block;
+    }
+
+    .icon {
+        position: absolute;
+        top: 2.13vw;
+        padding: 4.26vw;
+        left: 2.13vw;
+        background-color: #003c3a;
+        width: 13.8vw;
+        height: 13.8vw;
+        border-radius: 3.2vw;
+        background: var(--GreenLight, #003C3A);
+    }
+
+    .category {
+        color: var(--GreenLight, #003C3A);
+        font-family: Raleway;
+        font-size: 3.73vw;
+        margin-bottom: 3.2vw;
+    }
+
+    .wrapContentTip{
+        padding: 0vw;
+        margin-top: 3.2vw;
+    }
+    .tipTitle {
+        color: #1A1A1A;
+        font-family: Raleway;
+        font-size: 4.26vw;
+        margin-bottom: 3.2vw;
+    }
+
+    .link{
+        display: flex;
+        align-items: center;
+        padding: 0;
+        gap: 2.13vw;
+    }
+    .spanLink {
+        font-size: 4.26vw;
+        gap: 2.13vw;
+        padding-bottom: 1.6vw;
+    }
+    .iconLink{
+        width: 5.33vw;
+        height: 5.33vw;
+    }
+
+    .link:hover {
+        opacity: 0.75;
+    }
+
+
+
+
+
+
+
+    .overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.3s ease;
+    }
+
+    .overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .popup {
+        position: fixed;
+        top: 0%; left: 0%;
+        transform: translate(0%);
+        background: #fff;
+        border-radius: 0vw;
+        padding: 8.53vw 4.26vw;
+        max-width: 100vw;
+        width: 100vw;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        height: 100vh;
+        overflow: auto;
+    }
+
+    .popup.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(0%, 0%);
+    }
+
+    .closeBtn {
+        position: fixed;
+        top: 8.53vw;
+        right: 4.26vw;
+        cursor: pointer;
+        display: flex;
+        width: 12.26vw;
+        height: 12.26vw;
+        justify-content: center;
+        align-items: center;
+        border-radius: 1.6vw;
+        background: #F2F2F2;
+        svg{
+            width: 5.33vw;
+        }
+    }
+
+    .gridPopup {
+        display: grid;
+        grid-template-columns: repeat(1, minmax(30px, 1fr));
+        gap: 4.26vw;
+        margin-top: 6.4vw;
+    }
+
+    .cardPopup {
+        background: #FBFBFB;
+        border-radius: 6.4vw;
+        padding: 6.4vw;
+
+        h4{
+            color: var(--Green-Black, #0C1618);
+            font-size: 4.8vw;
+        }
+        p{
+            font-size: 4.26vw;
+            margin-top: 4.26vw;
+        }
+    }
+    .titlePopup{
+        font-size: 5.86vw;
+        width: 80%;
+    }
 }

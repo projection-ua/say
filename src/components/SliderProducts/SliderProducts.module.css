@@ -91,3 +91,61 @@
 .sliderWrap{
     position: relative;
 }
+
+
+
+@media (max-width: 1024px) {
+    .sliderSection{
+        margin: 21.33vw 0;
+    }
+
+    .productGrid{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(10px, 1fr));
+        gap: 4vw;
+    }
+
+    .titleSectionSlider{
+        font-size: 8.53vw;
+    }
+    .topSectionWrap{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10.66vw;
+    }
+    .titleWrap{
+        display: flex;
+        align-items: flex-start;
+        gap: 4vw;
+    }
+    .countProduct{
+        margin-top: 0.22vw;
+        font-size: 3.73vw;
+    }
+
+    .linkAllProducts{
+        display: flex;
+        padding: 4.26vw 5.33vw;
+        justify-content: center;
+        align-items: center;
+        border-radius: 2.13vw;
+        background: var(--GreenLight, #003C3A);
+        color: #FFF;
+        font-size: 3.73vw;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 100%; /* 14px */
+        text-transform: uppercase;
+        width: max-content;
+    }
+    .linkAllProducts:before{
+        display: none;
+    }
+    .buttonWrapper{
+        display: flex;
+        justify-content: center;
+        margin-top: 10.66vw;
+    }
+
+}

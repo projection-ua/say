@@ -44,3 +44,50 @@
     line-height: 150%; /* 18.2px */
     align-self: stretch;
 }
+
+
+@media (max-width: 1024px) {
+    .accordion {
+        width: 100%;
+        border-bottom: 1px solid rgba(180, 186, 182, 0.50);
+    }
+
+    .accordionHeader {
+        width: 100%;
+        background: none;
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4.26vw 0;
+        cursor: pointer;
+    }
+    .headingBackdrop{
+        font-size: 4.26vw;
+
+    }
+    .accordionIcon {
+        transition: transform 0.3s ease;
+    }
+
+    .accordionHeader.open .accordionIcon {
+        transform: rotate(180deg);
+    }
+
+    .accordionContent {
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+    }
+
+    .accordionInner {
+        padding-bottom: 4.26vw;
+        gap: 2vw;
+        color: var(--Green-Black, #0C1618);
+        font-size: 3.73vw;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 150%; /* 18.2px */
+        align-self: stretch;
+    }
+
+}

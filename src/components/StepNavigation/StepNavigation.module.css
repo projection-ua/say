@@ -1,0 +1,65 @@
+.stepNavigation {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+.stepsNavWrap{
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 5.33vw;
+    overflow: auto;
+    padding: 4.26vw;
+}
+.stepNavigation .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    text-wrap: nowrap;
+    color: var(--GreenLight, #003C3A);
+    font-size: 3.73vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 120%; /* 16.8px */
+    letter-spacing: 0.42px;
+    text-transform: uppercase;
+}
+
+.circle {
+    width: 6.9vw;
+    height: 6.9vw;
+    background: #d3d6d4;
+    border-radius: 1.06vw;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.active .circle {
+    background: #003C3A;
+}
+
+.completed .circle {
+    background: #0C1618;
+}
+
+.progressBar {
+    width: 100%;
+    height: 2px;
+    background: #d3d6d4;
+    border-radius: 4px;
+    margin-left: 4.26vw;
+    margin-right: 4.26vw;
+    position: relative;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.progress {
+    height: 100%;
+    background: #0c1618;
+    transition: width 0.3s ease;
+}

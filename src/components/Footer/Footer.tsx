@@ -106,6 +106,13 @@ const Footer = () => {
             <div className={s.bottom}>
                 <p>©2025 SAY. All Rights Reserved.</p>
                 <p>Сайт розроблено агентством: <a href="https://beforeafter.agency" target="_blank">Before/After</a></p>
+                <div className={s.payment}>
+                    <img src="/icons/privat24.svg" alt="Privat24" />
+                    <img src="/icons/applepay.svg" alt="Apple Pay" />
+                    <img src="/icons/googlepay.svg" alt="Google Pay" />
+                    <img src="/icons/mastercard.svg" alt="Mastercard" />
+                    <img src="/icons/visa.svg" alt="Visa" />
+                </div>
             </div>
         </footer>
     );

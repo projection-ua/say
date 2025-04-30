@@ -13,7 +13,7 @@ const InstagramGrid = () => {
     return (
         <section className={s.instagramSection}>
             <div className={s.header}>
-                <h2 className={s.title}>SAY ON <br/>INSTAGRAM</h2>
+                <h2 className={s.title}>SAY ON INSTAGRAM</h2>
                 <div className={s.profile}>
                     <img src="/images/insta/logo-inst.svg" alt="SAY" className={s.logo} />
                     <div>

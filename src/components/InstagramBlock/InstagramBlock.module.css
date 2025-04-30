@@ -113,3 +113,101 @@
     grid-column: 5 / span 2;
     grid-row: 3;
 }
+
+
+@media (max-width: 1024px) {
+    .instagramSection {
+        padding: 21.33vw 0;
+    }
+
+    .header {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8.53vw;
+        margin-bottom: 8.53vw;
+    }
+    .title{
+        font-size: 8.53vw;
+    }
+
+    .profile {
+        gap: 6.66vw;
+    }
+    .username{
+        font-size: 5.33vw;
+        line-height: 5.44vw;
+    }
+    .link{
+        display: flex;
+        align-items: center;
+        margin-top: 3.46vw;
+    }
+    .spanLink {
+        color: var(--Green-Black, #0C1618);
+        font-size: 4.26vw;
+        gap: 2.13vw;
+        padding-bottom: 1.06vw;
+    }
+    .iconLink{
+        width: 5.33vw;
+        height: 5.33vw;
+    }
+
+    .link:hover {
+        opacity: 0.75;
+    }
+    .logo {
+        width: 16vw;
+        height: 16vw;
+        border-radius: 50%;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(4, 42.66vw);
+        gap: 2.13vw;
+    }
+
+    .item {
+        overflow: hidden;
+    }
+
+    .item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* Розташування */
+    .item1 {
+        grid-column: 1 / span 3;
+        grid-row: 1;
+    }
+
+    .item2 {
+        grid-column: 4 / span 3;
+        grid-row: 1;
+    }
+
+    .item3 {
+        grid-column: 1 / span 6;
+        grid-row: 2;
+    }
+
+    .item4 {
+        grid-column: 1 / span 3;
+        grid-row: 3;
+    }
+
+    .item5 {
+        grid-column: 4 / span 3;
+        grid-row: 3;
+    }
+
+    .item6 {
+        grid-column: 1 / span 6;
+        grid-row: 4;
+    }
+}

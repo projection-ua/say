@@ -16,6 +16,9 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
     const [loading, setLoading] = useState(true);
     const uniqueId = useId();
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+
+
     useEffect(() => {
         const fetchRelated = async () => {
             try {
@@ -68,25 +71,27 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
                 <p>Немає релевантних товарів.</p>
             ) : (
                 <div className={s.sliderWrap}>
-                    <div className={`${s.arrow} ${s.arrowPrev}`} id={prevId}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="13" viewBox="0 0 17 13" fill="none">
-                            <path d="M6.58228 0L7.65132 1.05572L2.89413 5.75351L16.5 5.75351V7.24654L2.89413 7.24654L7.65132 11.9443L6.58228 13L0 6.49997L6.58228 0Z" fill="#0C1618"/>
-                        </svg>
-                    </div>
+                    {!isMobile && (
+                        <div className={`${s.arrow} ${s.arrowPrev}`} id={prevId}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="13" viewBox="0 0 17 13" fill="none">
+                                <path d="M6.58228 0L7.65132 1.05572L2.89413 5.75351L16.5 5.75351V7.24654L2.89413 7.24654L7.65132 11.9443L6.58228 13L0 6.49997L6.58228 0Z" fill="#0C1618"/>
+                            </svg>
+                        </div>
+                    )}
 
                     <Swiper
                         modules={[Navigation]}
                         spaceBetween={16}
-                        slidesPerView={1}
+                        slidesPerView={isMobile ? 2 : 1}
                         breakpoints={{
                             640: { slidesPerView: 2 },
                             1024: { slidesPerView: 4 },
                         }}
-                        loop={relatedProducts.length > 4}
-                        navigation={{
+                        loop={!isMobile && relatedProducts.length > 4}
+                        navigation={!isMobile ? {
                             nextEl: `#${nextId}`,
                             prevEl: `#${prevId}`,
-                        }}
+                        } : false}
                     >
                         {relatedProducts.map((product) => (
                             <SwiperSlide key={product.id}>
@@ -94,12 +99,13 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
                             </SwiperSlide>
                         ))}
                     </Swiper>
-
-                    <div className={`${s.arrow} ${s.arrowNext}`} id={nextId}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="13" viewBox="0 0 17 13" fill="none">
-                            <path d="M10.4177 0L9.34868 1.05572L14.1059 5.75351L0.5 5.75351L0.5 7.24654L14.1059 7.24654L9.34868 11.9443L10.4177 13L17 6.49997L10.4177 0Z" fill="#0C1618"/>
-                        </svg>
-                    </div>
+                    {!isMobile && (
+                        <div className={`${s.arrow} ${s.arrowNext}`} id={nextId}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="13" viewBox="0 0 17 13" fill="none">
+                                <path d="M10.4177 0L9.34868 1.05572L14.1059 5.75351L0.5 5.75351L0.5 7.24654L14.1059 7.24654L9.34868 11.9443L10.4177 13L17 6.49997L10.4177 0Z" fill="#0C1618"/>
+                            </svg>
+                        </div>
+                    )}
                 </div>
             )}
         </section>

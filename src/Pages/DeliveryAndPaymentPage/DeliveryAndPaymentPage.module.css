@@ -70,3 +70,70 @@
     font-weight: 500;
     line-height: 130%; /* 23.4px */
 }
+
+
+
+@media (max-width: 1024px) {
+    .container {
+        max-width: 91.46vw;
+        margin: 0 auto;
+        margin-top: 2.13vw;
+    }
+
+    .heroBanner {
+        height: 54.4vw;
+        margin: 4.26vw;
+        border-radius: 2.13vw;
+    }
+
+    .categoryTitle {
+        font-size: 8.53vw;
+    }
+
+
+
+    .section {
+        margin: 0 auto;
+        margin-top: 12.8vw;
+        margin-bottom: 21.33vw;
+
+        max-width: 91.46vw;
+
+    }
+
+    .grid {
+        display: grid;
+        gap: 4.26vw;
+        grid-template-columns: repeat(1, minmax(30px, 1fr));
+    }
+
+    .card {
+        border-radius: 6.4vw;
+        background: #FBFBFB;
+        padding: 4.26vw;
+        gap: 7.46vw;
+    }
+
+    .iconTitle {
+        display: flex;
+        align-items: flex-start;
+        gap: 4.26vw;
+    }
+
+    .iconTitle img {
+        height: 5.33vw;
+    }
+
+    .card h3 {
+        color: var(--Green-Black, #0C1618);
+        font-size: 4.8vw;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 120%; /* 28.8px */
+        letter-spacing: 0.72px;
+    }
+
+    .card p {
+        font-size: 4.26vw;
+    }
+}

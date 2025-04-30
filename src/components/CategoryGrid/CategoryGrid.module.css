@@ -66,3 +66,51 @@
     opacity: 1;
     transform: translateY(-50%) translateX(-50%) scale(1);
 }
+
+
+@media (max-width: 1024px) {
+    .grid{
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.04vw;
+        row-gap: 1.66vw;
+        margin-top: 3.125vw;
+    }
+    .count{
+        font-size: 4.26vw;
+    }
+    .catTitle{
+        font-size: 4.8vw;
+        margin-top: 1.5vw;
+    }
+    .meta{
+        padding: 3.2vw;
+    }
+    .image{
+        height: 73.6vw;
+        object-fit: cover;
+        width: 100%;
+    }
+    .title{
+        font-size: 8.53vw;
+        margin-bottom: 10.66vw;
+    }
+
+    .wrapImgCat{
+        position: relative;
+    }
+    .arrowCat{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateY(-50%) translateX(-50%) scale(0.8);
+        opacity: 0;
+        z-index: 5;
+        width: 2.91vw;
+        transition-duration: 0.5s;
+    }
+    .card:hover .arrowCat{
+        opacity: 1;
+        transform: translateY(-50%) translateX(-50%) scale(1);
+    }
+}

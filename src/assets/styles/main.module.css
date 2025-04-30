@@ -5,3 +5,13 @@
     max-width: 83.33vw;
     margin: 0 auto;
 }
+@media (max-width: 1024px) {
+    .container{
+        max-width: 91.46vw;
+        margin: 0 auto;
+    }
+}
+
+.swiper-slide{
+    height: auto !important;
+}

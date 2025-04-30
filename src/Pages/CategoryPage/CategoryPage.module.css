@@ -34,6 +34,65 @@
     gap: 1.25vw;
 }
 
+.filtersTop{
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 1.04vw;
+    border-bottom: 2px solid rgba(180, 186, 182, 0.40);
+    margin-bottom: 2.39vw;
+}
+.sortWrapper{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.sortDropdown{
+    display: inline-flex;
+    padding: 16px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px;
+    border-radius: 9px;
+    border: 1px solid var(--GreenLight, #003C3A);
+    background: #FFF;
+    position: absolute;
+    top: 100%;
+    right: 0px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
+    button{
+        color: #1A1A1A;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 16px; /* 100% */
+        letter-spacing: 0.32px;
+        text-transform: uppercase;
+        text-align: left;
+        text-wrap: nowrap;
+    }
+}
+.sortWrapper.active .sortDropdown{
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sortButton{
+    font-size: 16px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 2.13vw;
+    font-style: normal;
+    font-weight: 600;
+    color: #1A1A1A;
+    padding: 10px;
+}
+
+
 
 .productGrid{
     display: grid;
@@ -123,4 +182,236 @@
     font-weight: 600;
     line-height: 100%; /* 16px */
     text-transform: uppercase;
+}
+.loadMoreBtn{
+    display: flex;
+    width: max-content;
+    margin: 0 auto;
+    padding: 1.04vw 1.25vw;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    border-radius: 0.52vw;
+    background: var(--GreenLight, #003C3A);
+    color: #FFF;
+    font-size: 0.83vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%; /* 16px */
+    text-transform: uppercase;
+    margin-top: 1.66vw;
+}
+
+
+
+@media (max-width: 1024px) {
+    .container{
+        max-width: 91.46vw;
+        margin: 0 auto;
+        margin-top: 2.13vw;
+    }
+
+    .heroBanner{
+        height: 54.4vw;
+        margin: 4.26vw;
+        border-radius: 2.13vw;
+    }
+    .categoryTitle{
+        font-size: 8.53vw;
+    }
+    .productListWrapper{
+        display: grid;
+        grid-template-columns: minmax(20px, 1fr);
+        gap: 6.4vw;
+        margin-bottom: 20.26vw;
+    }
+
+
+    .productGrid{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(20px, 1fr));
+        gap: 4vw;
+        margin-bottom: 8vw;
+    }
+
+    .subcategories{
+        display: flex;
+        gap: 2.13vw;
+        margin-bottom: 10.66vw;
+        overflow: auto;
+    }
+    .subcategoryCard{
+        width: 29vw;
+    }
+    .subcategoryCard img{
+        width: 29vw;
+        height: 29vw;
+        object-fit: cover;
+        border-radius: 2.13vw;
+    }
+    .subcategoryName{
+        font-size: 3.73vw;
+        margin-top: 2.13vw;
+    }
+
+    .titleFilter{
+        color: var(--Green-Black, #0C1618);
+        leading-trim: both;
+        text-edge: cap;
+        -webkit-text-stroke-width: 0.4px;
+        -webkit-text-stroke-color: var(--Green-Black, #0C1618);
+        font-family: "Playfair Display";
+        font-size: 1.66vw;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 120%; /* 38.4px */
+        letter-spacing: 0.64px;
+        text-transform: uppercase;
+    }
+    .filtersHeader{
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding-bottom: 1.04vw;
+        margin-bottom: 2.44vw;
+    }
+
+    .buttons{
+        display: flex;
+        flex-direction: column;
+        gap: 0.41vw;
+        margin-top: 1.30vw;
+    }
+    .applyBtn{
+        padding: 5.33vw;
+        border-radius: 2.66vw;
+        font-size: 4.26vw;
+        margin-top: 0vw;
+    }
+    .resetBtn{
+        padding: 5.33vw;
+        border-radius: 2.66vw;
+        font-size: 4.26vw;
+        margin-top: 0vw;
+    }
+
+    .loadMoreBtn{
+        display: flex;
+        width: max-content;
+        margin: 0 auto;
+        padding: 5.33vw;
+        border-radius: 2.66vw;
+        font-size: 4.26vw;
+        margin-top: 0vw;
+
+    }
+
+
+
+
+
+
+
+    /* Кнопка Фільтр на мобілці */
+    .filterButton {
+        display: flex;
+        align-items: center;
+        gap: 2.13vw;
+        background: none;
+        border: none;
+        font-weight: 600;
+        font-size: 3.73vw;
+        text-transform: uppercase;
+        color: #1A1A1A;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    /* Попап оверлей */
+    .popupOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Попап контейнер */
+    .popupContent {
+        background: #fff;
+        width: 100vw;
+        max-width: 100vw;
+        max-height: 100vh;
+        height: 100vh;
+        overflow-y: auto;
+        padding: 5.33vw 4.26vw;
+        position: relative;
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* Шапка попапа */
+    .popupHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10.66vw;
+        h3{
+            color: var(--Green-Black, #0C1618);
+            font-family: "Playfair Display";
+            font-size: 6.93vw;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 120%; /* 31.2px */
+            letter-spacing: 0.52px;
+            text-transform: uppercase;
+        }
+    }
+
+    /* Кнопка закриття */
+    .closeButton {
+        display: flex;
+        width: 12.26vw;
+        height: 12.26vw;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+        aspect-ratio: 1/1;
+        border: none;
+        border-radius: 1.86vw;
+        background: #F2F2F2;
+        cursor: pointer;
+    }
+
+    /* Кнопки у попапі */
+    .popupButtons {
+        display: flex;
+        flex-direction: column;
+        gap: 2.13vw;
+        margin-top: 5.33vw;
+    }
+
+    /* Трохи анімації */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10%);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0%);
+        }
+    }
+
+
+    .filtersTop{
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 0vw;
+        border-bottom: none;
+        margin-bottom: 4.4vw;
+        margin-top: 10.66vw;
+    }
+
 }

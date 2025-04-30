@@ -24,3 +24,52 @@
 .recommendedSwiper {
     margin-top: 1.30vw;
 }
+
+
+@media (max-width: 1024px) {
+    .recommendedSection {
+        position: relative;
+    }
+
+    .navigationButtons {
+        position: absolute;
+        top: -3.325vw;
+        right: 0;
+        display: flex;
+        gap: 10px;
+    }
+
+    .navBtn {
+        z-index: 99;
+        display: flex;
+        padding: 0.625vw 1.25vw;
+        align-items: center;
+        border-radius: 0.83vw;
+        border: 0.05vw solid rgba(12, 22, 24, 0.10);
+        background: #FFF;
+        backdrop-filter: blur(0.104vw);
+    }
+
+    .recommendedSwiper {
+        margin-top: 1.30vw;
+    }
+
+
+
+    .paginationWrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 6.4vw;
+        gap: 2.13vw;
+        .bullet{
+            background: #003C3A !important;
+        }
+    }
+
+
+
+}
+
+.bulletActive {
+    opacity: 1 !important;
+}

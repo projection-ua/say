@@ -14,7 +14,18 @@ const SalePage = () => {
     const [loading, setLoading] = useState(true);
     const [subcategories, setSubcategories] = useState<CategoryInfo[]>([]);
 
+
     const [searchParams, setSearchParams] = useSearchParams();
+
+
+
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isSortOpen, setIsSortOpen] = useState(false);
+    const [sortOption, setSortOption] = useState(() => searchParams.get('sort') || 'default');
+
+
+
 
     const [selectedSubcategory, setSelectedSubcategory] = useState(() => searchParams.get('subcat') || null);
     const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string[]>>(() => {
@@ -33,19 +44,18 @@ const SalePage = () => {
 
     const applyFilters = () => {
         const params: Record<string, string> = {};
-
         if (selectedSubcategory) params.subcat = selectedSubcategory;
-
         Object.entries(selectedAttributes).forEach(([attr, options]) => {
-            if (options.length > 0) {
-                params[`attr_${attr}`] = options.join(',');
-            }
+            if (options.length > 0) params[`attr_${attr}`] = options.join(',');
         });
-
         params.min = String(priceRange.min);
         params.max = String(priceRange.max);
+        if (sortOption !== 'default') {
+            params.sort = sortOption;
+        }
 
         setSearchParams(params);
+        if (isMobile) setIsFilterOpen(false);
     };
 
     const resetFilters = () => {
@@ -54,6 +64,68 @@ const SalePage = () => {
         setPriceRange({ min: 0, max: 10000 });
         setSearchParams({});
     };
+
+    const handleSortChange = (option: string) => {
+        setSortOption(option);
+        setIsSortOpen(false);
+
+        const params = new URLSearchParams(searchParams);
+        if (option === 'default') {
+            params.delete('sort');
+        } else {
+            params.set('sort', option);
+        }
+        setSearchParams(params);
+    };
+
+    const filteredProducts = useMemo(() => {
+        return products.filter((product) => {
+            if (selectedSubcategory) {
+                const hasSubcategory = product.categories?.some(cat => cat.slug === selectedSubcategory);
+                if (!hasSubcategory) return false;
+            }
+            const hasActiveAttributes = Object.values(selectedAttributes).some(options => options.length > 0);
+            if (hasActiveAttributes) {
+                for (const [attrName, selectedOptions] of Object.entries(selectedAttributes)) {
+                    if (!selectedOptions.length) continue;
+                    const productAttr = product.attributes.find(attr => attr.name === attrName);
+                    if (!productAttr || !selectedOptions.some(opt => productAttr.options.includes(opt))) {
+                        return false;
+                    }
+                }
+            }
+            const price = parseFloat(product.price);
+            if (price < priceRange.min || price > priceRange.max) return false;
+            return true;
+        });
+    }, [products, selectedSubcategory, selectedAttributes, priceRange]);
+
+
+    const sortedProducts = useMemo(() => {
+        let sorted = [...filteredProducts];
+        if (sortOption === 'bestsellers') {
+            sorted = sorted.filter(product => product.featured);
+        }
+        if (sortOption === 'new') {
+            sorted = sorted.sort((a, b) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime());
+        }
+        if (sortOption === 'sale') {
+            sorted = sorted.filter(product => parseFloat(product.sale_price) < parseFloat(product.regular_price));
+        }
+        if (sortOption === 'price_asc') {
+            sorted = sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        }
+        if (sortOption === 'price_desc') {
+            sorted = sorted.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        }
+        return sorted;
+    }, [filteredProducts, sortOption]);
+
+
+
+
+
+
 
     const [visibleCount, setVisibleCount] = useState(18);
 
@@ -104,31 +176,11 @@ const SalePage = () => {
         }));
     }, [products]);
 
-    const filteredProducts = useMemo(() => {
-        return products.filter((product) => {
-            if (selectedSubcategory) {
-                const hasSubcategory = product.categories?.some(cat => cat.slug === selectedSubcategory);
-                if (!hasSubcategory) return false;
-            }
-            const hasActiveAttributes = Object.values(selectedAttributes).some(options => options.length > 0);
-            if (hasActiveAttributes) {
-                for (const [attrName, selectedOptions] of Object.entries(selectedAttributes)) {
-                    if (!selectedOptions.length) continue;
-                    const productAttr = product.attributes.find(attr => attr.name === attrName);
-                    if (!productAttr || !selectedOptions.some(opt => productAttr.options.includes(opt))) {
-                        return false;
-                    }
-                }
-            }
-            const price = parseFloat(product.price);
-            if (price < priceRange.min || price > priceRange.max) return false;
-            return true;
-        });
-    }, [products, selectedSubcategory, selectedAttributes, priceRange]);
+
 
     const visibleProducts = useMemo(() => {
-        return filteredProducts.slice(0, visibleCount);
-    }, [filteredProducts, visibleCount]);
+        return sortedProducts.slice(0, visibleCount);
+    }, [sortedProducts, visibleCount]);
 
     const handleLoadMore = () => {
         setVisibleCount(prev => prev + 18);
@@ -146,27 +198,62 @@ const SalePage = () => {
             <div className={s.container}>
 
                 <div className={s.contentWrapper}>
-                    <div className={s.filtersHeader}>
-                        <h3 className={s.titleFilter}>Фільтр</h3>
+                    <div className={s.filtersTop}>
+                        {isMobile && (
+                            <button className={s.filterButton} onClick={() => setIsFilterOpen(true)}>
+                                <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9.83333 15.625H13.1667V13.75H9.83333V15.625ZM4 4.375V6.25H19V4.375H4ZM6.5 10.9375H16.5V9.0625H6.5V10.9375Z" fill="black" />
+                                </svg>
+                                Фільтр
+                            </button>
+                        )}
+                        {!isMobile && (
+                            <div className={s.filtersHeader}>
+                                <h3 className={s.titleFilter}>Фільтр</h3>
+                            </div>
+                        )}
+
+                        <div className={`${s.sortWrapper} ${isSortOpen ? s.active : ''}`}>
+                            <button className={s.sortButton} onClick={() => setIsSortOpen(prev => !prev)}>
+                                Сортування
+                                <span className={s.arrow}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="9" viewBox="0 0 16 9" fill="none">
+                                      <path d="M2 2L8 8L14 2" stroke="#1A1A1A" stroke-width="2" stroke-linecap="square" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+
+                            {isSortOpen && (
+                                <div className={s.sortDropdown}>
+                                    <button onClick={() => handleSortChange('bestsellers')}>Бестселери</button>
+                                    <button onClick={() => handleSortChange('new')}>Новинки</button>
+                                    <button onClick={() => handleSortChange('sale')}>Акційні товари</button>
+                                    <button onClick={() => handleSortChange('price_desc')}>Ціна за зменшенням</button>
+                                    <button onClick={() => handleSortChange('price_asc')}>Ціна за зростанням</button>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className={s.productListWrapper}>
-                        <div className={s.sortingBar}>
-                            <CatalogFilters
-                                subcategories={subcategories}
-                                allAttributes={allAttributes}
-                                priceRange={priceRange}
-                                selectedSubcategory={selectedSubcategory}
-                                selectedAttributes={selectedAttributes}
-                                onChangeSubcategory={setSelectedSubcategory}
-                                onChangeAttributes={setSelectedAttributes}
-                                onChangePrice={setPriceRange}
-                            />
-                            <div className={s.buttons}>
-                                <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
-                                <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                        {!isMobile && (
+                            <div className={s.sortingBar}>
+                                <CatalogFilters
+                                    subcategories={subcategories}
+                                    allAttributes={allAttributes}
+                                    priceRange={priceRange}
+                                    selectedSubcategory={selectedSubcategory}
+                                    selectedAttributes={selectedAttributes}
+                                    onChangeSubcategory={setSelectedSubcategory}
+                                    onChangeAttributes={setSelectedAttributes}
+                                    onChangePrice={setPriceRange}
+                                />
+                                <div className={s.buttons}>
+                                    <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
+                                    <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className={s.productGrid}>
                             {loading ? (
@@ -191,6 +278,35 @@ const SalePage = () => {
                     </div>
                 </div>
             </div>
+            {isMobile && isFilterOpen && (
+                <div className={s.popupOverlay}>
+                    <div className={s.popupContent}>
+                        <div className={s.popupHeader}>
+                            <h3>Фільтри</h3>
+                            <button className={s.closeButton} onClick={() => setIsFilterOpen(false)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M1.26837 15.955L7.99948 9.22384L14.7306 15.955L15.9544 14.7311L9.22332 8L15.9544 1.26889L14.7306 0.0450475L7.99948 6.77616L1.26837 0.0450488L0.04453 1.26889L6.77564 8L0.04453 14.7311L1.26837 15.955Z" fill="#1A1A1A"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <CatalogFilters
+                            subcategories={subcategories}
+                            allAttributes={allAttributes}
+                            priceRange={priceRange}
+                            selectedSubcategory={selectedSubcategory}
+                            selectedAttributes={selectedAttributes}
+                            onChangeSubcategory={setSelectedSubcategory}
+                            onChangeAttributes={setSelectedAttributes}
+                            onChangePrice={setPriceRange}
+                        />
+                        <div className={s.popupButtons}>
+                            <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
+                            <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -8,6 +8,8 @@ import { setCartOpen } from '../../store/slices/cartSlice'; // якщо ти м�
 import { getCategoryBySlug } from '../../services/fethCategoryBySlug.ts'
 import { WishlistPopup } from '../WishlistPopup/WishlistPopup';
 import SearchModal from '../SearchModal/SearchModal.tsx'; // правильний імпорт
+import { motion, AnimatePresence } from 'framer-motion';
+
 
 
 
@@ -44,6 +46,18 @@ const Header = () => {
     const [wishlistOpen, setWishlistOpen] = useState(false);
 
 
+    const [isMobileNavOpen, setMobileNavOpen] = useState(false);
+
+    const [openedSubmenuIds, setOpenedSubmenuIds] = useState<number[]>([]);
+
+    const toggleSubmenu = (id: number) => {
+        setOpenedSubmenuIds((prev) =>
+            prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+        );
+    };
+
+
+
 
 
     const loadCategoryImage = async (slug: string) => {
@@ -69,6 +83,11 @@ const Header = () => {
     const handleOpenCart = () => {
         dispatch(setCartOpen(true)); // якщо у тебе є action setCartOpen або щось подібне
     };
+
+    const handleLinkClick = () => {
+        setMobileNavOpen(false);
+    };
+
 
 
     useEffect(() => {
@@ -132,6 +151,14 @@ const Header = () => {
                     <div className={s.topBar}>
 
                         <div className={s.left}>
+                            <div className={s.menuMobileClick} onClick={() => setMobileNavOpen(true)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <rect x="12.0293" y="12.0293" width="7.10144" height="7.10144" stroke="white" strokeWidth="1.4" />
+                                    <rect x="0.869141" y="12.0293" width="7.10144" height="7.10144" stroke="white" strokeWidth="1.4" />
+                                    <rect x="0.869141" y="0.869141" width="7.10144" height="7.10144" stroke="white" strokeWidth="1.4" />
+                                    <rect x="12.0293" y="0.869141" width="7.10144" height="7.10144" stroke="white" strokeWidth="1.4" />
+                                </svg>
+                            </div>
                             <div className={s.searchClick} onClick={() => setSearchOpen(true)}>
                                 <svg className={s.icon} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
                                     <circle cx="11" cy="11" r="8" />
@@ -242,6 +269,95 @@ const Header = () => {
                 onClick={() => setActiveSubmenuId(null)}
             />
             <WishlistPopup isOpen={wishlistOpen} onClose={() => setWishlistOpen(false)} />
+
+
+            <AnimatePresence>
+                {isMobileNavOpen && (
+                    <div className={s.mobileNavOverlay}>
+                        <motion.div
+                            className={s.mobileNavContent}
+                            initial={{ x: '-100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '-100%' }}
+                            transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        >
+                            <div className={s.topBarMenu}>
+                                <h3>Меню</h3>
+                                <button className={s.closeButton} onClick={() => setMobileNavOpen(false)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M1.26886 15.955L7.99997 9.22384L14.7311 15.955L15.9549 14.7311L9.22381 8L15.9549 1.26889L14.7311 0.0450475L7.99997 6.77616L1.26886 0.0450488L0.0450183 1.26889L6.77613 8L0.0450183 14.7311L1.26886 15.955Z" fill="#1A1A1A"/>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <nav className={s.mobileMenu}>
+                                {loading ? (
+                                    <Loader /> // 👈 твій компонент
+                                ) : (
+                                    <ul className={s.menu}>
+                                        <li><Link to="/sales" onClick={handleLinkClick}>Акції та знижки</Link></li>
+                                        <li>
+                                            <Link to="/new" onClick={handleLinkClick}>
+                                                Новинки <sup className={s.new}>NEW</sup>
+                                            </Link>
+                                        </li>
+                                        {mainMenuItems
+                                            .filter((item) => item.parent_id === "0")
+                                            .map((parent) => {
+                                                const children = mainMenuItems.filter((child) => child.parent_id === parent.id.toString());
+                                                const isOpen = openedSubmenuIds.includes(parent.id);
+
+                                                return (
+                                                    <li key={parent.id} className={s.mobileParentItem}>
+                                                        <div className={s.parentRow}>
+                                                            <Link to={convertUrl(parent.url)} onClick={handleLinkClick}>{parent.title}</Link>
+                                                            {children.length > 0 && (
+                                                                <button onClick={() => toggleSubmenu(parent.id)} className={s.submenuToggle}>
+                                                                    <svg className={isOpen ? s.arrowOpen : ''} xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none">
+                                                                        <path d="M4 6.5L8 10.5L12 6.5" stroke="black" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                    </svg>
+                                                                </button>
+                                                            )}
+                                                        </div>
+
+                                                        {isOpen && children.length > 0 && (
+                                                            <ul className={s.mobileSubmenu}>
+                                                                {children.map((child) => (
+                                                                    <li key={child.id} >
+                                                                        <Link to={convertUrl(child.url)} onClick={handleLinkClick}>{child.title}</Link>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        )}
+                                                    </li>
+                                                );
+                                            })}
+                                    </ul>
+                                )}
+                            </nav>
+
+                            <div className={s.col}>
+                                <a href="mailto:saylingerie11@gmail.com" className={s.contactEmail}>
+                                    saylingerie11@gmail.com
+                                </a>
+                                <a href="tel:+380961212525" className={s.contactPhone}>
+                                    +38 (096) 121 25 25
+                                </a>
+                                <p className={s.schedule}>Режим роботи підтримки<br />пн-нд: 10:00–19:00</p>
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            className={s.mobileNavBackdrop}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={() => setMobileNavOpen(false)}
+                        />
+                    </div>
+                )}
+            </AnimatePresence>
 
         </div>
     );

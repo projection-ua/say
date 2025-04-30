@@ -155,6 +155,7 @@ const ProductPage = () => {
 
                 <ProductSlider images={product.images.map((img) => img.src)} info={product} />
 
+
                 <div className={s.content}>
 
                     <p className={s.sku}>Код товару: {selectedVariation?.sku || product.sku}</p>

@@ -411,3 +411,414 @@
     height: 100%;
 }
 
+
+
+
+@media (max-width: 1024px) {
+    .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease forwards;
+    }
+
+    .modal {
+        background: white;
+        border-radius: 0px;
+        overflow: hidden;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+        transform: scale(0.95);
+        opacity: 0;
+        animation: popupIn 0.4s ease forwards;
+        position: relative;
+        padding: 7.29vw;
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        overflow-y: auto;
+    }
+
+    @keyframes fadeIn {
+        from {
+            background: rgba(0, 0, 0, 0);
+        }
+        to {
+            background: rgba(0, 0, 0, 0.4);
+        }
+    }
+
+    @keyframes popupIn {
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .close {
+        position: absolute;
+        top: 4.26vw;
+        right: 4.26vw;
+        border-radius: 2.4vw;
+        background: #F2F2F2;
+        display: flex;
+        width: 12.26vw;
+        height: 12.26vw;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        transition-duration: 0.3s;
+    }
+
+    .close:hover {
+        background: #e0e0e0;
+    }
+
+    .content {
+        display: grid;
+        grid-template-columns: minmax(10px, 1fr);
+        align-items: center;
+        gap: 8vw;
+        margin-top: 14vw;
+    }
+
+    .image {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .image img {
+        max-width: 100%;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+
+    .info {
+        flex: 1;
+        display: block;
+    }
+    .headingWrap{
+        display: flex;
+        flex-direction: column;
+        gap: 0.52vw;
+        margin-top: 0.52vw;
+    }
+    .title {
+        font-size: 6.4vw;
+        margin-bottom: 4.26vw;
+    }
+
+    .attributeGroup {
+        margin-bottom: 6.4vw;
+    }
+    .nameAtribute{
+        font-size: 4.26vw;
+        margin-bottom: 4.8vw;
+    }
+    .options {
+        display: flex;
+        gap: 3.2vw;
+        flex-wrap: wrap;
+    }
+
+    .optionBtn {
+        border: 1px solid rgba(180, 186, 182, 0.70);
+        padding: 2.66vw 3.2vw;
+        border-radius: 1.6vw;
+        font-size: 3.73vw;
+    }
+    .active{
+        background: #003C3A;
+        border-color: #003C3A;
+        color: #fff;
+    }
+
+    .priceWrap {
+        display: flex;
+        gap: 4.26vw;
+        align-items: center;
+        margin-bottom: 8.5vw;
+        font-size: 5.86vw;
+        font-style: normal;
+        font-weight: 600;
+    }
+
+    .salePrice {
+        color: #FF3B30;
+        font-variant-numeric: lining-nums proportional-nums;
+        font-family: Raleway;
+        font-size: 5.86vw;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 120%; /* 28.8px */
+        letter-spacing: 0.72px;
+    }
+    .regularPrice{
+        font-size: 5.86vw;
+    }
+
+    .price, .sale, .regular{
+        font-size: 5.86vw;
+    }
+
+    .oldPrice {
+        font-size: 5.86vw;
+    }
+
+    .priceWrapHtml{
+        display: flex;
+        gap: 4.26vw;
+        font-size: 5.86vw;
+    }
+    .priceWrapHtml ins, .priceWrapHtml ins bdi{
+        font-size: 5.86vw;
+    }
+    .priceWrapHtml bdi{
+        font-size: 5.86vw;
+    }
+    .priceWrapHtml del bdi, .priceWrapHtml del{
+        font-size: 5.86vw;
+    }
+    .priceWrapHtml ins{
+        order: 1;
+        text-decoration: none !important;
+    }
+    .priceWrap del{
+        order: 2;
+    }
+
+
+
+    .reviewText{
+        color: var(--Green-Black, #0C1618);
+        font-variant-numeric: lining-nums proportional-nums;
+        font-size: 3.73vw;
+    }
+    .sku{
+        color: var(--Green-Black, #0C1618);
+        font-size: 3.73vw;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 130%;
+        opacity: 0.4;
+        margin-bottom: 4.26vw;
+    }
+
+
+    .actionButtons{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 3.2vw;
+    }
+
+
+
+    .sizeButton{
+        padding: 3.2vw 1vw;
+        gap: 2.66vw;
+        font-size: 4.26vw;
+        margin-bottom: 8.53vw;
+    }
+    .sizeButton:before{
+        content: '';
+        height: 0px;
+        bottom: 0px;
+        left: 0px;
+        position: absolute;
+        width: 100%;
+        background: #003C3A;
+        transition-duration: 0.3s;
+        z-index: -1;
+    }
+    .sizeButton:hover{
+        color: #FFFFFF;
+    }
+    .sizeButton path{
+        transition-duration: 0.3s;
+    }
+    .sizeButton:hover path{
+        fill: #fff;
+    }
+    .sizeButton:hover:before{
+        height: 100%;
+    }
+
+
+
+    .wishlist {
+        background: transparent;
+        border: 2px solid #003c3a;
+        padding: 10px 16px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        color: #003c3a;
+    }
+
+    .wishlist:hover {
+        background: #003c3a;
+        color: white;
+    }
+
+
+
+    .actionButtons{
+        display: flex;
+        align-items: center;
+        gap: 0.67vw;
+    }
+
+    .addToCartBtn{
+        display: flex;
+        width: calc(100% - 3.58vw);
+        padding: 1.04vw 1.25vw;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+        border-radius: 0.625vw;
+        background: var(--GreenLight, #003C3A);
+        color: #fff;
+        font-size: 0.83vw;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 100%;
+        text-transform: uppercase;
+        transition-duration: 0.3s;
+        height: 2.91vw;
+    }
+    .addToCartBtn:hover{
+        background: #003C3A;
+        color: #FFFEFC;
+    }
+    .addToWishlistBtn{
+        display: flex;
+        width: 2.91vw;
+        height: 2.91vw;
+        padding: 0.83vw;
+        justify-content: center;
+        align-items: center;
+        border-radius: 0.625vw;
+        background: var(--White, #FFFEFC);
+        border: 0.05vw solid var(--GreenLight, #003C3A);
+    }
+    .addToWishlistBtn.active{
+        background: #003C3A;
+    }
+    .addToWishlistBtn.active path{
+        fill: #fff;
+    }
+    .addToWishlistBtn:hover{
+        background: var(--White, #FFFEFC);
+    }
+    .addToWishlistBtn path{
+        transition-duration: 0.3s;
+    }
+    .addToWishlistBtn:hover path{
+        fill: #003C3A;
+    }
+
+
+
+
+    .ratingBlock{
+        display: flex;
+        gap: 3.2vw;
+        align-items: center;
+        margin-bottom: 4.26vw;
+    }
+    .starsRating{
+        display: flex;
+        gap: 0.10vw;
+    }
+
+    .stockStatusBlock{
+        font-size: 3.73vw;
+    }
+
+
+
+
+    .galleryImage{
+        aspect-ratio: 1;
+        object-fit: cover;
+    }
+
+    .imageGallery{
+        position: relative;
+    }
+    .arrow{
+        position: absolute;
+        top: 50%;
+        z-index: 9;
+        transform: translateY(-50%);
+        border-radius: 0.83vw;
+        border: 0.05vw solid rgba(12, 22, 24, 0.10);
+        background: #FFF;
+        backdrop-filter: blur(2px);
+        padding: 0.625vw 1.25vw;
+        display: flex;
+        height: max-content;
+        display: none;
+    }
+
+
+
+    .sizeButton{
+        padding: 3.2vw 1vw;
+        gap: 2.66vw;
+        font-size: 4.26vw;
+        margin-bottom: 8.53vw;
+    }
+    .sizeButton:before{
+        content: '';
+        height: 0px;
+        bottom: 0px;
+        left: 0px;
+        position: absolute;
+        width: 100%;
+        background: #003C3A;
+        transition-duration: 0.3s;
+        z-index: -1;
+    }
+
+
+
+
+
+    .addToCartBtn{
+        display: flex;
+        width: calc(100% - 17.93vw);
+        padding: 5.33vw 6.4vw;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+        border-radius: 1.86vw;
+        background: var(--GreenLight, #003C3A);
+        color: #fff;
+        font-size: 4.26vw;
+        height: 14.93vw;
+    }
+    .addToCartBtn:hover{
+        background: #003C3A;
+        color: #FFFEFC;
+    }
+    .addToWishlistBtn{
+        display: flex;
+        width: 14.94vw;
+        height: 14.93vw;
+        padding: 4.26vw;
+        border-radius: 1.86vw;
+        background: var(--White, #FFFEFC);
+        border: 0.05vw solid var(--GreenLight, #003C3A);
+    }
+}
+
