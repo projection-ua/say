@@ -8,7 +8,7 @@ export type ProductInfo = {
     on_sale: boolean;
     sku: string;
     slug: string;
-    images: { src: string }[];
+    images: ProductImage[];
     gallery_images: { src: string }[];
     variation_id: number;
     date_created: string;
@@ -59,4 +59,39 @@ export interface Variation {
         name: string;
         option: string;
     }[];
+}
+
+
+
+
+
+export interface ImageSize {
+    file: string;
+    width: number;
+    height: number;
+    "mime-type": string;
+    filesize: number;
+    source_url?: string; // якщо API повертає повний URL
+}
+
+export interface MediaDetails {
+    width: number;
+    height: number;
+    file: string;
+    filesize: number;
+    sizes: {
+        thumbnail?: ImageSize;
+        medium?: ImageSize;
+        large?: ImageSize;
+        medium_large?: ImageSize;
+        [key: string]: ImageSize | undefined; // для додаткових (1536x1536 тощо)
+    };
+}
+
+export interface ProductImage {
+    src: string;
+    name?: string;
+    alt?: string;
+    id?: number;
+    media_details?: MediaDetails;
 }
