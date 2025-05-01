@@ -8,6 +8,10 @@ import s from '../CategoryPage/CategoryPage.module.css';
 import CatalogFilters from '../../components/CatalogFilters/CatalogFilters';
 import Loader from '../../components/Loader/Loader';
 
+import { Helmet } from 'react-helmet';
+import {apiUrlWp} from "../../App.tsx";
+import {useLocation} from "react-router-dom";
+
 const SalePage = () => {
     const { slug } = useParams();
     const [products, setProducts] = useState<ProductInfo[]>([]);
@@ -16,6 +20,22 @@ const SalePage = () => {
 
 
     const [searchParams, setSearchParams] = useSearchParams();
+
+
+    const location = useLocation();
+    const currentUrl = `${window.location.origin}${location.pathname}`;
+
+    const [seoData, setSeoData] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchSeo = async () => {
+            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/pages?slug=promotions-discounts`);
+            const data = await response.json();
+            setSeoData(data[0]?.yoast_head_json);
+        };
+
+        fetchSeo();
+    });
 
 
 
@@ -188,6 +208,29 @@ const SalePage = () => {
 
     return (
         <div className={s.categoryPage}>
+
+            <Helmet>
+                <title>{seoData?.title || 'Say'}</title>
+                <link rel="canonical" href={currentUrl} />
+
+                {seoData?.og_title && <meta property="og:title" content={seoData.og_title} />}
+                {seoData?.og_description && <meta property="og:description" content={seoData.og_description} />}
+                <meta property="og:url" content={currentUrl} />
+
+                {seoData?.og_locale && <meta property="og:locale" content={seoData.og_locale} />}
+                {seoData?.og_type && <meta property="og:type" content={seoData.og_type} />}
+                {seoData?.og_site_name && <meta property="og:site_name" content={seoData.og_site_name} />}
+                {seoData?.twitter_card && <meta name="twitter:card" content={seoData.twitter_card} />}
+
+                {seoData?.robots && (
+                    <meta
+                        name="robots"
+                        content={`${seoData.robots.index}, ${seoData.robots.follow}, ${seoData.robots['max-snippet']}, ${seoData.robots['max-image-preview']}, ${seoData.robots['max-video-preview']}`}
+                    />
+                )}
+            </Helmet>
+
+
             <div
                 className={s.heroBanner}
                 style={{ backgroundImage: `url('/images/offer-img.jpg')` }}

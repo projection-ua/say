@@ -22,6 +22,7 @@ import {RootState} from "../../store/store.ts";
 import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs';
 import SizeChartModal from '../../components/SizeChart/SizeChart.tsx';
 import { Helmet } from 'react-helmet';
+import {apiUrlWp} from "../../App.tsx";
 
 const ProductPage = () => {
     const { slug } = useParams();
@@ -32,7 +33,7 @@ const ProductPage = () => {
 
     useEffect(() => {
         const fetchSeo = async () => {
-            const response = await fetch(`https://www.say.projection-learn.website/wp-json/wp/v2/product?slug=${slug}`);
+            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/product?slug=${slug}`);
             const data = await response.json();
             setSeoData(data[0]?.yoast_head_json);
         };

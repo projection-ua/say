@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Link, useSearchParams, useParams } from 'react-router-dom';
+import {Link, useSearchParams, useParams, useLocation} from 'react-router-dom';
 import { getProducts } from '../../services/fetchProducts';
 import { getCategories, CategoryInfo } from '../../services/fetchCategories.ts';
 import { ProductInfo } from '../../types/productTypes';
@@ -8,6 +8,9 @@ import s from './CategoryPage.module.css';
 import CatalogFilters from '../../components/CatalogFilters/CatalogFilters';
 import Loader from '../../components/Loader/Loader';
 import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs.tsx';
+
+import { Helmet } from 'react-helmet';
+import {apiUrlWp} from "../../App.tsx";
 
 const useIsMobile = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -21,6 +24,23 @@ const useIsMobile = () => {
 
 const CategoryPage = () => {
     const { slug } = useParams();
+
+    const location = useLocation();
+    const currentUrl = `${window.location.origin}${location.pathname}`;
+
+    const [seoData, setSeoData] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchSeo = async () => {
+            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/categories?slug=${slug}`);
+            const data = await response.json();
+            setSeoData(data[0]?.yoast_head_json);
+        };
+
+        fetchSeo();
+    }, [slug]);
+
+
     const [products, setProducts] = useState<ProductInfo[]>([]);
     const [loading, setLoading] = useState(true);
     const [category, setCategory] = useState<CategoryInfo | null>(null);
@@ -179,6 +199,26 @@ const CategoryPage = () => {
 
     return (
         <div className={s.categoryPage}>
+            <Helmet>
+                <title>{seoData?.title || 'Say'}</title>
+                <link rel="canonical" href={currentUrl} />
+
+                {seoData?.og_title && <meta property="og:title" content={seoData.og_title} />}
+                {seoData?.og_description && <meta property="og:description" content={seoData.og_description} />}
+                <meta property="og:url" content={currentUrl} />
+
+                {seoData?.og_locale && <meta property="og:locale" content={seoData.og_locale} />}
+                {seoData?.og_type && <meta property="og:type" content={seoData.og_type} />}
+                {seoData?.og_site_name && <meta property="og:site_name" content={seoData.og_site_name} />}
+                {seoData?.twitter_card && <meta name="twitter:card" content={seoData.twitter_card} />}
+
+                {seoData?.robots && (
+                    <meta
+                        name="robots"
+                        content={`${seoData.robots.index}, ${seoData.robots.follow}, ${seoData.robots['max-snippet']}, ${seoData.robots['max-image-preview']}, ${seoData.robots['max-video-preview']}`}
+                    />
+                )}
+            </Helmet>
             <div
                 className={s.heroBanner}
                 style={{ backgroundImage: `url(${category?.image?.src || '/images/category-placeholder.jpg'})` }}
@@ -200,7 +240,7 @@ const CategoryPage = () => {
                     <div className={s.subcategories}>
                         {subcategories.map((subcategory) => (
                             <Link
-                                to={`/category/${subcategory.slug}`}
+                                to={`/product-category/${subcategory.slug}`}
                                 key={subcategory.id}
                                 className={s.subcategoryCard}
                             >
