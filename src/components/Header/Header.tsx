@@ -132,9 +132,10 @@ const Header = () => {
 
 
     const getLastSlug = (url: string) => {
-        const parts = new URL(url).pathname.split('/').filter(Boolean);
+        const parts = new URL(url, window.location.origin).pathname.split('/').filter(Boolean);
         return parts[parts.length - 1];
     };
+
 
     const [isSearchOpen, setSearchOpen] = useState(false);
 

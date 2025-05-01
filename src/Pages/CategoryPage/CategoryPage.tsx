@@ -200,7 +200,7 @@ const CategoryPage = () => {
     return (
         <div className={s.categoryPage}>
             <Helmet>
-                <title>{seoData?.title || 'Say'}</title>
+                <title>{seoData?.title}</title>
                 <link rel="canonical" href={currentUrl} />
 
                 {seoData?.og_title && <meta property="og:title" content={seoData.og_title} />}
