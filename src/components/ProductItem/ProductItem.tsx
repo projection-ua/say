@@ -102,6 +102,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
                                     src={product.images[1].src}
                                     alt={product.name}
                                     className={s.productImageBack}
+                                    loading="lazy"
                                 />
                             )}
                         </>
