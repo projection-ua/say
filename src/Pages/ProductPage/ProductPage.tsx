@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux';
 import { ProductInfo, Variation } from '../../types/productTypes';
 import { getProducts } from '../../services/fetchProducts';
@@ -24,6 +25,8 @@ import { Helmet } from 'react-helmet';
 
 const ProductPage = () => {
     const { slug } = useParams();
+    const location = useLocation();
+    const currentUrl = `${window.location.origin}${location.pathname}`;
 
     const [seoData, setSeoData] = useState<any>(null);
 
@@ -159,21 +162,23 @@ const ProductPage = () => {
         <>
             <Helmet>
                 <title>{seoData?.title || 'Say'}</title>
-                <link rel="canonical" href={seoData.canonical} />
+                <link rel="canonical" href={currentUrl} />
+
                 {seoData?.og_title && <meta property="og:title" content={seoData.og_title} />}
                 {seoData?.og_description && <meta property="og:description" content={seoData.og_description} />}
-                {seoData?.og_url && <meta property="og:url" content={seoData.og_url} />}
+                <meta property="og:url" content={currentUrl} />
+
                 {seoData?.og_locale && <meta property="og:locale" content={seoData.og_locale} />}
                 {seoData?.og_type && <meta property="og:type" content={seoData.og_type} />}
                 {seoData?.og_site_name && <meta property="og:site_name" content={seoData.og_site_name} />}
                 {seoData?.twitter_card && <meta name="twitter:card" content={seoData.twitter_card} />}
+
                 {seoData?.robots && (
                     <meta
                         name="robots"
                         content={`${seoData.robots.index}, ${seoData.robots.follow}, ${seoData.robots['max-snippet']}, ${seoData.robots['max-image-preview']}, ${seoData.robots['max-video-preview']}`}
                     />
                 )}
-
             </Helmet>
 
             <div className={s.container}>
