@@ -273,25 +273,28 @@ const CategoryPage = () => {
                             </div>
                         )}
 
-                        <div className={s.productGrid}>
-                            {loading ? (
-                                <Loader />
-                            ) : visibleProducts.length ? (
-                                visibleProducts.map((product) => (
-                                    <ProductItem key={product.id} product={product} />
-                                ))
-                            ) : (
-                                <p>Товари не знайдено.</p>
+                        <div className={s.wrapProducts}>
+                            <div className={s.productGrid}>
+                                {loading ? (
+                                    <Loader />
+                                ) : visibleProducts.length ? (
+                                    visibleProducts.map((product) => (
+                                        <ProductItem key={product.id} product={product} />
+                                    ))
+                                ) : (
+                                    <p>Товари не знайдено.</p>
+                                )}
+                            </div>
+                            {!loading && visibleProducts.length < sortedProducts.length && (
+                                <div className={s.loadMoreWrapper}>
+                                    <button className={s.loadMoreBtn} onClick={handleLoadMore}>
+                                        Завантажити ще
+                                    </button>
+                                </div>
                             )}
                         </div>
 
-                        {!loading && visibleProducts.length < sortedProducts.length && (
-                            <div className={s.loadMoreWrapper}>
-                                <button className={s.loadMoreBtn} onClick={handleLoadMore}>
-                                    Завантажити ще
-                                </button>
-                            </div>
-                        )}
+
                     </div>
                 </div>
             </div>

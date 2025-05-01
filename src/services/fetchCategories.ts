@@ -25,6 +25,9 @@ export const getCategories = async (): Promise<CategoryInfo[]> => {
                 username: consumerKey,
                 password: consumerSecret,
             },
+            params: {
+                per_page: 100, // 🔥 отримуємо до 100 товарів за раз
+            },
         });
 
         return Array.isArray(response.data) ? response.data : [];

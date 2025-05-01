@@ -330,6 +330,7 @@ const CheckoutPage: React.FC = () => {
                     payment_method: values.paymentMethod,
                     payment_method_title: paymentMethods.find(p => p.id === values.paymentMethod)?.title || values.paymentMethod,
                     set_paid: false,
+                    status: values.paymentMethod === "cod" ? "on-hold" : "pending_custom",
                     billing: {
                         first_name: values.firstName,
                         last_name: values.lastName,
@@ -978,7 +979,7 @@ const CheckoutPage: React.FC = () => {
                         )}
 
                         {!isMobile && (
-                            <div>
+                            <div className={s.gapFrom}>
                                 <div className={s.personalInfo}>
                                     <h2>Персональна інформація</h2>
                                     <div className={s.inputsWrap}>

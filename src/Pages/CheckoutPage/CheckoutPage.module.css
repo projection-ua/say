@@ -34,6 +34,14 @@
 .shippingInfo .inputRow{
     margin-bottom: 0.83vw;
 }
+.gapFrom{
+    display: flex;
+    flex-direction: column;
+    gap: 2.08vw;
+}
+.inputRow:last-child{
+    margin-bottom: 0px;
+}
 
 .checkoutForm {
     flex: 1;
@@ -215,7 +223,7 @@ select {
     display: flex;
     flex-direction: column;
     gap: 0.625vw;
-    margin-bottom: 1.25vw;
+    margin-top: 1.25vw;
 }
 
 .checkboxRow label {

@@ -98,6 +98,9 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(20px, 1fr));
     gap: 1.04vw;
+    margin-bottom: 2.33vw;
+}
+.wrapProducts{
     margin-bottom: 8.33vw;
 }
 
@@ -143,8 +146,6 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    padding-bottom: 1.04vw;
-    margin-bottom: 2.44vw;
 }
 
 .buttons{
