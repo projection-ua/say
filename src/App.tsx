@@ -16,6 +16,7 @@ import CheckoutPage from './Pages/CheckoutPage/CheckoutPage';
 import { OrderSuccesWrapper } from './Pages/SuccessPage/OrderSuccesWrapper';
 import FaqPage from './Pages/FaqPage/FaqPage.tsx';
 import PrivacyPolicyPage from './Pages/PrivacyPolicyPage/PrivacyPolicyPage.tsx';
+import NotFoundPage from './components/NotFoundPage/NotFoundPage';
 
 import './App.css';
 import './assets/styles/reset.css';
@@ -63,6 +64,7 @@ const Layout: React.FC = () => {
                     <Route path="/how-to-buy" element={<DeliveryPage />} />
                     <Route path="/faqs" element={<FaqPage />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </main>
             <Footer />

@@ -66,6 +66,25 @@ const QuickViewModal = ({ product, onClose }: Props) => {
         setSelectedOptions(prev => ({ ...prev, [name]: option }));
     };
 
+    useEffect(() => {
+        if (!product?.attributes) return;
+
+        const initialOptions: Record<string, string> = {};
+
+        product.attributes.forEach(attr => {
+            if (attr.options.length > 0) {
+                initialOptions[attr.name] = attr.options[0]; // обираємо перший варіант
+            }
+        });
+
+        setSelectedOptions(initialOptions);
+    }, [product]);
+
+    const isOutOfStock = selectedVariation
+        ? selectedVariation.stock_status === 'outofstock' || selectedVariation.stock_quantity === 0
+        : product.stock_status === 'outofstock' || product.stock_quantity === 0;
+
+
     const handleAddToCart = () => {
         if (!product) return;
 
@@ -169,6 +188,39 @@ const QuickViewModal = ({ product, onClose }: Props) => {
                             </div>
                         ))}
 
+
+                        <div className={s.stockStatusBlock}>
+                            {selectedVariation ? (
+                                // Якщо варіація обрана — показуємо статус варіації
+                                selectedVariation.stock_status === 'outofstock' || selectedVariation.stock_quantity === 0 ? (
+                                    <p className={s.outofstock}>Немає в наявності</p>
+                                ) : selectedVariation.stock_quantity !== null && selectedVariation.stock_quantity <= 9 ? (
+                                    <p className={s.quentityStock}>Залишилось {selectedVariation.stock_quantity}</p>
+                                ) : (
+                                    <div className={s.onstock}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15" fill="none">
+                                            <path d="M4.5325 12.1666C4.30103 12.1671 4.07174 12.123 3.85781 12.0367C3.64388 11.9505 3.44953 11.8239 3.28592 11.6642L0 8.4588L0.830667 7.64793L4.11658 10.8533C4.22684 10.9608 4.37634 11.0212 4.53221 11.0212C4.68808 11.0212 4.83757 10.9608 4.94783 10.8533L13.1693 2.83331L14 3.64419L5.7785 11.6642C5.615 11.8239 5.42074 11.9505 5.20691 12.0367C4.99308 12.123 4.76388 12.1671 4.5325 12.1666Z" fill="black"/>
+                                        </svg>
+                                        В наявності
+                                    </div>
+                                )
+                            ) : (
+                                // Якщо варіація ще не вибрана — показуємо статус основного продукту
+                                product.stock_status === 'outofstock' || product.stock_quantity === 0 ? (
+                                    <p className={s.outofstock}>Немає в наявності</p>
+                                ) : product.stock_quantity !== null && product.stock_quantity <= 9 ? (
+                                    <p className={s.quentityStock}>Залишилось {product.stock_quantity}</p>
+                                ) : (
+                                    <div className={s.onstock}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15" fill="none">
+                                            <path d="M4.5325 12.1666C4.30103 12.1671 4.07174 12.123 3.85781 12.0367C3.64388 11.9505 3.44953 11.8239 3.28592 11.6642L0 8.4588L0.830667 7.64793L4.11658 10.8533C4.22684 10.9608 4.37634 11.0212 4.53221 11.0212C4.68808 11.0212 4.83757 10.9608 4.94783 10.8533L13.1693 2.83331L14 3.64419L5.7785 11.6642C5.615 11.8239 5.42074 11.9505 5.20691 12.0367C4.99308 12.123 4.76388 12.1671 4.5325 12.1666Z" fill="black"/>
+                                        </svg>
+                                        В наявності
+                                    </div>
+                                )
+                            )}
+                        </div>
+
                         <button className={s.sizeButton} onClick={() => setSizeOpen(true)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="20" viewBox="0 0 25 20" fill="none">
                                 <path d="M7.43597 6.4172C9.39038 6.6559 13.174 6.02613 13.0964 4.40814C13.0963 4.35072 13.0848 4.29389 13.0626 4.24093C13.0405 4.18796 13.0081 4.1399 12.9673 4.09951C12.9264 4.05912 12.878 4.0272 12.8249 4.00559C12.7717 3.98398 12.7147 3.97311 12.6573 3.97359C12.5404 3.97462 12.4287 4.0218 12.3465 4.10487C12.2643 4.18793 12.2182 4.30013 12.2184 4.41701C12.1337 5.25289 8.90975 5.74743 7.49531 5.54185C5.57101 5.38935 4.50674 4.77984 4.50674 4.41701C4.69364 3.37646 8.93689 2.92316 10.7842 3.55406C10.8956 3.58267 11.0137 3.56647 11.1132 3.50893C11.2127 3.45139 11.2857 3.35711 11.3165 3.24634C11.3472 3.13558 11.3333 3.01717 11.2777 2.91656C11.2221 2.81594 11.1292 2.74116 11.0191 2.70827C8.97964 2.02787 3.63975 2.35088 3.62891 4.41706C3.62888 5.67074 5.67429 6.27811 7.43597 6.4172Z" fill="black"/>
@@ -193,13 +245,18 @@ const QuickViewModal = ({ product, onClose }: Props) => {
                         </div>
 
                         <div className={s.actionButtons}>
+
                             <button
                                 className={s.addToCartBtn}
-                                disabled={product.variations.length > 0 && !selectedVariation}
+                                disabled={
+                                    (product.variations.length > 0 && !selectedVariation) || isOutOfStock
+                                }
                                 onClick={handleAddToCart}
                             >
                                 Додати в кошик
                             </button>
+
+
                             <button
                                 className={`${s.addToWishlistBtn} ${isInWishlist    ? s.active : ''}`}
                                 aria-label="Додати в улюблене"

@@ -414,6 +414,25 @@
 
 
 
+.stockStatusBlock{
+    color: var(--Green-Black, #0C1618);
+    font-family: Raleway;
+    font-size: 0.72vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%; /* 18.2px */
+    opacity: 0.4;
+    margin-bottom: 2em;
+}
+.onstock{
+    display: flex;
+    align-items: center;
+    gap: 0.41vw;
+}
+
+
+
+
 @media (max-width: 1024px) {
     .overlay {
         position: fixed;
@@ -457,6 +476,16 @@
             transform: scale(1);
             opacity: 1;
         }
+    }
+
+
+    .stockStatusBlock{
+        font-size: 3.73vw;
+    }
+    .onstock{
+        display: flex;
+        align-items: center;
+        gap: 2.13vw;
     }
 
     .close {
@@ -822,3 +851,8 @@
     }
 }
 
+
+
+.addToCartBtn:disabled{
+    opacity: 0.3;
+}

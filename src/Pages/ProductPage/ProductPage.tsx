@@ -98,6 +98,15 @@ const ProductPage = () => {
             if (found) {
                 const fetchedVariations = await getVariationsByProductId(found.id);
                 setVariations(fetchedVariations);
+
+                // ✅ Вибираємо перші опції по кожному атрибуту
+                const initialOptions: Record<string, string> = {};
+                found.attributes.forEach(attr => {
+                    if (attr.options.length > 0) {
+                        initialOptions[attr.name] = attr.options[0];
+                    }
+                });
+                setSelectedOptions(initialOptions);
             }
 
             setLoading(false);
@@ -299,7 +308,12 @@ const ProductPage = () => {
                         <div className={s.actionButtons}>
                             <button
                                 className={s.addToCartBtn}
-                                disabled={product.variations.length > 0 && !selectedVariation}
+                                disabled={
+                                    (product.variations.length > 0 && !selectedVariation) || // якщо треба вибрати варіацію
+                                    (selectedVariation
+                                        ? selectedVariation.stock_status === 'outofstock' || selectedVariation.stock_quantity === 0
+                                        : product.stock_status === 'outofstock' || product.stock_quantity === 0) // якщо немає в наявності
+                                }
                                 onClick={handleAddToCart}
                             >
                                 Додати в кошик
