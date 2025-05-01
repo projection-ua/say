@@ -72,6 +72,7 @@ interface OrderData {
     payment_method: string;
     payment_method_title: string;
     set_paid: boolean;
+    status?: string;
     billing: {
         first_name: string;
         last_name: string;
