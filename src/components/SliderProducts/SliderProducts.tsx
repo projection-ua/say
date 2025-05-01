@@ -86,6 +86,10 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
     const prevId = `prev-${uniqueId}`;
     const nextId = `next-${uniqueId}`;
 
+    if (!loading && filteredProducts.length === 0) {
+        return null;
+    }
+
     return (
         <section className={s.sliderSection}>
             <div className={s.topSectionWrap}>
@@ -95,6 +99,16 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
                         {loading ? '' : `( ${filteredProducts.length} )`}
                     </span>
                 </div>
+                {isMobile ? '' : (
+                    <div className={s.buttonWrapper}>
+                        <Link
+                            to={filterTag === 'new' ? '/new' : '/sales'}
+                            className={s.linkAllProducts}
+                        >
+                            Показати все
+                        </Link>
+                    </div>
+                )}
             </div>
 
             {loading ? (

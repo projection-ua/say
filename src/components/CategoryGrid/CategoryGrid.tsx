@@ -61,7 +61,7 @@ const CategoryGrid = () => {
                             <Link to={`/product-category/${cat.slug}`} className={s.card}>
                                 <div className={s.wrapImgCat}>
                                     <img
-                                        src={cat.image?.src || '../public/images/category-img.jpg'}
+                                        src={cat.image?.src || '/images/category-img.jpg'}
                                         alt={cat.image?.alt || cat.name}
                                         className={s.image}
                                     />

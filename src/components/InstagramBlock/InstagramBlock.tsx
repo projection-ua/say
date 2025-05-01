@@ -18,7 +18,7 @@ const InstagramGrid = () => {
                     <img src="/images/insta/logo-inst.svg" alt="SAY" className={s.logo} />
                     <div>
                         <p className={s.username}>@say</p>
-                        <a href="https://instagram.com" className={s.link}>
+                        <a href="https://www.instagram.com/say___ua/" target="_blank" className={s.link}>
                             <span className={s.spanLink}>Підписатися</span>
                             <svg className={s.iconLink} xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21" fill="none">
                                 <path d="M5.83325 14.6668L14.1666 6.3335M14.1666 6.3335H5.83325M14.1666 6.3335V14.6668" stroke="#0C1618" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

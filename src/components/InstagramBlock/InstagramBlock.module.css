@@ -18,6 +18,7 @@
     line-height: 120%; /* 60px */
     letter-spacing: 0.05vw;
     text-transform: uppercase;
+    width: 50%;
 }
 
 .profile {
@@ -128,6 +129,7 @@
     }
     .title{
         font-size: 8.53vw;
+        width: 100%;
     }
 
     .profile {
