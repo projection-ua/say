@@ -44,6 +44,7 @@
     font-weight: 500;
     opacity: 0.4;
     margin-bottom: 1.66vw;
+    font-size: 1.24vw;
 }
 
 .socialList, .links {
@@ -162,6 +163,7 @@
 .privacy {
     color: #fff;
     text-decoration: none;
+    font-size: 0.82vw;
 }
 
 .payment {
@@ -343,6 +345,7 @@
     .privacy {
         color: #fff;
         text-decoration: none;
+        font-size: 4.26vw;
     }
 
     .payment {

@@ -12,10 +12,27 @@
     background-color: white;
     position: relative;
     z-index: 999;
+    height: 6.66vw;
 }
-
+.headerPlaceholder {
+    height: 6.66vw; /* така ж висота як у хедера */
+}
 .menuMobileClick{
     display: none;
+}
+.sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    background: white;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
 }
 
 .topBar {
@@ -30,7 +47,7 @@
 .left {
     display: flex;
     align-items: center;
-    gap: 1.66vw;
+    gap: 2.66vw;
 }
 
 .searchInput {
@@ -110,11 +127,26 @@
     color: #222;
     padding: 0.83vw 1.25vw;
     display: flex;
-    align-items: flex-start;
-    gap: 0.20vw;
+    align-items: center;
+    gap: 0.40vw;
     text-transform: uppercase;
     text-wrap: nowrap;
     font-size: 0.83vw;
+    position: relative;
+}
+.menu li a:before{
+    position: absolute;
+    content: '';
+    bottom: 0px;
+    left: 0px;
+    width: 0%;
+    height: 3px;
+    border-radius: 10px;
+    background: #003C3A;
+    transition-duration: 0.3s;
+}
+.menu li a:hover:before{
+    width: 100%;
 }
 
 .hasSubmenu {
@@ -180,8 +212,21 @@
         font-weight: 500;
         line-height: 130%; /* 20.8px */
         text-transform: none !important;
+        width: max-content;
+        display: flex;
+        padding-bottom: 5px;
+    }
+    li a:before{
+        height: 1px;
     }
 }
+.iconDown{
+    display: none;
+}
+.hasSubmenu .iconDown{
+    display: block;
+}
+
 .newsBaner{
     display: flex;
     align-items: center;
@@ -227,6 +272,8 @@
     font-size: 0.7rem;
     margin-left: 0.3rem;
 }
+
+
 @media (max-width: 1024px) {
     .container{
         width: 91.46vw;

@@ -37,6 +37,15 @@
         width: 1vw;
     }
 }
+.closeBtn path{
+    transition-duration: 0.3s;
+}
+.closeBtn:hover path{
+    fill: #fff;
+}
+.closeBtn:hover{
+    background: #0c3c3a;
+}
 
 .title {
     color: var(--Green-Black, #0C1618);

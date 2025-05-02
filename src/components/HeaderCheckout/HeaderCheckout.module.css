@@ -41,6 +41,15 @@
         width: 1.04vw;
     }
 }
+.backPage:hover{
+    background: #0c3c3a;
+}
+.backPage path{
+    transition-duration: 0.3s;
+}
+.backPage:hover path{
+    fill: #fff;
+}
 .phone {
     color: var(--Green-Black, #0C1618);
     font-variant-numeric: lining-nums proportional-nums;

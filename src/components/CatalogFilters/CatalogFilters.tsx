@@ -72,7 +72,12 @@ const CatalogFilters = ({
 
             {/* Ціна */}
             <div className={s.block} id="filter-price">
-                <h4 onClick={() => toggleBlock('filter-price')} className={s.headingFilter}>Ціна</h4>
+                <div onClick={() => toggleBlock('filter-price')} className={`${s.headerFilter} ${openBlocks['filter-price'] ? s.active : ''}`}>
+                    <h4  className={s.headingFilter}>Ціна</h4>
+                    <svg className={s.iconClick} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M16 7.33333H8.66667V0H7.33333V7.33333H0V8.66667H7.33333V16H8.66667V8.66667H16V7.33333Z" fill="#1A1A1A"/>
+                    </svg>
+                </div>
                 {openBlocks['filter-price'] && (
                     <div className={s.priceInputs}>
                         <div className={s.priceLabels}>
@@ -120,7 +125,12 @@ const CatalogFilters = ({
             {/* Підкатегорії */}
             {subcategories.length > 0 && (
                 <div className={s.block} id="filter-subcategories">
-                    <h4 onClick={() => toggleBlock('filter-subcategories')} className={s.headingFilter}>Підкатегорії</h4>
+                    <div onClick={() => toggleBlock('filter-subcategories')} className={`${s.headerFilter} ${openBlocks['filter-subcategories'] ? s.active : ''}`}>
+                        <h4  className={s.headingFilter}>Підкатегорії</h4>
+                        <svg className={s.iconClick} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M16 7.33333H8.66667V0H7.33333V7.33333H0V8.66667H7.33333V16H8.66667V8.66667H16V7.33333Z" fill="#1A1A1A"/>
+                        </svg>
+                    </div>
                     {openBlocks['filter-subcategories'] && (
                         <ul className={s.optionsList}>
                             <li>
@@ -157,7 +167,12 @@ const CatalogFilters = ({
                 const blockId = `filter-attr-${attr.slug}`;
                 return (
                     <div className={s.block} key={attr.slug} id={blockId}>
-                        <h4 onClick={() => toggleBlock(blockId)} className={s.headingFilter}>{attr.name}</h4>
+                        <div onClick={() => toggleBlock(blockId)} className={`${s.headerFilter} ${openBlocks[blockId] ? s.active : ''}`}>
+                            <h4  className={s.headingFilter}>{attr.name}</h4>
+                            <svg className={s.iconClick} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M16 7.33333H8.66667V0H7.33333V7.33333H0V8.66667H7.33333V16H8.66667V8.66667H16V7.33333Z" fill="#1A1A1A"/>
+                            </svg>
+                        </div>
                         {openBlocks[blockId] && (
                             <ul className={s.optionsList}>
                                 {attr.options.map((opt) => (

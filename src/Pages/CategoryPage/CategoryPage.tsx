@@ -233,7 +233,7 @@ const CategoryPage = () => {
                         variant="catalog"
                         crumbs={[
                             { label: 'Головна', url: '/' },
-                            { label: category?.name || 'Каталог', url: `/product-category/${slug}` },
+                            { label: category?.name || 'Каталог' },
                         ]}
                     />
                 )}

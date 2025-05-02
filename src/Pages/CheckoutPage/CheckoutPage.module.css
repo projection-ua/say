@@ -30,6 +30,10 @@
     font-weight: 500;
     line-height: 120%; /* 16.8px */
     letter-spacing: 0.42px;
+    transition-duration: 0.3s;
+}
+.mapBtn:hover{
+    background: #0c1618;
 }
 .shippingInfo .inputRow{
     margin-bottom: 0.83vw;
@@ -254,10 +258,11 @@ select {
     align-self: stretch;
     margin-top: 0.83vw;
     width: 100%;
+    transition-duration: 0.3s;
 }
 
 .submitButton:hover {
-    background: #333;
+    background: #0c1618;
 }
 
 .accordionToggle {
@@ -401,6 +406,15 @@ select {
     align-items: center;
     justify-content: center;
 }
+.quantityControls button:hover{
+    background: #0c3c3a;
+}
+.quantityControls button path{
+    transition-duration: 0.3s;
+}
+.quantityControls button:hover path{
+    fill: #fff;
+}
 .cartItemCenter {
     flex: 1;
 }
@@ -432,6 +446,16 @@ select {
     gap: 10px;
     border-radius: 0.41vw;
     background: #F6F6F6;
+}
+.delateItem {
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition-duration: 0.3s;
+}
+.delateItem:hover{
+    transform: rotate(90deg);
 }
 .errorText {
     color: red;

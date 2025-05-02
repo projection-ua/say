@@ -101,7 +101,12 @@
 .link:hover {
     opacity: 0.75;
 }
-
+.link svg{
+    transition-duration: 0.3s;
+}
+.link:hover svg{
+    transform: rotate(45deg);
+}
 
 
 

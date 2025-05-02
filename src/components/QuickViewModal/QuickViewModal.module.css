@@ -237,7 +237,7 @@
     height: 2.91vw;
 }
 .addToCartBtn:hover{
-    background: #003C3A;
+    background: #0c1618;
     color: #FFFEFC;
 }
 .addToWishlistBtn{
@@ -324,12 +324,15 @@
     color: #000;
     text-align: center;
     font-variant-numeric: lining-nums proportional-nums;
-     
+    transition-duration: 0.3s;
     font-size: 0.72vw;
     text-transform: uppercase;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
+}
+.optionBtn:hover{
+    border-color: #0c1618;
 }
 .active{
     background: #003C3A;
@@ -359,6 +362,16 @@
     padding: 0.625vw 1.25vw;
     display: flex;
     height: max-content;
+    transition-duration: 0.3s;
+}
+.arrow:hover{
+    background: #0c3c3a;
+}
+.arrow path{
+    transition-duration: 0.3s;
+}
+.arrow:hover path{
+    stroke: #fff;
 }
 .arrowPrev{
     left: 1.25vw;
@@ -386,6 +399,7 @@
     margin-bottom: 1.66vw;
     transition-duration: 0.3s;
     position: relative;
+    overflow: hidden;
 }
 .sizeButton:before{
     content: '';
@@ -400,6 +414,7 @@
 }
 .sizeButton:hover{
     color: #FFFFFF;
+    border-radius: 9px;
 }
 .sizeButton path{
     transition-duration: 0.3s;

@@ -29,6 +29,7 @@
   max-height: 90%;
   overflow-y: auto;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
 
   h2 {
     color: var(--Green-Black, #0C1618);
@@ -68,19 +69,21 @@
   font-size: 1.2rem;
   cursor: pointer;
 
-  svg {
-    width: 2.7vw;
-    height: 2.7vw;
-    stroke: black;
-    transition: stroke 0.3s;
-  }
+
 }
 
-.closeButton:hover {
-  svg {
-    stroke: var(--primary);
-  }
+.closeButton svg {
+  width: 2.7vw;
+  height: 2.7vw;
+  stroke: black;
+  transition: stroke 0.3s;
+  transition-duration: 0.3s;
 }
+
+.closeButton:hover svg {
+    transform: rotate(90deg);
+}
+
 
 .popupList {
   list-style: none;
@@ -144,7 +147,6 @@
     font-weight: 500;
     font-size: 0.72vw;
     line-height: 1.3vw;
-    letter-spacing: 0%;
     padding: 0.9vw 1.1vw;
     color: black;
     border-radius: 0.46vw;
@@ -198,7 +200,11 @@
     font-weight: 700;
     line-height: 100%; /* 16px */
     text-transform: uppercase;
+    transition-duration: 0.3s;
     width: 100%;
+  }
+  .submitButton:hover{
+    background: #0c1618
   }
 }
 

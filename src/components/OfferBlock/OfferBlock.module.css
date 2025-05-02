@@ -54,8 +54,12 @@
     line-height: 100%; /* 16px */
     text-transform: uppercase;
     margin-top: 2.5vw;
+    transition-duration: 0.3s;
 }
-
+.content a:hover{
+    background: #003C3A;
+    color: #fff;
+}
 
 
 .arrowsWrap{
@@ -71,6 +75,15 @@
     align-items: center;
     gap: 3.125vw;
     z-index: 99;
+    transition-duration: 0.3s;
+    :hover{
+        path{
+            fill: #003C3A;
+        }
+    }
+}
+.arrowsWrap:hover{
+    border-color: #003C3A;
 }
 .swiperPagination{
     display: flex;

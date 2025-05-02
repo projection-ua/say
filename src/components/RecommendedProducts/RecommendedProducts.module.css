@@ -13,12 +13,22 @@
 .navBtn {
     z-index: 99;
     display: flex;
-    padding: 0.625vw 1.25vw;
+    padding: 0.425vw 1.25vw;
     align-items: center;
     border-radius: 0.83vw;
     border: 0.05vw solid rgba(12, 22, 24, 0.10);
     background: #FFF;
     backdrop-filter: blur(0.104vw);
+    transition-duration: 0.3s;
+}
+.navBtn:hover{
+    background: #0c3c3a;
+}
+.navBtn path{
+    transition-duration: 0.3s;
+}
+.navBtn:hover path{
+    stroke: #fff;
 }
 
 .recommendedSwiper {

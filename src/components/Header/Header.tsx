@@ -58,6 +58,24 @@ const Header = () => {
 
 
 
+    const [isSticky, setIsSticky] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 150) {
+                setIsSticky(true);
+            } else {
+                setIsSticky(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+
+
+
 
 
     const loadCategoryImage = async (slug: string) => {
@@ -150,7 +168,8 @@ const Header = () => {
                 isOpen={isSearchOpen}
                 onClose={() => setSearchOpen(false)}
             />
-            <header className={s.header}>
+            <div className={isSticky ? s.headerPlaceholder : ''}></div>
+            <header className={`${s.header} ${isSticky ? s.sticky : ''}`}>
                 <div className={s.container}>
                     <div className={s.topBar}>
 
@@ -228,7 +247,12 @@ const Header = () => {
                                                 onMouseEnter={() => setActiveSubmenuId(parent.id)}
                                                 onMouseLeave={() => setActiveSubmenuId(null)}
                                             >
-                                                <Link to={convertUrl(parent.url)}>{parent.title}</Link>
+                                                <Link to={convertUrl(parent.url)}>
+                                                    {parent.title}
+                                                    <svg className={s.iconDown} xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                                                        <path d="M0.799805 1L4.7998 5L8.7998 1" stroke="black" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </Link>
 
                                                 {children.length > 0 && (
                                                     <ul className={`${s.submenu} ${activeSubmenuId === parent.id ? s.active : ''}`}>

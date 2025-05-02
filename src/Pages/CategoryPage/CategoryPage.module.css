@@ -168,6 +168,10 @@
     font-weight: 600;
     line-height: 100%; /* 16px */
     text-transform: uppercase;
+    transition-duration: 0.3s;
+}
+.applyBtn:hover{
+    background: #0c1618;
 }
 .resetBtn{
     display: flex;
@@ -183,6 +187,11 @@
     font-weight: 600;
     line-height: 100%; /* 16px */
     text-transform: uppercase;
+    transition-duration: 0.3s;
+}
+.resetBtn:hover{
+    background: #0c3c3a;
+    color: #fff;
 }
 .loadMoreBtn{
     display: flex;
@@ -201,6 +210,10 @@
     line-height: 100%; /* 16px */
     text-transform: uppercase;
     margin-top: 1.66vw;
+    transition-duration: 0.3s;
+}
+.loadMoreBtn:hover{
+    background: #0c1618;
 }
 
 

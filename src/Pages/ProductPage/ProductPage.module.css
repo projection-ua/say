@@ -87,6 +87,10 @@
     font-style: normal;
     font-weight: 500;
     line-height: normal;
+    transition-duration: 0.3s;
+}
+.optionBtn:hover{
+    border-color: #0c1618;
 }
 .active{
     background: #003C3A;
@@ -209,7 +213,7 @@
     height: 2.91vw;
 }
 .addToCartBtn:hover{
-    background: #003C3A;
+    background: #0c1618;
     color: #FFFEFC;
 }
 .addToWishlistBtn{

@@ -95,6 +95,10 @@
     background: none;
     border: none;
     cursor: pointer;
+    transition-duration: 0.3s;
+}
+.closeBtn:hover{
+    transform: rotate(90deg);
 }
 
 .body {
@@ -218,6 +222,16 @@
     padding: 0.41vw;
     border-radius: 0.41vw;
     background: #F6F6F6;
+    transition-duration: 0.3s;
+}
+.remove:hover{
+    background: #0c3c3a;
+}
+.remove path{
+    transition-duration: 0.3s;
+}
+.remove:hover path{
+    fill: #fff;
 }
 
 .rightPanel {
@@ -307,6 +321,10 @@
     line-height: 100%; /* 16px */
     text-transform: uppercase;
     margin-bottom: 0.52vw;
+    transition-duration: 0.3s;
+}
+.checkout:hover{
+    background: #0c1618;
 }
 
 
@@ -324,6 +342,11 @@
     text-transform: uppercase;
     width: 100%;
     border: 1px solid var(--GreenLight, #003C3A);
+    transition-duration: 0.3s;
+}
+.continue:hover{
+    background: #0c3c3a;
+    color: #fff;
 }
 
 .quantityControls span{
@@ -343,6 +366,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    transition-duration: 0.3s;
+}
+.quantityControls button:hover{
+    background: #0c3c3a;
+}
+.quantityControls button path{
+    transition-duration: 0.3s;
+}
+.quantityControls button:hover path{
+    fill: #fff;
 }
 .cartItemCenter {
     flex: 1;

@@ -55,6 +55,16 @@
     svg{
         width: 1vw;
     }
+    transition-duration: 0.3s;
+}
+.closeBtn:hover{
+    background: #0c3c3a;
+}
+.closeBtn path{
+    transition-duration: 0.3s;
+}
+.closeBtn:hover path{
+    fill: #fff;
 }
 
 .header {
