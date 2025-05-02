@@ -9,4 +9,6 @@ export interface CartItem {
     sku: string;
     variationId?: number;
     attributes?: Record<string, string>;
+    meta_data?: { key: string; value: string }[];
+    isGiftCertificate?: boolean;
 }

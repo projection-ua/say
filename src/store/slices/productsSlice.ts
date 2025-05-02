@@ -43,7 +43,12 @@ const productsSlice = createSlice({
                 state.error = null;
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
-                state.items = action.payload;
+                // 🔥 Фільтруємо товари, в яких categories НЕ містять slug 'gift-certificate'
+                const filteredItems = action.payload.filter((product) =>
+                    !product.categories?.some((category) => category.slug === 'gift-certificate')
+                );
+
+                state.items = filteredItems;
                 state.loading = false;
             })
             .addCase(fetchProducts.rejected, (state, action) => {

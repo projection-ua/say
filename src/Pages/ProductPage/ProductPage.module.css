@@ -616,3 +616,54 @@
 .addToCartBtn:disabled {
     opacity: 0.3;
 }
+
+
+
+
+.giftForm{
+    margin: 1.65vw 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.82vw;
+    width: 100%;
+}
+.inputRow{
+    display: flex;
+    gap: 0.82vw;
+    width: 100%;
+}
+
+
+.giftForm input{
+    padding: 1.04vw 0.83vw;
+    background: #FBFBFB;
+    border-radius: 0.46vw;
+    color: #0C1618;
+    font-size: 0.72vw;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 120%; /* 16.8px */
+    letter-spacing: 0.42px;
+    width: 100%;
+}
+
+
+@media (max-width: 1024px) {
+    .inputRow{
+        display: flex;
+        flex-direction: column;
+        gap: 4.26vw;
+        width: 100%;
+    }
+    .giftForm{
+        gap: 4.26vw;
+        margin: 8.53vw 0;
+    }
+    .giftForm input{
+        padding: 5.86vw 4.26vw;
+        background: #FBFBFB;
+        border-radius: 2.4vw;
+        color: #0C1618;
+        font-size: 3.73vw;
+    }
+}

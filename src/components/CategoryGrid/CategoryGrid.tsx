@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css'; // Не забудь імпорти стилів Swiper
 import 'swiper/css/navigation';
 import s from './CategoryGrid.module.css';
+import {LoaderMini} from "../LoaderMini/LoaderMini.tsx";
 
 const useIsMobile = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
@@ -26,26 +27,34 @@ const CategoryGrid = () => {
     const isMobile = useIsMobile(); // використання мобайл-перевірки
 
     useEffect(() => {
-        const fetch = async () => {
-            try {
-                const data = await getCategories();
-                const filtered = data.filter(
-                    (cat) =>
-                        cat.count > 0 &&
-                        cat.parent === 0 &&
-                        cat.name.toLowerCase() !== 'без категорії'
-                );
-                setCategories(filtered);
-            } catch {
-                setError('Не вдалося завантажити категорії');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetch();
+        const cachedCategories = localStorage.getItem('categories');
+
+        if (cachedCategories) {
+            setCategories(JSON.parse(cachedCategories));
+            setLoading(false);
+        } else {
+            const fetch = async () => {
+                try {
+                    const data = await getCategories();
+                    const filtered = data.filter(
+                        (cat) =>
+                            cat.count > 0 &&
+                            cat.parent === 0 &&
+                            cat.name.toLowerCase() !== 'без категорії'
+                    );
+                    setCategories(filtered);
+                    localStorage.setItem('categories', JSON.stringify(filtered));
+                } catch {
+                    setError('Не вдалося завантажити категорії');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetch();
+        }
     }, []);
 
-    if (loading) return <p>Завантаження категорій...</p>;
+    if (loading) return <LoaderMini/>;
     if (error) return <p className={s.error}>{error}</p>;
 
     return (

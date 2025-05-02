@@ -62,11 +62,20 @@ interface CouponData {
     meta_data: { key: string; value: string }[];
 }
 
-interface OrderLineItem {
+
+export interface OrderMetaData {
+    key: string;
+    value: string;
+}
+
+export interface OrderLineItem {
     product_id: number;
     variation_id?: number;
     quantity: number;
+    meta_data?: OrderMetaData[];
 }
+
+
 
 interface OrderData {
     payment_method: string;
@@ -354,7 +363,16 @@ const CheckoutPage: React.FC = () => {
                         product_id: item.id,
                         variation_id: item.variationId || undefined,
                         quantity: item.quantity,
+                        meta_data: item.isGiftCertificate
+                            ? [
+                                { key: 'gift_from', value: item.meta_data?.find(m => m.key === 'gift_from')?.value || '' },
+                                { key: 'gift_to', value: item.meta_data?.find(m => m.key === 'gift_to')?.value || '' },
+                                { key: 'gift_email', value: item.meta_data?.find(m => m.key === 'gift_email')?.value || '' },
+                                { key: 'gift_message', value: item.meta_data?.find(m => m.key === 'gift_message')?.value || '' },
+                            ]
+                            : [],
                     })),
+
                     customer_note: values.comment,
                     coupon_lines: values.coupon ? [{ code: values.coupon }] : [],
                     meta_data: [

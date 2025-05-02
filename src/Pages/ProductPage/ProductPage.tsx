@@ -23,6 +23,8 @@ import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs';
 import SizeChartModal from '../../components/SizeChart/SizeChart.tsx';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
 const ProductPage = () => {
     const { slug } = useParams();
@@ -30,6 +32,21 @@ const ProductPage = () => {
     const currentUrl = `${window.location.origin}${location.pathname}`;
 
     const [seoData, setSeoData] = useState<any>(null);
+
+
+    const giftSchema = Yup.object().shape({
+        giftFrom: Yup.string().required("Введіть ім'я відправника"),
+        giftTo: Yup.string().required("Введіть ім'я отримувача"),
+        giftEmail: Yup.string().email('Некоректний email').required("Введіть email отримувача"),
+        giftMessage: Yup.string(),
+    });
+
+
+
+
+
+
+
 
     useEffect(() => {
         const fetchSeo = async () => {
@@ -44,6 +61,8 @@ const ProductPage = () => {
 
     const dispatch = useDispatch();
     const [product, setProduct] = useState<ProductInfo | null>(null);
+
+
     const [variations, setVariations] = useState<Variation[]>([]);
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
@@ -66,6 +85,9 @@ const ProductPage = () => {
     const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
 
     const [reviews, setReviews] = useState<ReviewerType[]>([]);
+
+
+
 
 
     useEffect(() => {
@@ -130,8 +152,32 @@ const ProductPage = () => {
         setSelectedOptions(prev => ({ ...prev, [name]: option }));
     };
 
-    const handleAddToCart = () => {
+
+    const handleAddToCart = async () => {
         if (!product) return;
+
+        if (isGiftCertificate) {
+            const errors = await formik.validateForm();
+            if (Object.keys(errors).length > 0) {
+                // Якщо є помилки → позначити всі поля як "touched" для відображення повідомлень
+                formik.setTouched({
+                    giftFrom: true,
+                    giftTo: true,
+                    giftEmail: true,
+                    giftMessage: true,
+                });
+                return; // ❌ Не додаємо в кошик
+            }
+        }
+
+        const meta_data = isGiftCertificate
+            ? [
+                { key: 'gift_from', value: formik.values.giftFrom },
+                { key: 'gift_to', value: formik.values.giftTo },
+                { key: 'gift_email', value: formik.values.giftEmail },
+                { key: 'gift_message', value: formik.values.giftMessage },
+            ]
+            : [];
 
         dispatch(addToCart({
             id: product.id,
@@ -152,10 +198,59 @@ const ProductPage = () => {
             image: product.images?.[0]?.src || '',
             variationId: selectedVariation?.id,
             attributes: Object.keys(selectedOptions).length ? selectedOptions : undefined,
+            meta_data,
         }));
 
         dispatch(setCartOpen(true));
     };
+
+    const isGiftCertificate = product?.categories?.some(cat => cat.slug === 'gift-certificate');
+
+
+    const formik = useFormik({
+        initialValues: {
+            giftFrom: '',
+            giftTo: '',
+            giftEmail: '',
+            giftMessage: '',
+        },
+        validationSchema: giftSchema,
+        validateOnBlur: true,
+        validateOnChange: false,
+        onSubmit: (values) => {
+            if (!product) return;
+
+            dispatch(addToCart({
+                id: product.id,
+                name: product.name,
+                price: selectedVariation?.price
+                    ? +selectedVariation.price
+                    : +product.price,
+                regular_price: selectedVariation?.regular_price
+                    ? +selectedVariation.regular_price
+                    : +product.regular_price,
+                sale_price: selectedVariation?.sale_price
+                    ? +selectedVariation.sale_price
+                    : product.sale_price
+                        ? +product.sale_price
+                        : null,
+                quantity: 1,
+                sku: product.sku,
+                image: product.images?.[0]?.src || '',
+                variationId: selectedVariation?.id,
+                attributes: Object.keys(selectedOptions).length ? selectedOptions : undefined,
+                meta_data: isGiftCertificate
+                    ? [
+                        { key: 'gift_from', value: values.giftFrom },
+                        { key: 'gift_to', value: values.giftTo },
+                        { key: 'gift_email', value: values.giftEmail },
+                        { key: 'gift_message', value: values.giftMessage },
+                    ]
+                    : [],
+            }));
+            dispatch(setCartOpen(true));
+        }
+    });
 
 
 
@@ -163,9 +258,8 @@ const ProductPage = () => {
 
     if (loading || !product) return <Loader />;
 
+
     const doglyad = product.meta_data?.find((meta) => meta.key === '_doglyad')?.value;
-
-
 
 
     return (
@@ -281,6 +375,62 @@ const ProductPage = () => {
                             </div>
                         )}
 
+                        {isGiftCertificate && (
+                            <form id="giftForm" onSubmit={formik.handleSubmit} className={s.giftForm}>
+                                <div className={s.inputRow}>
+                                    <input
+                                        type="text"
+                                        name="giftFrom"
+                                        placeholder="Ім'я відправника"
+                                        value={formik.values.giftFrom}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                    />
+                                    {formik.touched.giftFrom && formik.errors.giftFrom && (
+                                        <div className={s.error}>{formik.errors.giftFrom}</div>
+                                    )}
+                                    <input
+                                        type="text"
+                                        name="giftTo"
+                                        placeholder="Ім'я отримувача"
+                                        value={formik.values.giftTo}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                    />
+                                    {formik.touched.giftTo && formik.errors.giftTo && (
+                                        <div className={s.error}>{formik.errors.giftTo}</div>
+                                    )}
+                                </div>
+                                <div>
+                                    <input
+                                        type="email"
+                                        name="giftEmail"
+                                        placeholder="Email отримувача"
+                                        value={formik.values.giftEmail}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                    />
+                                    {formik.touched.giftEmail && formik.errors.giftEmail && (
+                                        <div className={s.error}>{formik.errors.giftEmail}</div>
+                                    )}
+                                </div>
+                                <div>
+                                    <input
+                                        name="giftMessage"
+                                        placeholder="Повідомлення для отримувача"
+                                        value={formik.values.giftMessage}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                    />
+                                    {formik.touched.giftMessage && formik.errors.giftMessage && (
+                                        <div className={s.error}>{formik.errors.giftMessage}</div>
+                                    )}
+                                </div>
+                            </form>
+                        )}
+
+
+                        {!isGiftCertificate && (
                         <button className={s.sizeButton} onClick={() => setSizeOpen(true)}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="20" viewBox="0 0 25 20" fill="none">
                                 <path d="M7.43597 6.4172C9.39038 6.6559 13.174 6.02613 13.0964 4.40814C13.0963 4.35072 13.0848 4.29389 13.0626 4.24093C13.0405 4.18796 13.0081 4.1399 12.9673 4.09951C12.9264 4.05912 12.878 4.0272 12.8249 4.00559C12.7717 3.98398 12.7147 3.97311 12.6573 3.97359C12.5404 3.97462 12.4287 4.0218 12.3465 4.10487C12.2643 4.18793 12.2182 4.30013 12.2184 4.41701C12.1337 5.25289 8.90975 5.74743 7.49531 5.54185C5.57101 5.38935 4.50674 4.77984 4.50674 4.41701C4.69364 3.37646 8.93689 2.92316 10.7842 3.55406C10.8956 3.58267 11.0137 3.56647 11.1132 3.50893C11.2127 3.45139 11.2857 3.35711 11.3165 3.24634C11.3472 3.13558 11.3333 3.01717 11.2777 2.91656C11.2221 2.81594 11.1292 2.74116 11.0191 2.70827C8.97964 2.02787 3.63975 2.35088 3.62891 4.41706C3.62888 5.67074 5.67429 6.27811 7.43597 6.4172Z" fill="black"/>
@@ -288,7 +438,7 @@ const ProductPage = () => {
                             </svg>
                             Таблиця розмірів
                         </button>
-
+                        )}
 
 
 
@@ -310,16 +460,19 @@ const ProductPage = () => {
                         <div className={s.actionButtons}>
                             <button
                                 className={s.addToCartBtn}
+                                type={isGiftCertificate ? "submit" : "button"}
+                                form={isGiftCertificate ? "giftForm" : undefined}
+                                onClick={!isGiftCertificate ? handleAddToCart : undefined}
                                 disabled={
                                     (product.variations.length > 0 && !selectedVariation) || // якщо треба вибрати варіацію
                                     (selectedVariation
                                         ? selectedVariation.stock_status === 'outofstock' || selectedVariation.stock_quantity === 0
                                         : product.stock_status === 'outofstock' || product.stock_quantity === 0) // якщо немає в наявності
                                 }
-                                onClick={handleAddToCart}
                             >
                                 Додати в кошик
                             </button>
+
                             <button
                                 className={`${s.addToWishlistBtn} ${isInWishlist    ? s.active : ''}`}
                                 aria-label="Додати в улюблене"
@@ -333,7 +486,10 @@ const ProductPage = () => {
 
                         {/* Опис */}
                         <div className={s.description}>
-                            <h4 className={s.headingBackdrop}>Опис товару:</h4>
+                            <h4 className={s.headingBackdrop}>
+                                {!isGiftCertificate ? "Опис товару:" : "Умови використання:"}
+                            </h4>
+
                             {product.description ? (
                                 <div className={s.descriptionItems} dangerouslySetInnerHTML={{ __html: product.description }} />
                             ) : (
@@ -341,33 +497,37 @@ const ProductPage = () => {
                             )}
                         </div>
 
-                        <Accordion title="Догляд">
-                            {doglyad ? (
-                                <div dangerouslySetInnerHTML={{ __html: doglyad }} />
-                            ) : (
-                                <p>Опис відсутній</p>
-                            )}
-                        </Accordion>
+                        {!isGiftCertificate && (
+                            <>
+                                <Accordion title="Догляд">
+                                    {doglyad ? (
+                                        <div dangerouslySetInnerHTML={{ __html: doglyad }} />
+                                    ) : (
+                                        <p>Опис відсутній</p>
+                                    )}
+                                </Accordion>
 
 
-                        <Accordion title="Доставка та оплата">
-                            <p>
-                                <b>Доставка по Україні</b> <br/>
-                                Нова Пошта – доставка у відділення або кур’єром за 1-3 дні.<br/>
-                                Укрпошта – бюджетний варіант доставки, термін 2-5 днів.<br/>
-                                Самовивіз (за наявності шоуруму) – уточнюйте локацію.<br/><br/>
+                                <Accordion title="Доставка та оплата">
+                                    <p>
+                                        <b>Доставка по Україні</b> <br/>
+                                        Нова Пошта – доставка у відділення або кур’єром за 1-3 дні.<br/>
+                                        Укрпошта – бюджетний варіант доставки, термін 2-5 днів.<br/>
+                                        Самовивіз (за наявності шоуруму) – уточнюйте локацію.<br/><br/>
 
-                                <b>Оплата</b><br/>
-                                Онлайн-оплата – банківською карткою Visa/MasterCard.<br/>
-                                Оплата при отриманні (накладений платіж) – можливість огляду перед покупкою.<br/>
-                                Оплата через Apple Pay / Google Pay – швидко та зручно.<br/><br/>
+                                        <b>Оплата</b><br/>
+                                        Онлайн-оплата – банківською карткою Visa/MasterCard.<br/>
+                                        Оплата при отриманні (накладений платіж) – можливість огляду перед покупкою.<br/>
+                                        Оплата через Apple Pay / Google Pay – швидко та зручно.<br/><br/>
 
-                                <b>Обмін та повернення</b><br/>
-                                Обмін та повернення можливі протягом 14 днів відповідно до Закону України «Про захист прав споживачів».<br/>
-                                Товари без слідів носіння, зі збереженими бирками та в оригінальній упаковці можна повернути.<br/>
-                                Доставка повернення – за рахунок покупця, якщо товар не має браку.<br/>
-                            </p>
-                        </Accordion>
+                                        <b>Обмін та повернення</b><br/>
+                                        Обмін та повернення можливі протягом 14 днів відповідно до Закону України «Про захист прав споживачів».<br/>
+                                        Товари без слідів носіння, зі збереженими бирками та в оригінальній упаковці можна повернути.<br/>
+                                        Доставка повернення – за рахунок покупця, якщо товар не має браку.<br/>
+                                    </p>
+                                </Accordion>
+                            </>
+                        )}
                     </div>
                 </div>
 

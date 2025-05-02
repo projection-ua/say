@@ -55,26 +55,13 @@ const initialState: CategoriesState = {
 const categoriesSlice = createSlice({
     name: 'categories',
     initialState,
-    reducers: {},
+    reducers: {
+        loadCategoriesFromCache: (state, action: PayloadAction<Record<string, CategoryInfo>>) => {
+            state.items = action.payload;
+        },
+    },
     extraReducers: (builder) => {
         builder
-            // --- fetchCategoryBySlug ---
-            .addCase(fetchCategoryBySlug.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(fetchCategoryBySlug.fulfilled, (state, action: PayloadAction<CategoryInfo | null>) => {
-                state.loading = false;
-                if (action.payload) {
-                    state.items[action.payload.slug] = action.payload;
-                }
-            })
-            .addCase(fetchCategoryBySlug.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.error.message || 'Fetch error';
-            })
-
-            // --- fetchCategories ---
             .addCase(fetchCategories.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -84,6 +71,7 @@ const categoriesSlice = createSlice({
                 action.payload.forEach((cat) => {
                     state.items[cat.slug] = cat;
                 });
+                localStorage.setItem('categories', JSON.stringify(state.items));
             })
             .addCase(fetchCategories.rejected, (state, action) => {
                 state.loading = false;
@@ -91,6 +79,7 @@ const categoriesSlice = createSlice({
             });
     },
 });
+
 
 // 👇 default reducer
 export default categoriesSlice.reducer;

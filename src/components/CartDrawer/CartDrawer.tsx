@@ -36,7 +36,6 @@ const CartDrawer = () => {
     );
 
 
-
     const discount = subtotal - total;
     const deliveryThreshold = 2000;
     const remainingToFreeShipping = Math.max(0, deliveryThreshold - total);

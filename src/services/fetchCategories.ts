@@ -10,11 +10,23 @@ export const getCategories = async (): Promise<CategoryInfo[]> => {
         return Object.values(existingCategories);
     }
 
+    const cachedCategories = localStorage.getItem('categories');
+    if (cachedCategories) {
+        const parsed = JSON.parse(cachedCategories);
+        store.dispatch({
+            type: 'categories/loadFromCache', // ❗️потрібно додати такий редюсер
+            payload: parsed,
+        });
+        return parsed;
+    }
+
     const resultAction = await store.dispatch(fetchCategories());
 
     if (fetchCategories.fulfilled.match(resultAction)) {
         const newState = store.getState();
-        return Object.values(newState.categories.items);
+        const categories = Object.values(newState.categories.items);
+        localStorage.setItem('categories', JSON.stringify(categories));
+        return categories;
     } else {
         console.error('Не вдалося завантажити категорії:', resultAction.error);
         return [];
