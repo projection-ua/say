@@ -18,7 +18,6 @@ const HeroSlider : React.FC <HomePageProps> = ({slides} ) => {
                     el: '.swiper-custom-pagination',
                     clickable: true,
                 }}
-                loop
                 navigation={{
                     nextEl: '.swiper-hero-next',
                     prevEl: '.swiper-hero-prev',

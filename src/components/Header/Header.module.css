@@ -275,6 +275,23 @@
 
 
 @media (max-width: 1024px) {
+
+    .header {
+        display: flex;
+        flex-direction: column;
+        padding-top: 1.04vw;
+        padding-bottom: 0.83vw;
+        background-color: white;
+        position: relative;
+        z-index: 999;
+        height: 20.26vw;
+    }
+    .headerPlaceholder {
+        height: 20.26vw; /* така ж висота як у хедера */
+    }
+
+
+
     .container{
         width: 91.46vw;
         margin: 0 auto;
