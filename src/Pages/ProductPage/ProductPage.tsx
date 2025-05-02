@@ -21,7 +21,7 @@ import { removeFromWishlist } from '../../store/slices/wishlistSlice';
 import {RootState} from "../../store/store.ts";
 import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs';
 import SizeChartModal from '../../components/SizeChart/SizeChart.tsx';
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
 
 const ProductPage = () => {
@@ -170,6 +170,7 @@ const ProductPage = () => {
 
     return (
         <>
+            <HelmetProvider>
             <Helmet>
                 <title>{seoData?.title || 'Say'}</title>
                 <link rel="canonical" href={currentUrl} />
@@ -190,6 +191,7 @@ const ProductPage = () => {
                     />
                 )}
             </Helmet>
+            </HelmetProvider>
 
             <div className={s.container}>
 

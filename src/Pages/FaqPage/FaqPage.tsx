@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import s from './FaqPage.module.css'; // стиль створимо нижче
 import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs';
 
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
 import {useLocation} from "react-router-dom";
 
@@ -33,12 +33,12 @@ export const FaqPage = () => {
         };
 
         fetchSeo();
-    });
+    }, []);
 
     useEffect(() => {
         const fetchFaqs = async () => {
             try {
-                const response = await fetch('https://www.say.projection-learn.website/wp-json/wp/v2/faq');
+                const response = await fetch('https://api.say.in.ua/wp-json/wp/v2/faq');
                 const data = await response.json();
                 setFaqs(data);
             } catch (error) {
@@ -55,6 +55,8 @@ export const FaqPage = () => {
 
     return (
         <div className={s.page}>
+
+            <HelmetProvider>
             <Helmet>
                 <title>{seoData?.title || 'Say'}</title>
                 <link rel="canonical" href={currentUrl} />
@@ -75,6 +77,7 @@ export const FaqPage = () => {
                     />
                 )}
             </Helmet>
+            </HelmetProvider>
             <div
                 className={s.heroBanner}
                 style={{ backgroundImage: "url('/images/faq-baner.jpg')" }}

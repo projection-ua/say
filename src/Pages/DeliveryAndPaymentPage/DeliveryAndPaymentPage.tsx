@@ -1,7 +1,7 @@
 import s from './DeliveryAndPaymentPage.module.css';
 import {Breadcrumbs} from "../../components/Breadcrumbs/Breadcrumbs.tsx";
 
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
 import {useLocation} from "react-router-dom";
 import {useEffect, useState} from "react";
@@ -21,11 +21,12 @@ export const DeliveryPage = () => {
         };
 
         fetchSeo();
-    });
+    }, []);
 
 
     return (
         <div className={s.heroWrap}>
+            <HelmetProvider>
             <Helmet>
                 <title>{seoData?.title || 'Say'}</title>
                 <link rel="canonical" href={currentUrl} />
@@ -46,6 +47,7 @@ export const DeliveryPage = () => {
                     />
                 )}
             </Helmet>
+            </HelmetProvider>
             <div
                 className={s.heroBanner}
                 style={{ backgroundImage: "url('/images/delivery-baner.jpg')" }}

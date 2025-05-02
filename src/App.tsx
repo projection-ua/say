@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import {useState, useEffect} from 'react';
 import Header from './components/Header/Header';
 import HeaderCheckout from './components/HeaderCheckout/HeaderCheckout'; // твій інший хедер для Checkout
 import CartDrawer from './components/CartDrawer/CartDrawer.tsx';
@@ -18,6 +19,9 @@ import FaqPage from './Pages/FaqPage/FaqPage.tsx';
 import PrivacyPolicyPage from './Pages/PrivacyPolicyPage/PrivacyPolicyPage.tsx';
 import NotFoundPage from './components/NotFoundPage/NotFoundPage';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import './App.css';
 import './assets/styles/reset.css';
 import './assets/fonts/stylesheet.css';
@@ -25,12 +29,19 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-export const apiUrlWp = 'https://www.say.projection-learn.website/';
-export const apiUrl = 'https://www.say.projection-learn.website/wp-json/wc/v3/products';
+export const apiUrlWp = 'https://api.say.in.ua/';
+export const apiUrl = 'https://api.say.in.ua/wp-json/wc/v3/products';
 export const consumerKey = 'ck_49130dfdfc750a8753ce12f98c540d6fc3d7bb77';
 export const consumerSecret = 'cs_6793be5b47938c68448ba978d3aeb661a6a72a3f';
 
-
+export interface SlideData {
+    id: number;
+    image: string;
+    title: string;
+    subtitle: string;
+    buttonText: string;
+    buttonLink: string;
+}
 const Layout: React.FC = () => {
 
     const location = useLocation();
@@ -38,10 +49,39 @@ const Layout: React.FC = () => {
     const isCheckoutPage = location.pathname.includes('/checkout'); // або точна перевірка location.pathname === '/checkout'
 
 
+    const [slides, setSlides] = useState<SlideData[]>([]);
+
+    useEffect(() => {
+        const fetchSlides = async () => {
+            try {
+                const response = await fetch(`${apiUrlWp}wp-json/wp/v2/banner`);
+                const data = await response.json();
+
+                const mappedSlides = data.map((item: any) => ({
+                    id: item.id,
+                    image: item.load_image_text_image,
+                    title: item.input_title,
+                    subtitle: item.input_description,
+                    buttonText: item.input_btn_text,
+                    buttonLink: item.input_btn_link,
+                }));
+
+                setSlides(mappedSlides);
+            } catch (error) {
+                console.error('Помилка при завантаженні слайдів:', error);
+            }
+        };
+
+        fetchSlides();
+    }, []);
+
+
 
     return (
 
         <div className="flex flex-col min-h-screen relative">
+
+            <ToastContainer position="top-right" autoClose={3000} />
 
 
             {isCheckoutPage ? <HeaderCheckout /> : <Header />}
@@ -53,7 +93,7 @@ const Layout: React.FC = () => {
 
             <main className="flex-grow">
                 <Routes>
-                    <Route path="/" element={<HomePage />} />
+                    <Route path="/" element={<HomePage slides={slides} />} />
                     <Route path="/shop" element={<CategoryPage />} />
                     <Route path="/product-category/:slug" element={<CategoryPage />} />
                     <Route path="/product/:slug/:color?" element={<ProductPage />} />

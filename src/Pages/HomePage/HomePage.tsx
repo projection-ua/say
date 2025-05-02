@@ -6,18 +6,28 @@ import AboutBlock from "../../components/AboutBlock/AboutBlock.tsx";
 import TipsBlock from "../../components/TipsBlock/TipsBlock.tsx";
 import InstagramBlock from "../../components/InstagramBlock/InstagramBlock.tsx";
 
-import {Helmet} from "react-helmet";
+import {SlideData} from "../../App.tsx";
+
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {useLocation} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {apiUrlWp} from "../../App.tsx";
 
+export interface HomePageProps {
+    slides: SlideData[];
+}
 
-const HomePage = () => {
+const HomePage : React.FC <HomePageProps> = ({slides}) => {
+
+
 
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
 
     const [seoData, setSeoData] = useState<any>(null);
+
+
+
 
     useEffect(() => {
         const fetchSeo = async () => {
@@ -27,12 +37,13 @@ const HomePage = () => {
         };
 
         fetchSeo();
-    });
+    }, []);
 
 
 
     return (
         <div className={s.pageWrap}>
+            <HelmetProvider>
             <Helmet>
                 <title>{seoData?.title || 'Say'}</title>
                 <link rel="canonical" href={currentUrl} />
@@ -53,8 +64,9 @@ const HomePage = () => {
                     />
                 )}
             </Helmet>
+            </HelmetProvider>
 
-            <HeroSlider/>
+            <HeroSlider slides={slides}/>
 
             <div className={s.container}>
                 <SliderProducts filterTag="sale" title="Акції" />

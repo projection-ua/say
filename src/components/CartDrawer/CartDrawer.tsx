@@ -126,28 +126,34 @@ const CartDrawer = () => {
                             </div>
                         </div>
 
-                        <div className={s.rightPanel}>
-                            <div className={s.bonusBar}>
-                                До безкоштовної доставки залишилось <b>{remainingToFreeShipping} грн</b>.
-                                <div className={s.bonusProgress}>
-                                    <div className={s.progressLine} style={{ width: `${Math.min((total / deliveryThreshold) * 100, 100)}%` }}></div>
+
+                        {items.length > 0 && (
+
+                            <div className={s.rightPanel}>
+                                <div className={s.bonusBar}>
+                                    До безкоштовної доставки залишилось <b>{remainingToFreeShipping} грн</b>.
+                                    <div className={s.bonusProgress}>
+                                        <div className={s.progressLine} style={{ width: `${Math.min((total / deliveryThreshold) * 100, 100)}%` }}></div>
+                                    </div>
+                                </div>
+
+                                <div className={s.summaryBlock}>
+                                    <div className={s.line}><span className={s.firstSpan}>Сума замовлення</span><span className={s.spanBold}>{subtotal.toLocaleString()} ₴</span></div>
+                                    {discount > 0 && <div className={s.line}><span className={s.firstSpan}>Сума знижки</span><span className={s.spanBoldGray}>{discount.toLocaleString()} ₴</span></div>}
+                                    <div className={s.line}><span className={s.firstSpan}>Вартість доставки</span><span className={s.spanBold}>За тарифами "Нової Пошти"</span></div>
+
+                                    <div className={s.totalLine}>
+                                        <p>РАЗОМ</p>
+                                        <p>{total.toLocaleString()} ₴</p>
+                                    </div>
+
+                                    <Link to="/checkout" onClick={() => dispatch(setCartOpen(false))} className={s.checkout}>ОФОРМИТИ ЗАМОВЛЕННЯ</Link>
+                                    <button className={s.continue} onClick={() => dispatch(setCartOpen(false))}>ПРОДОВЖИТИ ПОКУПКИ</button>
                                 </div>
                             </div>
 
-                            <div className={s.summaryBlock}>
-                                <div className={s.line}><span className={s.firstSpan}>Сума замовлення</span><span className={s.spanBold}>{subtotal.toLocaleString()} ₴</span></div>
-                                {discount > 0 && <div className={s.line}><span className={s.firstSpan}>Сума знижки</span><span className={s.spanBoldGray}>{discount.toLocaleString()} ₴</span></div>}
-                                <div className={s.line}><span className={s.firstSpan}>Вартість доставки</span><span className={s.spanBold}>За тарифами "Нової Пошти"</span></div>
+                        )}
 
-                                <div className={s.totalLine}>
-                                    <p>РАЗОМ</p>
-                                    <p>{total.toLocaleString()} ₴</p>
-                                </div>
-
-                                <Link to="/checkout" onClick={() => dispatch(setCartOpen(false))} className={s.checkout}>ОФОРМИТИ ЗАМОВЛЕННЯ</Link>
-                                <button className={s.continue} onClick={() => dispatch(setCartOpen(false))}>ПРОДОВЖИТИ ПОКУПКИ</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
 

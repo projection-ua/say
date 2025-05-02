@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useParams } from 'react-router-dom';
 import { getProducts } from '../../services/fetchProducts';
-import { getCategories, CategoryInfo } from '../../services/fetchCategories.ts';
+import { getCategories } from '../../services/fetchCategories.ts';
+import { CategoryInfo } from '../../types/categoryTypes.ts';
 import { ProductInfo } from '../../types/productTypes';
 import ProductItem from '../../components/ProductItem/ProductItem';
 import s from '../CategoryPage/CategoryPage.module.css';
@@ -9,7 +10,7 @@ import CatalogFilters from '../../components/CatalogFilters/CatalogFilters';
 import Loader from '../../components/Loader/Loader';
 
 
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
 import {useLocation} from "react-router-dom";
 
@@ -36,7 +37,7 @@ const NewPage = () => {
         };
 
         fetchSeo();
-    });
+    }, []);
 
 
 
@@ -220,6 +221,7 @@ const NewPage = () => {
     return (
         <div className={s.categoryPage}>
 
+            <HelmetProvider>
             <Helmet>
                 <title>{seoData?.title || 'Say'}</title>
                 <link rel="canonical" href={currentUrl} />
@@ -240,6 +242,8 @@ const NewPage = () => {
                     />
                 )}
             </Helmet>
+            </HelmetProvider>
+
 
             <div
                 className={s.heroBanner}

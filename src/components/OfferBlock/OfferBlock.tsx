@@ -1,27 +1,15 @@
+import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import s from './OfferBlock.module.css';
+import {HomePageProps} from "../../Pages/HomePage/HomePage.tsx";
 
-const slides = [
-    {
-        id: 1,
-        image: '/images/offer-img.jpg', // заміни на свій шлях
-        title: 'Час для змін!',
-        subtitle: 'Відкрийте для себе нову колекцію білизни та купальників.',
-        buttonText: 'ПРИДБАТИ ЗАРАЗ',
-        buttonLink: '/category/underwear',
-    },
-    {
-        id: 2,
-        image: '/images/offer-img.jpg',
-        title: 'Літня колекція',
-        subtitle: 'Сміливі кольори. Нові форми. Абсолютний комфорт.',
-        buttonText: 'ПЕРЕГЛЯНУТИ',
-        buttonLink: '/category/swimwear',
-    },
-];
 
-const HeroSlider = () => {
+const HeroSlider : React.FC <HomePageProps> = ({slides} ) => {
+
+    console.log(slides);
+
+
     return (
         <div className={s.heroSlider}>
             <Swiper

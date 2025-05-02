@@ -1,38 +1,22 @@
-import axios from 'axios';
-import { apiUrl, consumerKey, consumerSecret } from '../App.tsx';
-
-export interface CategoryInfo {
-    id: number;
-    name: string;
-    slug: string;
-    image?: {
-        id: number;
-        src: string;
-        name: string;
-        alt: string;
-    };
-    count: number;
-    parent: number;
-}
-
-
-
+import { store } from '../store/store';
+import { fetchCategories } from '../store/slices/categoriesSlice';
+import { CategoryInfo } from '../types/categoryTypes';
 
 export const getCategories = async (): Promise<CategoryInfo[]> => {
-    try {
-        const response = await axios.get(`${apiUrl}/categories`, {
-            auth: {
-                username: consumerKey,
-                password: consumerSecret,
-            },
-            params: {
-                per_page: 100, // 🔥 отримуємо до 100 товарів за раз
-            },
-        });
+    const state = store.getState();
+    const existingCategories = state.categories.items;
 
-        return Array.isArray(response.data) ? response.data : [];
-    } catch (error) {
-        console.error('Error fetching categories:', error);
+    if (Object.keys(existingCategories).length > 0) {
+        return Object.values(existingCategories);
+    }
+
+    const resultAction = await store.dispatch(fetchCategories());
+
+    if (fetchCategories.fulfilled.match(resultAction)) {
+        const newState = store.getState();
+        return Object.values(newState.categories.items);
+    } else {
+        console.error('Не вдалося завантажити категорії:', resultAction.error);
         return [];
     }
 };

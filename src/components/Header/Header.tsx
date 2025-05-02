@@ -67,6 +67,8 @@ const Header = () => {
         if (Array.isArray(data) && data[0]?.image?.src) {
             setCategoryImages((prev) => ({ ...prev, [slug]: data[0].image.src }));
         }
+
+        console.log(data);
     };
 
     useEffect(() => {

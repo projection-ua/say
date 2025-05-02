@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import {Link, useSearchParams, useParams, useLocation} from 'react-router-dom';
 import { getProducts } from '../../services/fetchProducts';
-import { getCategories, CategoryInfo } from '../../services/fetchCategories.ts';
+import { getCategories } from '../../services/fetchCategories.ts';
+import { CategoryInfo } from '../../types/categoryTypes.ts';
 import { ProductInfo } from '../../types/productTypes';
 import ProductItem from '../../components/ProductItem/ProductItem';
 import s from './CategoryPage.module.css';
@@ -9,7 +10,7 @@ import CatalogFilters from '../../components/CatalogFilters/CatalogFilters';
 import Loader from '../../components/Loader/Loader';
 import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs.tsx';
 
-import { Helmet } from 'react-helmet';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
 
 const useIsMobile = () => {
@@ -199,6 +200,7 @@ const CategoryPage = () => {
 
     return (
         <div className={s.categoryPage}>
+            <HelmetProvider>
             <Helmet>
                 <title>{category?.name}</title>
                 <link rel="canonical" href={currentUrl} />
@@ -219,6 +221,9 @@ const CategoryPage = () => {
                     />
                 )}
             </Helmet>
+            </HelmetProvider>
+
+
             <div
                 className={s.heroBanner}
                 style={{ backgroundImage: `url(${category?.image?.src || '/images/category-placeholder.jpg'})` }}
@@ -276,7 +281,7 @@ const CategoryPage = () => {
                                 Сортування
                                 <span className={s.arrow}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="9" viewBox="0 0 16 9" fill="none">
-                                      <path d="M2 2L8 8L14 2" stroke="#1A1A1A" stroke-width="2" stroke-linecap="square" stroke-linejoin="round"/>
+                                      <path d="M2 2L8 8L14 2" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="square" strokeLinejoin="round"/>
                                     </svg>
                                 </span>
                             </button>
