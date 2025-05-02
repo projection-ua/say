@@ -70,12 +70,10 @@ export const FaqPage = () => {
                 {seoData?.og_site_name && <meta property="og:site_name" content={seoData.og_site_name} />}
                 {seoData?.twitter_card && <meta name="twitter:card" content={seoData.twitter_card} />}
 
-                {seoData?.robots && (
-                    <meta
-                        name="robots"
-                        content={`${seoData.robots.index}, ${seoData.robots.follow}, ${seoData.robots['max-snippet']}, ${seoData.robots['max-image-preview']}, ${seoData.robots['max-video-preview']}`}
-                    />
-                )}
+                <meta
+                    name="robots"
+                    content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+                />
             </Helmet>
             </HelmetProvider>
             <div
