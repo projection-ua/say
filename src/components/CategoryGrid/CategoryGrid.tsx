@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getCategories, CategoryInfo } from '../../services/fetchCategories.ts';
+import { getCategories } from '../../services/fetchCategories.ts';
+import { CategoryInfo } from '../../types/categoryTypes.ts';
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css'; // Не забудь імпорти стилів Swiper
