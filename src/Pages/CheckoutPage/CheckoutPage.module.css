@@ -683,14 +683,14 @@ select {
         margin-bottom: 6.4vw;
     }
     .checkoutForm input{
-        padding: 5.86vw 4.26vw;
+        padding: 4.26vw 5.86vw;
         background: #FBFBFB;
         border-radius: 2.4vw;
         color: #0C1618;
         font-size: 3.73vw;
     }
     .checkoutSummary input{
-        padding: 5.33vw 4.26vw;
+        padding: 4.26vw 5.33vw;
         border: 1px solid rgba(180, 186, 182, 0.70);
         background: #FFF;
         border-radius: 2.4vw;

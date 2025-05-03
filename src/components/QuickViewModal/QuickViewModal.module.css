@@ -470,7 +470,7 @@
         opacity: 0;
         animation: popupIn 0.4s ease forwards;
         position: relative;
-        padding: 7.29vw;
+        padding: 1vw 7.29vw 18vw 7.29vw;
         width: 100vw;
         height: 100vh;
         max-height: 100vh;
@@ -505,8 +505,8 @@
 
     .close {
         position: absolute;
-        top: 4.26vw;
-        right: 4.26vw;
+        top: 17.26vw;
+        right: 10.26vw;
         border-radius: 2.4vw;
         background: #F2F2F2;
         display: flex;
@@ -517,6 +517,7 @@
         gap: 10px;
         flex-shrink: 0;
         transition-duration: 0.3s;
+        z-index: 99;
     }
 
     .close:hover {

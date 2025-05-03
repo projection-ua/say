@@ -99,6 +99,9 @@
 .optionsList input[type='radio']:checked {
     background-color: #003C3A !important;
 }
+.optionsList input:after{
+    display: none !important;
+}
 
 
 

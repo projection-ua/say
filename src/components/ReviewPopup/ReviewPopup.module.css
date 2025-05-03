@@ -331,7 +331,7 @@
     }
 
     .reviewAttributes {
-      min-height: 34vw;
+      min-height: auto;
       justify-content: space-between;
       flex-direction: column;
       align-items: start;

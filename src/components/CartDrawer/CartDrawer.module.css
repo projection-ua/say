@@ -96,6 +96,7 @@
     border: none;
     cursor: pointer;
     transition-duration: 0.3s;
+    color: #0c1618;
 }
 .closeBtn:hover{
     transform: rotate(90deg);
@@ -343,6 +344,7 @@
     width: 100%;
     border: 1px solid var(--GreenLight, #003C3A);
     transition-duration: 0.3s;
+    color: #0c3c3a;
 }
 .continue:hover{
     background: #0c3c3a;

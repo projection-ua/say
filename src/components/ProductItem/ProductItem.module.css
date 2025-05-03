@@ -314,7 +314,7 @@
     }
     .manyInfo{
         position: absolute;
-        bottom: 2.13vw;
+        bottom: 4.13vw;
         left: 50%;
         transform: translateX(-50%);
         display: flex;

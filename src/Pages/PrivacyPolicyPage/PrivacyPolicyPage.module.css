@@ -178,3 +178,7 @@ details{
         line-height: 130%; /* 20.8px */
     }
 }
+
+summary::-webkit-details-marker {
+    display: none;
+}

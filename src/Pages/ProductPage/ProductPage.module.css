@@ -667,3 +667,80 @@
         font-size: 3.73vw;
     }
 }
+.wrapActionButtons{
+    display: flex;
+    width: calc(100% - 8vw);
+    gap: 0.67vw;
+}
+
+.quantityControls{
+    display: flex;
+    align-items: center;
+    width: 7.29vw;
+    justify-content: space-between;
+    border-radius: 0.41vw;
+    height: 2.91vw;
+    border: 1px solid var(--GreenLight, #003C3A);
+    padding: 0.10vw;
+}
+.quantityBtn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 2.60vw;
+    height: 2.60vw;
+    border-radius: 0.31vw;
+    transition-duration: 0.3s;
+}
+.quantityBtn:hover{
+    background: #0c3c3a;
+}
+.quantityBtn path{
+    transition-duration: 0.3s;
+}
+.quantityBtn:hover path{
+    fill: #fff;
+}
+
+
+@media (max-width: 1024px) {
+    .wrapActionButtons{
+        display: flex;
+        width: 100%;
+        gap: 3.2vw;
+    }
+    .actionButtons{
+        flex-direction: column;
+    }
+
+    .quantityControls{
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+        border-radius: 2.13vw;
+        height: 14.93vw;
+        border: 0.05vw solid var(--GreenLight, #003C3A);
+        padding: 1.10vw;
+    }
+    .quantityBtn{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 13vw;
+        height: 13vw;
+        border-radius: 2vw;
+        transition-duration: 0.3s;
+    }
+    .quantityBtn:hover{
+        background: #0c3c3a;
+    }
+    .quantityBtn path{
+        transition-duration: 0.3s;
+    }
+    .quantityBtn:hover path{
+        fill: #fff;
+    }
+}

@@ -222,6 +222,9 @@ input[type="radio"]:checked::after, input[type="checkbox"]:checked::after {
 
 }
 
+.custom-select__placeholder{
+    margin: 0 !important;
+}
 
 .heroBanner .breadcrumbs{
     position: absolute;

@@ -31,6 +31,12 @@ const ProductPage = () => {
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
 
+    const [quantity, setQuantity] = useState(1);
+
+    const incrementQuantity = () => setQuantity((prev) => prev + 1);
+    const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
+
+
     const [seoData, setSeoData] = useState<any>(null);
 
 
@@ -199,7 +205,7 @@ const ProductPage = () => {
                 : product.sale_price
                     ? +product.sale_price
                     : null,
-            quantity: 1,
+            quantity: quantity,
             sku: product.sku,
             image: product.images?.[0]?.src || '',
             variationId: selectedVariation?.id,
@@ -240,7 +246,7 @@ const ProductPage = () => {
                     : product.sale_price
                         ? +product.sale_price
                         : null,
-                quantity: 1,
+                quantity: quantity,
                 sku: product.sku,
                 image: product.images?.[0]?.src || '',
                 variationId: selectedVariation?.id,
@@ -462,30 +468,55 @@ const ProductPage = () => {
 
                         {/* Кнопки */}
                         <div className={s.actionButtons}>
-                            <button
-                                className={s.addToCartBtn}
-                                type={isGiftCertificate ? "submit" : "button"}
-                                form={isGiftCertificate ? "giftForm" : undefined}
-                                onClick={!isGiftCertificate ? handleAddToCart : undefined}
-                                disabled={
-                                    (product.variations.length > 0 && !selectedVariation) || // якщо треба вибрати варіацію
-                                    (selectedVariation
-                                        ? selectedVariation.stock_status === 'outofstock' || selectedVariation.stock_quantity === 0
-                                        : product.stock_status === 'outofstock' || product.stock_quantity === 0) // якщо немає в наявності
-                                }
-                            >
-                                Додати в кошик
-                            </button>
+                            <div className={s.quantityControls}>
+                                <button
+                                    type="button"
+                                    onClick={decrementQuantity}
+                                    disabled={quantity <= 1}
+                                    className={s.quantityBtn}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none">
+                                        <path d="M16 7.83398H0V9.16732H16V7.83398Z" fill="#1A1A1A"/>
+                                    </svg>
+                                </button>
+                                <span className={s.quantityValue}>{quantity}</span>
+                                <button
+                                    type="button"
+                                    onClick={incrementQuantity}
+                                    className={s.quantityBtn}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none">
+                                        <path d="M16 7.83333H8.66667V0.5H7.33333V7.83333H0V9.16667H7.33333V16.5H8.66667V9.16667H16V7.83333Z" fill="#1A1A1A"/>
+                                    </svg>
+                                </button>
+                            </div>
 
-                            <button
-                                className={`${s.addToWishlistBtn} ${isInWishlist    ? s.active : ''}`}
-                                aria-label="Додати в улюблене"
-                                onClick={handleWishlistToggle}
-                            >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
-                                    <path d="M13 23C12.6583 23 12.3289 22.8725 12.0722 22.6408C11.1027 21.7673 10.1679 20.9464 9.3432 20.2224L9.33899 20.2186C6.92108 18.0956 4.83313 16.2622 3.38037 14.4562C1.75641 12.4371 1 10.5228 1 8.4315C1 6.39963 1.67621 4.52511 2.90393 3.15299C4.1463 1.76464 5.85101 1 7.70459 1C9.08997 1 10.3587 1.45127 11.4755 2.34118C12.0391 2.79038 12.5499 3.34014 13 3.98139C13.4503 3.34014 13.9609 2.79038 14.5247 2.34118C15.6415 1.45127 16.9102 1 18.2956 1C20.149 1 21.8539 1.76464 23.0963 3.15299C24.324 4.52511 25 6.39963 25 8.4315C25 10.5228 24.2438 12.4371 22.6198 14.456C21.1671 16.2622 19.0793 18.0954 16.6617 20.2182C15.8356 20.9434 14.8994 21.7656 13.9276 22.6412C13.6711 22.8725 13.3415 23 13 23Z" stroke="#003C3A" strokeWidth="1.5" strokeLinejoin="round" />
-                                </svg>
-                            </button>
+                            <div className={s.wrapActionButtons}>
+                                <button
+                                    className={s.addToCartBtn}
+                                    type={isGiftCertificate ? "submit" : "button"}
+                                    form={isGiftCertificate ? "giftForm" : undefined}
+                                    onClick={!isGiftCertificate ? handleAddToCart : undefined}
+                                    disabled={
+                                        (product.variations.length > 0 && !selectedVariation) || // якщо треба вибрати варіацію
+                                        (selectedVariation
+                                            ? selectedVariation.stock_status === 'outofstock' || selectedVariation.stock_quantity === 0
+                                            : product.stock_status === 'outofstock' || product.stock_quantity === 0) // якщо немає в наявності
+                                    }
+                                >
+                                    Додати в кошик
+                                </button>
+
+                                <button
+                                    className={`${s.addToWishlistBtn} ${isInWishlist    ? s.active : ''}`}
+                                    aria-label="Додати в улюблене"
+                                    onClick={handleWishlistToggle}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
+                                        <path d="M13 23C12.6583 23 12.3289 22.8725 12.0722 22.6408C11.1027 21.7673 10.1679 20.9464 9.3432 20.2224L9.33899 20.2186C6.92108 18.0956 4.83313 16.2622 3.38037 14.4562C1.75641 12.4371 1 10.5228 1 8.4315C1 6.39963 1.67621 4.52511 2.90393 3.15299C4.1463 1.76464 5.85101 1 7.70459 1C9.08997 1 10.3587 1.45127 11.4755 2.34118C12.0391 2.79038 12.5499 3.34014 13 3.98139C13.4503 3.34014 13.9609 2.79038 14.5247 2.34118C15.6415 1.45127 16.9102 1 18.2956 1C20.149 1 21.8539 1.76464 23.0963 3.15299C24.324 4.52511 25 6.39963 25 8.4315C25 10.5228 24.2438 12.4371 22.6198 14.456C21.1671 16.2622 19.0793 18.0954 16.6617 20.2182C15.8356 20.9434 14.8994 21.7656 13.9276 22.6412C13.6711 22.8725 13.3415 23 13 23Z" stroke="#003C3A" strokeWidth="1.5" strokeLinejoin="round" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         {/* Опис */}
