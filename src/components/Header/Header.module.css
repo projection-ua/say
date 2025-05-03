@@ -549,7 +549,7 @@
         height: 100vh;
         max-height: 100vh;
         background-color: #fff;
-        padding: 4.26vw;
+        padding: 18vw 4.26vw;
         display: flex;
         flex-direction: column;
         gap: 24px;
