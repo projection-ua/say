@@ -5,7 +5,10 @@
     margin-bottom: 0.4vw;
   }
 }
-
+.wrapReview{
+  margin-bottom: 8.33vw;
+  padding-top: 8.33vw;
+}
 .brandLink {
   position: relative;
   display: flex;
@@ -254,6 +257,7 @@
 
   .wrapReview{
     margin-bottom: 21.33vw;
+    padding-top: 21.33vw;
   }
 
   .arrows{

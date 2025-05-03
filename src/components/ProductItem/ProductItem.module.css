@@ -199,6 +199,11 @@
 @media (max-width: 1024px) {
 
 
+
+    .productItem .productImageBack{
+        display: none;
+    }
+
     .productItem{
         display: flex;
         flex-direction: column;

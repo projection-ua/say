@@ -1,5 +1,5 @@
 .sliderSection{
-    margin: 8.33vw 0;
+    margin: 8.33vw 0 0 0;
 }
 
 
@@ -96,7 +96,7 @@
 
 @media (max-width: 1024px) {
     .sliderSection{
-        margin: 21.33vw 0;
+        margin: 21.33vw 0 0 0;
     }
 
 

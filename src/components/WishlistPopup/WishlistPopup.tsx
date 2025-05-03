@@ -51,7 +51,7 @@ export const WishlistPopup: React.FC<Props> = ({ isOpen, onClose }) => {
                 <div className={s.wrapHeader}>
                     <h2 className={s.title}>ОБРАНЕ <span className={s.countWishlist}>( {wishlist.length} )</span></h2>
                     <button className={s.closeBtn} onClick={onClose}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
                             <path d="M2.22197 19.1924L10.0001 11.4142L17.7783 19.1924L19.1925 17.7782L11.4144 10L19.1925 2.22182L17.7783 0.807611L10.0001 8.58579L2.22197 0.807613L0.807751 2.22183L8.58592 10L0.807751 17.7782L2.22197 19.1924Z" fill="#1A1A1A"/>
                         </svg>
                     </button>

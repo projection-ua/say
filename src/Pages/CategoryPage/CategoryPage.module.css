@@ -79,6 +79,12 @@
     opacity: 1;
     pointer-events: auto;
 }
+.sortWrapper svg{
+    transition-duration: 0.3s;
+}
+.sortWrapper.active svg{
+    transform: rotate(180deg);
+}
 
 .sortButton{
     font-size: 16px;

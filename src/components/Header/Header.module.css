@@ -603,7 +603,7 @@
     }
 
     .mobileMenu li a:hover {
-        color: #DA3A3A;
+        color: #0c1618;
     }
 
     .closeButton {
@@ -618,4 +618,22 @@
         aspect-ratio: 1/1;
     }
 
+}
+
+
+
+.icon {
+    transition: transform 0.2s;
+}
+
+.pulse {
+    animation: pulseAnim 0.5s ease;
+}
+
+@keyframes pulseAnim {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(0.95); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }

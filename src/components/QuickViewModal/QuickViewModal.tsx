@@ -167,7 +167,7 @@ const QuickViewModal = ({ product, onClose }: Props) => {
                                         </svg>
                                     ))}
                                 </div>
-                                <a href="#reviews" className={s.reviewText}>Відгуки {product.rating_count}</a>
+                                <a href={`/product/${product.slug}#reviews`} className={s.reviewText}>Відгуки {product.rating_count}</a>
                             </div>
                         </div>
 

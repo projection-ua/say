@@ -33,7 +33,7 @@ export const ReviewsList: FC<ReviewsListPropType> = ({ reviews, openReview, load
     if (loading) return <LoaderMini />;
 
     return (
-        <div className={s.wrapReview}>
+        <div className={s.wrapReview} id="reviews">
             <div className={s.titleContainer}>
                 <h2>
                     Відгуки <div className={s.qty}>( {reviews.length} )</div>
