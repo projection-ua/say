@@ -71,7 +71,7 @@ export interface ImageSize {
     height: number;
     "mime-type": string;
     filesize: number;
-    source_url?: string; // якщо API повертає повний URL
+    url: string; // ✅ назва поля як у API
 }
 
 export interface MediaDetails {
@@ -84,9 +84,15 @@ export interface MediaDetails {
         medium?: ImageSize;
         large?: ImageSize;
         medium_large?: ImageSize;
-        [key: string]: ImageSize | undefined; // для додаткових (1536x1536 тощо)
+        "1536x1536"?: ImageSize;
+        "2048x2048"?: ImageSize;
+        woocommerce_thumbnail?: ImageSize;
+        woocommerce_single?: ImageSize;
+        woocommerce_gallery_thumbnail?: ImageSize;
+        [key: string]: ImageSize | undefined; // на випадок додаткових
     };
 }
+
 
 export interface ProductImage {
     src: string;

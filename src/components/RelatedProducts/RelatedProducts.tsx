@@ -5,6 +5,7 @@ import ProductItem from '../ProductItem/ProductItem';
 import s from './RelatedProducts.module.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
+import {LoaderMini} from "../LoaderMini/LoaderMini.tsx";
 
 interface SliderProductsProps {
     relatedToProduct: ProductInfo;
@@ -13,16 +14,18 @@ interface SliderProductsProps {
 
 const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
     const [relatedProducts, setRelatedProducts] = useState<ProductInfo[]>([]);
-    const [loading, setLoading] = useState(true);
     const uniqueId = useId();
+
+    const [loading, setLoading] = useState(true);
+
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
 
 
     useEffect(() => {
         const fetchRelated = async () => {
+            setLoading(true);
             try {
-                setLoading(true);
                 const products = await getProducts();
 
                 // ID категорій товару
@@ -54,6 +57,8 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
     const prevId = `prev-${uniqueId}`;
     const nextId = `next-${uniqueId}`;
 
+    if (loading) return <LoaderMini />;
+
     return (
         <section className={s.sliderSection}>
             <div className={s.topSectionWrap}>
@@ -66,7 +71,7 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
             </div>
 
             {loading ? (
-                <p>Завантаження...</p>
+                <p><LoaderMini/></p>
             ) : relatedProducts.length === 0 ? (
                 <p>Немає релевантних товарів.</p>
             ) : (

@@ -93,20 +93,42 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
                     {product.images && product.images.length > 0 && (
                         <>
                             <img
-                                src={product.images[0].src}
+                                src={
+                                    product.images[0].media_details?.sizes?.medium_large?.url || product.images[0].src
+                                }
                                 alt={product.name}
                                 className={s.productImage}
+                                loading="lazy"
+                                srcSet={`
+                                    ${product.images[0].media_details?.sizes?.medium?.url || product.images[0].src} 300w,
+                                    ${product.images[0].media_details?.sizes?.large?.url || product.images[0].src} 1024w,
+                                    ${product.images[0].media_details?.sizes?.["1536x1536"]?.url || product.images[0].src} 1536w,
+                                    ${product.images[0].media_details?.sizes?.["2048x2048"]?.url || product.images[0].src} 2048w
+                                  `}
+                                sizes="(max-width: 600px) 300px, (max-width: 1200px) 600px, 1024px"
                             />
+
                             {product.images.length > 1 && (
                                 <img
-                                    src={product.images[1].src}
+                                    src={
+                                        product.images[1].media_details?.sizes?.medium_large?.url || product.images[1].src
+                                    }
                                     alt={product.name}
                                     className={s.productImageBack}
                                     loading="lazy"
+                                    srcSet={`
+                                      ${product.images[1].media_details?.sizes?.medium?.url || product.images[1].src} 300w,
+                                      ${product.images[1].media_details?.sizes?.large?.url || product.images[1].src} 1024w,
+                                      ${product.images[1].media_details?.sizes?.["1536x1536"]?.url || product.images[1].src} 1536w,
+                                      ${product.images[1].media_details?.sizes?.["2048x2048"]?.url || product.images[1].src} 2048w
+                                    `}
+                                    sizes="(max-width: 600px) 300px, (max-width: 1200px) 600px, 1024px"
                                 />
                             )}
                         </>
                     )}
+
+
 
 
                     {viewMode === 'default' && (

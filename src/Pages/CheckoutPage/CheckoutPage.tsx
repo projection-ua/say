@@ -363,15 +363,9 @@ const CheckoutPage: React.FC = () => {
                         product_id: item.id,
                         variation_id: item.variationId || undefined,
                         quantity: item.quantity,
-                        meta_data: item.isGiftCertificate
-                            ? [
-                                { key: 'gift_from', value: item.meta_data?.find(m => m.key === 'gift_from')?.value || '' },
-                                { key: 'gift_to', value: item.meta_data?.find(m => m.key === 'gift_to')?.value || '' },
-                                { key: 'gift_email', value: item.meta_data?.find(m => m.key === 'gift_email')?.value || '' },
-                                { key: 'gift_message', value: item.meta_data?.find(m => m.key === 'gift_message')?.value || '' },
-                            ]
-                            : [],
+                        meta_data: item.meta_data ?? [],
                     })),
+
 
                     customer_note: values.comment,
                     coupon_lines: values.coupon ? [{ code: values.coupon }] : [],
@@ -380,6 +374,9 @@ const CheckoutPage: React.FC = () => {
                         { key: 'delivery_type', value: values.deliveryType }, // додатково фіксуємо тип доставки
                     ],
                 };
+
+
+
 
                 // Відправка замовлення до WooCommerce
                 const response = await fetch(`${apiUrlWp}wp-json/wc/v3/orders`, {
@@ -453,6 +450,16 @@ const CheckoutPage: React.FC = () => {
         },
     });
 
+
+    console.log('🛒 item з корзини:', items);
+
+
+    console.log('📦 line_items:', items.map((item) => ({
+        product_id: item.id,
+        variation_id: item.variationId || undefined,
+        quantity: item.quantity,
+        meta_data: item.meta_data ?? [],
+    })));
 
 
     const checkCoupon = async (): Promise<void> => {

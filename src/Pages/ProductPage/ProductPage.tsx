@@ -66,7 +66,11 @@ const ProductPage = () => {
     const [variations, setVariations] = useState<Variation[]>([]);
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
+
+
     const [loading, setLoading] = useState(true);
+    const [loadingReviews, setLoadingReviews] = useState(true);
+
 
     const [isSizeOpen, setSizeOpen] = useState(false);
 
@@ -99,6 +103,8 @@ const ProductPage = () => {
                 setReviews(fetchedReviews);
             } catch (error) {
                 console.error('Помилка при завантаженні відгуків', error);
+            } finally {
+                setLoadingReviews(false); // ✅ додати
             }
         };
 
@@ -529,9 +535,16 @@ const ProductPage = () => {
                     </div>
                 </div>
 
-                <RelatedProducts relatedToProduct={product} title="Доповнити образ" />
+                <RelatedProducts
+                    relatedToProduct={product}
+                    title="Доповнити образ"
+                />
 
-                <ReviewsList reviews={reviews} openReview={() => setIsReviewPopupOpen(true)} />
+                <ReviewsList
+                    reviews={reviews}
+                    openReview={() => setIsReviewPopupOpen(true)}
+                    loading={loadingReviews}
+                />
 
                 {isReviewPopupOpen && (
                     <ReviewPopup

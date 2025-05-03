@@ -1,4 +1,4 @@
-import { FC, useRef } from "react";
+import {FC, useRef} from "react";
 import { ReviewItem } from "../ReviewItem/ReviewItem";
 import s from "./ReviewsList.module.css";
 import { ReviewerType } from "../../types/reviewTypes";
@@ -8,6 +8,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { useId } from "react";
+import {LoaderMini} from "../LoaderMini/LoaderMini.tsx";
 
 
 
@@ -16,9 +17,10 @@ import { useId } from "react";
 interface ReviewsListPropType {
     reviews: ReviewerType[];
     openReview: () => void;
+    loading: boolean;
 }
 
-export const ReviewsList: FC<ReviewsListPropType> = ({ reviews, openReview }) => {
+export const ReviewsList: FC<ReviewsListPropType> = ({ reviews, openReview, loading }) => {
     const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
 
 
@@ -27,6 +29,8 @@ export const ReviewsList: FC<ReviewsListPropType> = ({ reviews, openReview }) =>
     const prevId = `review-prev-${uniqueId}`;
     const nextId = `review-next-${uniqueId}`;
     const paginationId = `review-pagination-${uniqueId}`;
+
+    if (loading) return <LoaderMini />;
 
     return (
         <div className={s.wrapReview}>
