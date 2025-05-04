@@ -1,6 +1,7 @@
 import { FC } from "react";
 import s from "./SuccessPage.module.css";
 import { Link } from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 interface LineItem {
     name: string;
@@ -44,6 +45,8 @@ const months = [
     "грудня",
 ];
 
+
+
 const now = new Date();
 const day = now.getDate();
 const month = months[now.getMonth()];
@@ -55,6 +58,8 @@ export const OrderSucces: FC<SuccesProps> = ({ data }) => {
     const imageArr = data?.line_items.map((item) => {
         return { imageSrc: item?.image?.src, quantity: item.quantity };
     });
+
+    const { t } = useTranslation();
 
     // Підрахунок базується на даних замовлення
     const totalAmount = data?.line_items.reduce((sum, item) => {
@@ -77,10 +82,9 @@ export const OrderSucces: FC<SuccesProps> = ({ data }) => {
                     </defs>
                 </svg>
 
-                <p>Дякуємо, що з нами! </p>
-                <h3>Ваше замовлення <br/>успішно прийнято</h3>
-
-                <span>Замовлення № {data?.number}</span>
+                <p>{t('thankYou')}</p>
+                <h3>{t('orderSuccess')}</h3>
+                <span>{t('orderNumber', { number: data?.number })}</span>
             </div>
 
             <ul className={s.imageList}>
@@ -99,27 +103,27 @@ export const OrderSucces: FC<SuccesProps> = ({ data }) => {
                 </div>
 
                 <div>
-                    <span>Адреса доставки</span>
+                    <span>{t('deliveryAddress')}</span>
                     <p>{data?.shipping.address_1}</p>
                 </div>
 
                 <div>
-                    <span>Спосіб оплати</span>
+                    <span>{t('paymentMethod')}</span>
                     <p>
-                        {data?.payment_method === "cod"
-                            ? "Накладений платіж"
-                            : "Онлайн-оплата MonoPAY"}
+                        {data?.payment_method === 'cod'
+                            ? t('paymentCOD')
+                            : t('paymentMono')}
                     </p>
                 </div>
 
                 <div>
-                    <span>Одержувач</span>
+                    <span>{t('recipient')}</span>
                     <p>{`${data?.shipping.first_name} ${data?.shipping.last_name}`}</p>
                 </div>
 
 
                 <div>
-                    <span>Контактний номер</span>
+                    <span>{t('contactPhone')}</span>
                     <p>{data?.billing.phone}</p>
                 </div>
 
@@ -128,16 +132,10 @@ export const OrderSucces: FC<SuccesProps> = ({ data }) => {
             <div className={s.orderAmount}>
                 <div>
                     <div className={s.orderDetails}>
+                        <p><span>{t('orderAmount')}</span><span>{totalAmount} ₴</span></p>
+                        <p><span>{t('discountAmount')}</span><span className={s.discount}>0 ₴</span></p>
                         <p>
-                            <span>Сума замовлення:</span>
-                            <span>{totalAmount} ₴</span>
-                        </p>
-                        <p>
-                            <span>Сума знижки:</span>
-                            <span className={s.discount}>0 ₴</span>
-                        </p>
-                        <p>
-                            <span>Вартість доставки:</span>
+                            <span>{t('shippingCost')}</span>
                             <span>
                                 <svg viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <path
@@ -147,19 +145,19 @@ export const OrderSucces: FC<SuccesProps> = ({ data }) => {
                                       strokeLinejoin="round"
                                   />
                                 </svg>
-                                Безкоштовна
+                                {t('shippingFree')}
                             </span>
                         </p>
                     </div>
                     <div className={s.totalAmount}>
-                        <p>До оплати</p>
+                        <p>{t('totalToPay')}</p>
                         <span>{totalAmount} ₴</span>
                     </div>
                 </div>
             </div>
 
             <Link to="/" className={s.homeBackLink}>
-                Повернутися на головну
+                {t('backHome')}
             </Link>
         </div>
     );

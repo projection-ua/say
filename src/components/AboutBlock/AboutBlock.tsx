@@ -1,6 +1,10 @@
 import s from './AboutBlock.module.css';
+import {useTranslation} from "react-i18next";
 
 const AboutBlock = () => {
+
+    const { t } = useTranslation();
+
     return (
         <section id="about" className={s.brandSection}>
             <div className={s.imageWrap}>
@@ -13,18 +17,16 @@ const AboutBlock = () => {
 
             <div className={s.content}>
                 <div className={s.marker}>“</div>
-                <p className={s.label}>Про наш бренд</p>
-                <h2 className={s.title}>
-                    SAY – ЦЕ БІЛЬШЕ, <br/>НІЖ БІЛИЗНА ЦЕ <br/> СМІЛИВІСТЬ СКАЗАТИ СВІТОВІ, ХТО ТИ Є
-                </h2>
-                <p className={s.description}>
-                    Ми молодий бренд, створений для тих, хто говорить мовою чуттєвості та впевненості.
-                    Кожен виріб – це поєднання ніжності та пристрасті, класики та сучасності.
-                    <br/>
-                    <br/>
-                    Ми не диктуємо правила, а даємо голос тим, хто хоче відчувати себе особливою.
-                </p>
-                <a href="/about" className={s.button}>ДЕТАЛЬНІШЕ</a>
+                <p className={s.label}>{t('about_label')}</p>
+                <h2
+                    className={s.title}
+                    dangerouslySetInnerHTML={{ __html: t('about_title') }}
+                />
+                <p
+                    className={s.description}
+                    dangerouslySetInnerHTML={{ __html: t('about_description') }}
+                />
+                <a href="/about" className={s.button}>{t('button_details')}</a>
             </div>
         </section>
     );

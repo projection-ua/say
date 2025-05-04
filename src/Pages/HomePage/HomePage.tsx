@@ -8,6 +8,8 @@ import InstagramBlock from "../../components/InstagramBlock/InstagramBlock.tsx";
 
 import {SlideData} from "../../App.tsx";
 
+import { useTranslation } from 'react-i18next';
+
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {useLocation} from "react-router-dom";
 import {useEffect, useState} from "react";
@@ -19,7 +21,7 @@ export interface HomePageProps {
 
 const HomePage : React.FC <HomePageProps> = ({slides}) => {
 
-
+    const { t } = useTranslation();
 
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
@@ -67,8 +69,8 @@ const HomePage : React.FC <HomePageProps> = ({slides}) => {
             <HeroSlider slides={slides}/>
 
             <div className={s.container}>
-                <SliderProducts filterTag="sale" title="Акції" />
-                <SliderProducts filterTag="new" title="Новинки" />
+                <SliderProducts filterTag="sale" title={t('sales_block')} />
+                <SliderProducts filterTag="new" title={t('news_menu')} />
                 <CategoryGrid />
                 <AboutBlock />
                 <TipsBlock />

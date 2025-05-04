@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { apiUrlWp, consumerKey, consumerSecret } from "../../App";
+import {useTranslation, Trans} from "react-i18next";
 
 
 const Footer = () => {
 
+    const { t, i18n } = useTranslation();
+    const langPrefix = i18n.language === '' ? '/' : i18n.language === 'ru' ? '/ru' : '';
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -70,11 +73,14 @@ const Footer = () => {
                     <a href="tel:+380961212525" className={s.contactPhone}>
                         +38 (096) 121 25 25
                     </a>
-                    <p className={s.schedule}>Режим роботи підтримки<br />пн-нд: 10:00–19:00</p>
+                    <p
+                        className={s.schedule}
+                        dangerouslySetInnerHTML={{ __html: t('time_work') }}
+                    />
                 </div>
 
                 <div className={s.col}>
-                    <p className={s.title}>СОЦІАЛЬНІ МЕРЕЖІ</p>
+                    <p className={s.title}>{t('social_media')}</p>
                     <ul className={s.socialList}>
                         <li>
                             <a href="viber://chat?number=%2B380961212525" target="_blank">
@@ -118,22 +124,21 @@ const Footer = () => {
                 </div>
 
                 <div className={s.col}>
-                    <p className={s.title}>СПОЖИВАЧАМ</p>
+                    <p className={s.title}>{t('footer.customers')}</p>
                     <ul className={s.links}>
-                        <li><a href="/#about">Про нас</a></li>
-                        <li><Link to="/how-to-buy">Доставка і оплата</Link></li>
-                        <li><Link to="/faqs">Часті запитання</Link></li>
-                        <li><a href="#contacts">Контакти</a></li>
+                        <li><a href={`${langPrefix}/#about`}>{t('footer.about')}</a></li>
+                        <li><Link to={`${langPrefix}/how-to-buy`}>{t('footer.delivery_payment')}</Link></li>
+                        <li><Link to={`${langPrefix}/faqs`}>{t('footer.faqs')}</Link></li>
+                        <li><a href={`${langPrefix}/#contacts`}>{t('footer.contacts')}</a></li>
                     </ul>
                 </div>
 
                 <div className={s.col}>
                     <h3 className={s.subscribeTitle}>
-                        ПІДПИСАТИСЯ <br />
-                        <em>НА РОЗСИЛКУ</em>
+                        <Trans i18nKey="footer.subscribeTitle" components={{ em: <em /> }} />
                     </h3>
                     <form className={s.subscribeForm} onSubmit={handleSubmit}>
-                        <input type="email" className={s.inputFooter} placeholder="Введіть Ваш e-mail" />
+                        <input type="email" className={s.inputFooter} placeholder={t('footer.subscribePlaceholder')} />
                         <button type="submit">
                             <svg className={s.submitIcon} xmlns="http://www.w3.org/2000/svg" width="30" height="25" viewBox="0 0 30 25" fill="none">
                                 <path d="M18.0324 0.682129L16.0887 2.6016L24.738 11.1429L0.000488281 11.1429L0.000488281 13.8574L24.738 13.8574L16.0887 22.3986L18.0324 24.3181L30 12.5001L18.0324 0.682129Z" fill="#FFFEFC" fillOpacity="0.5"/>
@@ -144,7 +149,8 @@ const Footer = () => {
             </div>
 
             <div className={s.middle}>
-                <Link to="/privacy-policy" className={s.privacy}>Політика конфіденційності</Link>
+                <Link to={`${langPrefix}/privacy-policy`} className={s.privacy}>{t('footer.privacyPolicy')}</Link>
+
                 <div className={s.payment}>
                     <img src="/icons/privat24.svg" alt="Privat24" />
                     <img src="/icons/applepay.svg" alt="Apple Pay" />
@@ -155,8 +161,10 @@ const Footer = () => {
             </div>
 
             <div className={s.bottom}>
-                <p>©2025 SAY. All Rights Reserved.</p>
-                <p>Сайт розроблено агентством: <a href="https://beforeafter.agency" target="_blank">Before/After</a></p>
+                <p>{t('footer.copyright')}</p>
+                <p>
+                    {t('footer.developedBy')} <a href="https://beforeafter.agency" target="_blank">{t('footer.developedByLink')}</a>
+                </p>
                 <div className={s.payment}>
                     <img src="/icons/privat24.svg" alt="Privat24" />
                     <img src="/icons/applepay.svg" alt="Apple Pay" />

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import s from './SizeChart.module.css';
+import {useTranslation} from "react-i18next";
 
 interface SizeEntry {
     bust: string;
@@ -65,6 +66,8 @@ const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, metaData }) => {
     const sizeKey = metaData?.find((m) => m.key === '_rozmirna_sitka')?.value || 'S';
     const sizeGrid = SIZE_GRIDS[type][sizeKey] || SIZE_GRIDS[type]['S'];
 
+    const { t } = useTranslation();
+
     if (!isOpen) return null;
 
     return (
@@ -76,47 +79,27 @@ const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, metaData }) => {
                     </svg>
                 </button>
 
-                <h2 className={s.title}>Таблиця розмірів</h2>
+                <h2 className={s.title}>{t('sizeChart.title')}</h2>
+
 
                 <div className={s.wrapFilters}>
                     <div className={s.tabs}>
-                        <button
-                            className={`${s.tab} ${tab === 'grid' ? s.activeTab : ''}`}
-                            onClick={() => setTab('grid')}
-                        >
-                            Розмірна сітка
+                        <button className={`${s.tab} ${tab === 'grid' ? s.activeTab : ''}`} onClick={() => setTab('grid')}>
+                            {t('sizeChart.gridTab')}
                         </button>
-                        <button
-                            className={`${s.tab} ${tab === 'help' ? s.activeTab : ''}`}
-                            onClick={() => setTab('help')}
-                        >
-                            Як визначити розмір?
+                        <button className={`${s.tab} ${tab === 'help' ? s.activeTab : ''}`} onClick={() => setTab('help')}>
+                            {t('sizeChart.helpTab')}
                         </button>
                     </div>
 
                     <div className={s.switcher}>
                         <label className={s.switchLabel}>
-                            <input
-                                type="radio"
-                                name="sizeType"
-                                value="panties"
-                                checked={type === 'panties'}
-                                onChange={() => setType('panties')}
-                                className={s.switchInput}
-                            />
-                            <span className={`${s.switchBtn} ${type === 'panties' ? s.activeSwitch : ''}`}>Трусики</span>
+                            <input type="radio" name="sizeType" value="panties" checked={type === 'panties'} onChange={() => setType('panties')} />
+                            <span className={`${s.switchBtn} ${type === 'panties' ? s.activeSwitch : ''}`}>{t('sizeChart.switchPanties')}</span>
                         </label>
-
                         <label className={s.switchLabel}>
-                            <input
-                                type="radio"
-                                name="sizeType"
-                                value="bra"
-                                checked={type === 'bra'}
-                                onChange={() => setType('bra')}
-                                className={s.switchInput}
-                            />
-                            <span className={`${s.switchBtn} ${type === 'bra' ? s.activeSwitch : ''}`}>Бюст</span>
+                            <input type="radio" name="sizeType" value="bra" checked={type === 'bra'} onChange={() => setType('bra')} />
+                            <span className={`${s.switchBtn} ${type === 'bra' ? s.activeSwitch : ''}`}>{t('sizeChart.switchBra')}</span>
                         </label>
                     </div>
                 </div>
@@ -126,28 +109,20 @@ const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, metaData }) => {
                         <table className={s.table}>
                             <tbody>
                             <tr>
-                                <th>Обхват грудей, см</th>
-                                {sizeGrid.map((row, idx) => (
-                                    <td key={`bust-${idx}`}>{row.bust}</td>
-                                ))}
+                                <th>{t('sizeChart.bust')}</th>
+                                {sizeGrid.map((row, idx) => <td key={`bust-${idx}`}>{row.bust}</td>)}
                             </tr>
                             <tr>
-                                <th>Обхват талії, см</th>
-                                {sizeGrid.map((row, idx) => (
-                                    <td key={`waist-${idx}`}>{row.waist}</td>
-                                ))}
+                                <th>{t('sizeChart.waist')}</th>
+                                {sizeGrid.map((row, idx) => <td key={`waist-${idx}`}>{row.waist}</td>)}
                             </tr>
                             <tr>
-                                <th>Обхват стегон, см</th>
-                                {sizeGrid.map((row, idx) => (
-                                    <td key={`hips-${idx}`}>{row.hips}</td>
-                                ))}
+                                <th>{t('sizeChart.hips')}</th>
+                                {sizeGrid.map((row, idx) => <td key={`hips-${idx}`}>{row.hips}</td>)}
                             </tr>
                             <tr>
-                                <th>Розмір</th>
-                                {sizeGrid.map((row, idx) => (
-                                    <td key={`size-${idx}`}>{row.size}</td>
-                                ))}
+                                <th>{t('sizeChart.size')}</th>
+                                {sizeGrid.map((row, idx) => <td key={`size-${idx}`}>{row.size}</td>)}
                             </tr>
                             </tbody>
                         </table>
@@ -158,28 +133,28 @@ const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, metaData }) => {
                             <>
                                 <img src="/images/sixeImg.jpg" alt="SizeHelpPanties" />
                                 <div className={s.contentSize}>
-                                    <h4>1. Обхват талії</h4>
-                                    <p>Знайди найвужчу частину тіла — це і є талія. Обгорни сантиметрову стрічку навколо цієї зони, не натягуючи її занадто сильно. Такий замір допоможе обрати розмір, який не буде врізатись і залишить комфортне відчуття.</p>
+                                    <h4>{t('sizeChart.panties.waistTitle')}</h4>
+                                    <p>{t('sizeChart.panties.waistDesc')}</p>
 
-                                    <h4>2. Обхват стегон</h4>
-                                    <p>Виміряй найширшу частину стегон — зазвичай вона трохи нижче сідниць. Стрічка має щільно прилягати до тіла, але не стискати. Цей крок важливий для того, щоб білизна ідеально сиділа й не зсовувалась під час руху.</p>
+                                    <h4>{t('sizeChart.panties.hipsTitle')}</h4>
+                                    <p>{t('sizeChart.panties.hipsDesc')}</p>
 
-                                    <h4>3. Перевір у таблиці</h4>
-                                    <p>Тепер просто звір свої заміри з таблицею розмірів. Це допоможе обрати трусики, які не лише красиво виглядають, а й справді зручні для щоденного носіння.</p>
+                                    <h4>{t('sizeChart.panties.checkTitle')}</h4>
+                                    <p>{t('sizeChart.panties.checkDesc')}</p>
                                 </div>
                             </>
                         ) : (
                             <>
                                 <img src="/images/sizeBra.jpg" alt="SizeHelpBra" />
                                 <div className={s.contentSize}>
-                                    <h4>1. Обхват під грудьми</h4>
-                                    <p>Розмістіть сантиметрову стрічку прямо під грудьми — там, де зазвичай проходить резинка бюстгальтера. Стрічка має лягати щільно, але не тиснути. Це і буде ваш розмір пояса — наприклад, 70, 75 або 80.</p>
+                                    <h4>{t('sizeChart.bra.underbustTitle')}</h4>
+                                    <p>{t('sizeChart.bra.underbustDesc')}</p>
 
-                                    <h4>2. Виміряйте обхват грудей</h4>
-                                    <p>Виміряйте груди по найбільш виступаючій частині. Стрічка має проходити рівно, паралельно підлозі й не стискати тіло.</p>
+                                    <h4>{t('sizeChart.bra.bustTitle')}</h4>
+                                    <p>{t('sizeChart.bra.bustDesc')}</p>
 
-                                    <h4>3. Визначте розмір чашки</h4>
-                                    <p>Від обхвату грудей відніміть обхват під грудьми. Різниця між цими значеннями визначає розмір чашки. Наприклад, 12–14 см — це B, 14–16 — C і так далі. Залишаємо таблицю нижче для зручності.</p>
+                                    <h4>{t('sizeChart.bra.cupTitle')}</h4>
+                                    <p>{t('sizeChart.bra.cupDesc')}</p>
                                 </div>
                             </>
                         )}

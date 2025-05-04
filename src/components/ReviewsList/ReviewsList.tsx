@@ -9,6 +9,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { useId } from "react";
 import {LoaderMini} from "../LoaderMini/LoaderMini.tsx";
+import {useTranslation} from "react-i18next";
 
 
 
@@ -22,7 +23,7 @@ interface ReviewsListPropType {
 
 export const ReviewsList: FC<ReviewsListPropType> = ({ reviews, openReview, loading }) => {
     const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
-
+    const { t } = useTranslation();
 
     const sliderRef = useRef<any>(null);
     const uniqueId = useId();
@@ -36,10 +37,10 @@ export const ReviewsList: FC<ReviewsListPropType> = ({ reviews, openReview, load
         <div className={s.wrapReview} id="reviews">
             <div className={s.titleContainer}>
                 <h2>
-                    Відгуки <div className={s.qty}>( {reviews.length} )</div>
+                    {t('product.reviews_title')} <div className={s.qty}>( {reviews.length} )</div>
                 </h2>
                 <button className={s.link} onClick={openReview}>
-                    <span className={s.spanLink}>Залишити відгук</span>
+                    <span className={s.spanLink}>{t('product.back_review')}</span>
                     <svg
                         className={s.iconLink}
                         xmlns="http://www.w3.org/2000/svg"

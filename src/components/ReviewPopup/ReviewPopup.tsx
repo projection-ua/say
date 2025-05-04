@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import s from "./ReviewPopup.module.css";
 import { apiUrlWp, consumerKey, consumerSecret } from "../../App";
 import { FaStar } from "react-icons/fa";
+import {useTranslation} from "react-i18next";
 
 interface StarRatingProps {
   value: number;
@@ -44,6 +45,8 @@ export const ReviewPopup: React.FC<CartPopupProps> = ({ onClose, product_id }) =
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [charCount, setCharCount] = useState(0);
+
+  const { t } = useTranslation();
 
   const initialValues: ReviewFormValues = {
     product_id,
@@ -131,7 +134,7 @@ export const ReviewPopup: React.FC<CartPopupProps> = ({ onClose, product_id }) =
       <div className={s.popupOverlay} onClick={onClose}>
         <div className={s.popupContent} onClick={(e) => e.stopPropagation()}>
           <div className={s.popupHeader}>
-            <h2 className={s.popupTitle}>{isSubmitted ? "" : "Залишити відгук"}</h2>
+            <h2 className={s.popupTitle}>{isSubmitted ? "" : t('review.leaveReview')}</h2>
             <button className={s.closeButton} onClick={onClose}>
               <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M39 13L13 39M13 13L39 39" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -144,20 +147,20 @@ export const ReviewPopup: React.FC<CartPopupProps> = ({ onClose, product_id }) =
                 {({ setFieldValue, values }) => (
                     <Form className={s.form}>
                       <div className={s.wrapInput}>
-                        <Field id="name" name="name" placeholder="Твоє імʼя" />
+                        <Field id="name" name="name" placeholder={t('review.yourName')} />
                       </div>
 
                       <div className={s.wrapInput}>
-                        <Field id="phone" name="phone" type="tel" placeholder="Твій номер телефону" />
+                        <Field id="phone" name="phone" type="tel" placeholder={t('review.yourPhone')} />
                       </div>
 
                       <div className={s.wrapInput}>
-                        <label htmlFor="review">Ваш коментар</label>
+                        <label htmlFor="review">{t('review.yourComment')}</label>
                         <Field
                             as="textarea"
                             id="review"
                             name="review"
-                            placeholder="Текст коментаря"
+                            placeholder={t('review.commentPlaceholder')}
                             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange(e, setFieldValue)}
                             value={values.review}
                         />
@@ -189,7 +192,7 @@ export const ReviewPopup: React.FC<CartPopupProps> = ({ onClose, product_id }) =
                         />
                         <div className={s.wrapStarImage}>
                           <label htmlFor="file-upload" className={s.customFileUpload}>
-                            Прикріпити фотографію
+                            {t('review.attachPhoto')}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                               <path d="M5.61646 18.2917C4.66862 18.292 3.74199 18.0111 2.95384 17.4846C2.16568 16.9581 1.55141 16.2096 1.18875 15.3339C0.826101 14.4581 0.731362 13.4945 0.916525 12.565C1.10169 11.6354 1.55843 10.7816 2.22896 10.1117L9.29979 3.04002C9.41704 2.92277 9.57606 2.8569 9.74188 2.8569C9.90769 2.8569 10.0667 2.92277 10.184 3.04002C10.3012 3.15727 10.3671 3.31629 10.3671 3.4821C10.3671 3.64791 10.3012 3.80694 10.184 3.92418L3.11229 10.995C2.76993 11.3208 2.49624 11.7118 2.30735 12.1451C2.11845 12.5783 2.01817 13.0449 2.01242 13.5175C2.00666 13.9901 2.09554 14.459 2.27383 14.8967C2.45212 15.3344 2.7162 15.732 3.05053 16.066C3.38485 16.4 3.78265 16.6638 4.22048 16.8417C4.65832 17.0196 5.12734 17.1081 5.5999 17.102C6.07247 17.0958 6.53903 16.9952 6.97209 16.8059C7.40514 16.6167 7.79594 16.3426 8.12146 16L17.2548 6.86668C17.6733 6.43449 17.9052 5.85509 17.9004 5.25347C17.8955 4.65186 17.6544 4.07626 17.229 3.65084C16.8036 3.22542 16.228 2.98428 15.6263 2.97945C15.0247 2.97462 14.4453 3.20648 14.0131 3.62502L6.64813 10.995C6.55139 11.0918 6.47465 11.2066 6.42229 11.333C6.36994 11.4594 6.34299 11.5949 6.34299 11.7317C6.34299 11.8685 6.36994 12.004 6.42229 12.1304C6.47465 12.2568 6.55139 12.3716 6.64813 12.4684C6.74487 12.5651 6.85971 12.6418 6.98611 12.6942C7.11251 12.7465 7.24798 12.7735 7.38479 12.7735C7.52161 12.7735 7.65708 12.7465 7.78347 12.6942C7.90987 12.6418 8.02472 12.5651 8.12146 12.4684L12.834 7.75502C12.8916 7.6953 12.9605 7.64765 13.0368 7.61486C13.113 7.58207 13.195 7.56479 13.278 7.56403C13.361 7.56327 13.4433 7.57905 13.5201 7.61043C13.5969 7.64182 13.6667 7.6882 13.7254 7.74685C13.7842 7.80551 13.8306 7.87527 13.8621 7.95206C13.8935 8.02886 13.9094 8.11115 13.9087 8.19414C13.908 8.27713 13.8908 8.35915 13.8581 8.43541C13.8254 8.51168 13.7778 8.58067 13.7181 8.63835L9.00479 13.3525C8.792 13.5654 8.53936 13.7342 8.26131 13.8494C7.98326 13.9647 7.68523 14.024 7.38425 14.024C7.08328 14.0241 6.78524 13.9648 6.50716 13.8497C6.22907 13.7345 5.97639 13.5657 5.76354 13.3529C5.55069 13.1401 5.38184 12.8875 5.26662 12.6095C5.15141 12.3314 5.09209 12.0334 5.09205 11.7324C5.09197 11.1245 5.33337 10.5416 5.76313 10.1117L13.1298 2.75002C13.7939 2.08576 14.6948 1.71254 15.6341 1.71246C16.5734 1.71239 17.4743 2.08545 18.1385 2.7496C18.8028 3.41375 19.176 4.31457 19.1761 5.25389C19.1762 6.19321 18.8031 7.0941 18.139 7.75835L9.00563 16.8884C8.56152 17.3347 8.03332 17.6885 7.45157 17.9294C6.86983 18.1703 6.2461 18.2934 5.61646 18.2917Z" fill="#0C1618"/>
                             </svg>
@@ -203,7 +206,7 @@ export const ReviewPopup: React.FC<CartPopupProps> = ({ onClose, product_id }) =
 
                       <div>
                         <button type="submit" className={s.submitButton}>
-                          Відправити відгук
+                          {t('review.sendReview')}
                         </button>
                         {error && <div className="text-red-500">{error}</div>}
                       </div>
@@ -224,10 +227,10 @@ export const ReviewPopup: React.FC<CartPopupProps> = ({ onClose, product_id }) =
                   </defs>
                 </svg>
 
-                <p>Дякуємо за відгук!</p>
-                <h3>Ваш відгук успішно опубліковано!</h3>
+                <p>{t('review.thankYou')}</p>
+                <h3>{t('review.success')}</h3>
                 <Link onClick={onClose} to="/">
-                  повернутися на головну
+                  {t('review.backHome')}
                 </Link>
               </div>
           )}

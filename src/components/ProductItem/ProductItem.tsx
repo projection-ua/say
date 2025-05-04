@@ -6,6 +6,7 @@ import QuickViewModal from '../../components/QuickViewModal/QuickViewModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { addToWishlist } from '../../store/slices/wishlistSlice';
+import {useTranslation} from "react-i18next";
 
 interface ProductItemProps {
     product: ProductInfo;
@@ -58,6 +59,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
 
 
 
+    const { t } = useTranslation();
 
 
 
@@ -137,7 +139,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
                                 <div className={s.buttonsWrap}>
                                     {/* Десктоп */}
                                     <button className={s.manyInfo} onClick={handleOpenQuickView}>
-                                        Швидкий перегляд
+                                        {t('product.view')}
                                     </button>
                                     <button
                                         className={`${s.wishlistButton} ${isInWishlist ? s.active : ''}`}
@@ -173,7 +175,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
                                             e.stopPropagation();
                                             dispatch(addToWishlist(product));
                                         }}
-                                        aria-label="Додати в улюблене"
+                                        aria-label={`{t('product.wishlist')}`}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
                                             <path
@@ -193,7 +195,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
                     {viewMode === 'wishlist' && (
                         <div className={s.buttonsWrap}>
                             <button className={s.manyInfo} onClick={handleOpenQuickView}>
-                                Швидкий перегляд
+                                {t('product.view')}
                             </button>
                             <button
                                 className={`${s.wishlistButton} ${isInWishlist ? s.active : ''}`}
@@ -202,7 +204,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
                                     e.stopPropagation();
                                     dispatch(addToWishlist(product));
                                 }}
-                                aria-label="Додати в улюблене"
+                                aria-label={`{t('product.wishlist')}`}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
                                     <path

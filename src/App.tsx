@@ -29,6 +29,10 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+
+import i18n from './i18n';
+
+
 export const apiUrlWp = 'https://api.say.in.ua/';
 export const apiUrl = 'https://api.say.in.ua/wp-json/wc/v3/products';
 export const consumerKey = 'ck_49130dfdfc750a8753ce12f98c540d6fc3d7bb77';
@@ -48,6 +52,12 @@ const Layout: React.FC = () => {
 
     const isCheckoutPage = location.pathname.includes('/checkout'); // або точна перевірка location.pathname === '/checkout'
 
+
+    const lang = location.pathname.startsWith('/ru') ? 'ru' : 'ua';
+
+    useEffect(() => {
+        i18n.changeLanguage(lang);
+    }, [lang]);
 
     const [slides, setSlides] = useState<SlideData[]>([]);
 
@@ -77,6 +87,7 @@ const Layout: React.FC = () => {
 
 
 
+
     return (
 
         <div className="flex flex-col min-h-screen relative">
@@ -93,17 +104,28 @@ const Layout: React.FC = () => {
 
             <main className="flex-grow">
                 <Routes>
-                    <Route path="/" element={<HomePage slides={slides} />} />
+                    <Route path="/*" element={<HomePage slides={slides} />} />
+                    <Route path="/ru/*" element={<HomePage slides={slides} />} />
                     <Route path="/shop" element={<CategoryPage />} />
+                    <Route path="/ru/shop" element={<CategoryPage />} />
                     <Route path="/product-category/:slug" element={<CategoryPage />} />
+                    <Route path="/ru/product-category/:slug" element={<CategoryPage />} />
                     <Route path="/product/:slug/:color?" element={<ProductPage />} />
+                    <Route path="/ru/product/:slug/:color?" element={<ProductPage />} />
                     <Route path="/sales" element={<SalePage />} />
+                    <Route path="/ru/sales" element={<SalePage />} />
                     <Route path="/new" element={<NewPage />} />
+                    <Route path="/ru/new" element={<NewPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/ru/checkout" element={<CheckoutPage />} />
                     <Route path="/checkout-success" element={<OrderSuccesWrapper />} />
+                    <Route path="/ru/checkout-success" element={<OrderSuccesWrapper />} />
                     <Route path="/how-to-buy" element={<DeliveryPage />} />
+                    <Route path="/ru/how-to-buy" element={<DeliveryPage />} />
                     <Route path="/faqs" element={<FaqPage />} />
+                    <Route path="/ru/faqs" element={<FaqPage />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                    <Route path="/ru/privacy-policy" element={<PrivacyPolicyPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </main>

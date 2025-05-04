@@ -5,6 +5,7 @@ import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
 import {useLocation} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 
 
@@ -53,6 +54,8 @@ export const FaqPage = () => {
         setOpenItem(prev => (prev === id ? null : id));
     };
 
+    const { t } = useTranslation();
+
     return (
         <div className={s.page}>
 
@@ -83,11 +86,11 @@ export const FaqPage = () => {
                 <Breadcrumbs
                     variant="catalog"
                     crumbs={[
-                        { label: 'Головна', url: '/' },
-                        { label: 'Часті запитання' },
+                        { label: t('breadcrumbs.home'), url: '/' },
+                        { label: t('faq.title') },
                     ]}
                 />
-                <h1 className={s.categoryTitle}>Часті запитання</h1>
+                <h1 className={s.categoryTitle}>{t('faq.title')}</h1>
             </div>
 
             <div className={s.grid}>

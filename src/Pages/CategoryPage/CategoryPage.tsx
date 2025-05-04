@@ -12,6 +12,7 @@ import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs.tsx';
 
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
+import {useTranslation} from "react-i18next";
 
 const useIsMobile = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -25,6 +26,9 @@ const useIsMobile = () => {
 
 const CategoryPage = () => {
     const { slug } = useParams();
+
+    const { t, i18n } = useTranslation();
+    const langPrefix = i18n.language === 'ua' ? '/ua' : i18n.language === 'ru' ? '/ru' : '';
 
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
@@ -81,6 +85,11 @@ const CategoryPage = () => {
                     ? categories.filter(cat => cat.parent === current?.id && cat.name.toLowerCase() !== 'без категорії')
                     : categories.filter(cat => cat.parent === 0 && cat.name.toLowerCase() !== 'без категорії');
                 setSubcategories(children);
+
+                console.log('current:', current);
+                console.log('current id:', current?.id);
+                console.log('categories:', categories);
+
 
                 const filtered = slug
                     ? allProducts.filter(product =>
@@ -198,6 +207,8 @@ const CategoryPage = () => {
         setSearchParams(params);
     };
 
+    console.log(subcategories.length);
+
     return (
         <div className={s.categoryPage}>
             <HelmetProvider>
@@ -243,7 +254,7 @@ const CategoryPage = () => {
                     <div className={s.subcategories}>
                         {subcategories.map((subcategory) => (
                             <Link
-                                to={`/product-category/${subcategory.slug}`}
+                                to={`${langPrefix}/product-category/${subcategory.slug}`}
                                 key={subcategory.id}
                                 className={s.subcategoryCard}
                             >
@@ -265,18 +276,18 @@ const CategoryPage = () => {
                                 <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M9.83333 15.625H13.1667V13.75H9.83333V15.625ZM4 4.375V6.25H19V4.375H4ZM6.5 10.9375H16.5V9.0625H6.5V10.9375Z" fill="black" />
                                 </svg>
-                                Фільтр
+                                {t('title_filter')}
                             </button>
                         )}
                         {!isMobile && (
                             <div className={s.filtersHeader}>
-                                <h3 className={s.titleFilter}>Фільтр</h3>
+                                <h3 className={s.titleFilter}>{t('title_filter')}</h3>
                             </div>
                         )}
 
                         <div className={`${s.sortWrapper} ${isSortOpen ? s.active : ''}`}>
                             <button className={s.sortButton} onClick={() => setIsSortOpen(prev => !prev)}>
-                                Сортування
+                                {t('sort_heading')}
                                 <span className={s.arrow}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="9" viewBox="0 0 16 9" fill="none">
                                       <path d="M2 2L8 8L14 2" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="square" strokeLinejoin="round"/>
@@ -286,11 +297,11 @@ const CategoryPage = () => {
 
                             {isSortOpen && (
                                 <div className={s.sortDropdown}>
-                                    <button onClick={() => handleSortChange('bestsellers')}>Бестселери</button>
-                                    <button onClick={() => handleSortChange('new')}>Новинки</button>
-                                    <button onClick={() => handleSortChange('sale')}>Акційні товари</button>
-                                    <button onClick={() => handleSortChange('price_desc')}>Ціна за зменшенням</button>
-                                    <button onClick={() => handleSortChange('price_asc')}>Ціна за зростанням</button>
+                                    <button onClick={() => handleSortChange('bestsellers')}>{t('sort.bestsellers')}</button>
+                                    <button onClick={() => handleSortChange('new')}>{t('sort.new')}</button>
+                                    <button onClick={() => handleSortChange('sale')}>{t('sort.sale')}</button>
+                                    <button onClick={() => handleSortChange('price_desc')}>{t('sort.price_desc')}</button>
+                                    <button onClick={() => handleSortChange('price_asc')}>{t('sort.price_asc')}</button>
                                 </div>
                             )}
                         </div>
@@ -310,8 +321,8 @@ const CategoryPage = () => {
                                     onChangePrice={setPriceRange}
                                 />
                                 <div className={s.buttons}>
-                                    <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
-                                    <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                                    <button onClick={applyFilters} className={s.applyBtn}>{t('filters.apply')}</button>
+                                    <button onClick={resetFilters} className={s.resetBtn}>{t('filters.reset')}</button>
                                 </div>
                             </div>
                         )}
@@ -331,7 +342,7 @@ const CategoryPage = () => {
                             {!loading && visibleProducts.length < sortedProducts.length && (
                                 <div className={s.loadMoreWrapper}>
                                     <button className={s.loadMoreBtn} onClick={handleLoadMore}>
-                                        Завантажити ще
+                                        {t('loadMore')}
                                     </button>
                                 </div>
                             )}
@@ -346,7 +357,7 @@ const CategoryPage = () => {
                 <div className={s.popupOverlay}>
                     <div className={s.popupContent}>
                         <div className={s.popupHeader}>
-                            <h3>Фільтри</h3>
+                            <h3>{t('title_filter')}</h3>
                             <button className={s.closeButton} onClick={() => setIsFilterOpen(false)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                     <path d="M1.26935 15.955L8.00046 9.22384L14.7316 15.955L15.9554 14.7311L9.2243 8L15.9554 1.26889L14.7316 0.0450475L8.00046 6.77616L1.26935 0.0450488L0.0455065 1.26889L6.77662 8L0.0455065 14.7311L1.26935 15.955Z" fill="#1A1A1A"/>
@@ -365,8 +376,8 @@ const CategoryPage = () => {
                             onChangePrice={setPriceRange}
                         />
                         <div className={s.popupButtons}>
-                            <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
-                            <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                            <button onClick={applyFilters} className={s.applyBtn}>{t('filters.apply')}</button>
+                            <button onClick={resetFilters} className={s.resetBtn}>{t('filters.reset')}</button>
                         </div>
                     </div>
                 </div>

@@ -7,6 +7,7 @@ import 'swiper/css'; // Не забудь імпорти стилів Swiper
 import 'swiper/css/navigation';
 import s from './CategoryGrid.module.css';
 import {LoaderMini} from "../LoaderMini/LoaderMini.tsx";
+import {useTranslation} from "react-i18next";
 
 const useIsMobile = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
@@ -25,6 +26,12 @@ const CategoryGrid = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const isMobile = useIsMobile(); // використання мобайл-перевірки
+
+
+    const { t } = useTranslation();
+
+    const { i18n } = useTranslation();
+    const langPrefix = i18n.language === 'ru' ? '/ru' : '';
 
     useEffect(() => {
         const cachedCategories = localStorage.getItem('categories');
@@ -59,7 +66,7 @@ const CategoryGrid = () => {
 
     return (
         <section className={s.categoryGridSection}>
-            <h2 className={s.title}>Категорії</h2>
+            <h2 className={s.title}>{t('category_title')}</h2>
 
             {isMobile ? (
                 <Swiper
@@ -68,7 +75,7 @@ const CategoryGrid = () => {
                 >
                     {categories.map((cat) => (
                         <SwiperSlide key={cat.id}>
-                            <Link to={`/product-category/${cat.slug}`} className={s.card}>
+                            <Link to={`${langPrefix}/product-category/${cat.slug}`} className={s.card}>
                                 <div className={s.wrapImgCat}>
                                     <img
                                         src={cat.image?.src || '/images/category-img.jpg'}
@@ -82,7 +89,7 @@ const CategoryGrid = () => {
                                     </svg>
                                 </div>
                                 <div className={s.meta}>
-                                    <span className={s.count}>{cat.count} товарів</span>
+                                    <span className={s.count}>{cat.count} {t('products_count')}</span>
                                     <h3 className={s.catTitle}>{cat.name}</h3>
                                 </div>
                             </Link>
@@ -92,7 +99,7 @@ const CategoryGrid = () => {
             ) : (
                 <div className={s.grid}>
                     {categories.map((cat) => (
-                        <Link to={`/product-category/${cat.slug}`} key={cat.id} className={s.card}>
+                        <Link to={`${langPrefix}/product-category/${cat.slug}`} key={cat.id} className={s.card}>
                             <div className={s.wrapImgCat}>
                                 <img
                                     src={cat.image?.src || '../public/images/category-img.jpg'}
@@ -106,7 +113,7 @@ const CategoryGrid = () => {
                                 </svg>
                             </div>
                             <div className={s.meta}>
-                                <span className={s.count}>{cat.count} товарів</span>
+                                <span className={s.count}>{cat.count} {t('products_count')}</span>
                                 <h3 className={s.catTitle}>{cat.name}</h3>
                             </div>
                         </Link>

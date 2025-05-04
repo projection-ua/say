@@ -4,24 +4,6 @@ import axios from 'axios';
 import { apiUrl, consumerKey, consumerSecret } from '../../App.tsx';
 import { CategoryInfo } from '../../types/categoryTypes'; // тип для категорій
 
-// 🔥 Отримати ОДНУ категорію за slug
-export const fetchCategoryBySlug = createAsyncThunk<CategoryInfo | null, string>(
-    'categories/fetchCategoryBySlug',
-    async (slug, { rejectWithValue }) => {
-        try {
-            const response = await axios.get(`${apiUrl}/categories`, {
-                auth: { username: consumerKey, password: consumerSecret },
-                params: { slug },
-            });
-
-            return response.data.length > 0 ? response.data[0] : null;
-        } catch (err) {
-            console.error('Error fetching category by slug:', err);
-            return rejectWithValue(err);
-        }
-    }
-);
-
 // 🔥 Отримати ВСІ категорії
 export const fetchCategories = createAsyncThunk<CategoryInfo[]>(
     'categories/fetchCategories',

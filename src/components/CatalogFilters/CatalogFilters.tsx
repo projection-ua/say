@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Slider from 'rc-slider'; // ✅ Оновлений імпорт
 import 'rc-slider/assets/index.css';
 import s from './CatalogFilters.module.css';
+import {useTranslation} from "react-i18next";
 
 interface Attribute {
     name: string;
@@ -41,6 +42,8 @@ const CatalogFilters = ({
         'filter-subcategories': true,
     });
 
+    const { t } = useTranslation();
+
     useEffect(() => {
         const attrBlocks = Object.fromEntries(
             allAttributes.map((attr) => [`filter-attr-${attr.slug}`, true])
@@ -73,7 +76,7 @@ const CatalogFilters = ({
             {/* Ціна */}
             <div className={s.block} id="filter-price">
                 <div onClick={() => toggleBlock('filter-price')} className={`${s.headerFilter} ${openBlocks['filter-price'] ? s.active : ''}`}>
-                    <h4  className={s.headingFilter}>Ціна</h4>
+                    <h4 className={s.headingFilter}>{t('filters.price')}</h4>
                     <svg className={s.iconClick} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M16 7.33333H8.66667V0H7.33333V7.33333H0V8.66667H7.33333V16H8.66667V8.66667H16V7.33333Z" fill="#1A1A1A"/>
                     </svg>
@@ -126,7 +129,7 @@ const CatalogFilters = ({
             {subcategories.length > 0 && (
                 <div className={s.block} id="filter-subcategories">
                     <div onClick={() => toggleBlock('filter-subcategories')} className={`${s.headerFilter} ${openBlocks['filter-subcategories'] ? s.active : ''}`}>
-                        <h4  className={s.headingFilter}>Підкатегорії</h4>
+                        <h4 className={s.headingFilter}>{t('filters.subcategories')}</h4>
                         <svg className={s.iconClick} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                             <path d="M16 7.33333H8.66667V0H7.33333V7.33333H0V8.66667H7.33333V16H8.66667V8.66667H16V7.33333Z" fill="#1A1A1A"/>
                         </svg>

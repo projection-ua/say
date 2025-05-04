@@ -3,153 +3,55 @@ import { TipsPopup } from '../TipsBlock/TipsPopup';
 import { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
-
+import { useTranslation } from 'react-i18next';
 
 const tips = [
-    {
-        id: 1,
-        category: 'Зберігання',
-        title: 'Як правильно зберігати білизну?',
-        image: '/images/tips/tips-1.jpg',
-        icon: '/icons/tips-icon-1.svg',
-        link: '/tips/storage',
-        popup: [
-            {
-                title: 'Окреме зберігання бюстгалтерів',
-                text: 'Білизну з чашками варто зберігати окремо від інших речей, щоб уникнути деформації. Радимо використовувати спеціальні органайзери для збереження форми виробів'
-            },
-            {
-                title: 'Зберігайте у сухому місці',
-                text: 'Нижню білизну слід зберігати в сухому, прохолодному місці, подалі від прямих сонячних променів, щоб уникнути вигорання кольору та пошкодження тканини'
-            },
-            {
-                title: 'Використовуйте органайзери',
-                text: 'Для нижньої білизни краще використовувати окремі ящики, контейнери, щоб зберігати форму виробів, запобігаючи зминанню або розтягуванню матеріалу.'
-            },
-            {
-                title: 'Використовуйте тканинні мішки',
-                text: 'Делікатні вироби з мережива краще зберігати в тканинних мішечках — це допоможе уникнути пошкоджень від тертя з іншими предметами, особливо під час транспортування.'
-            }
-        ]
-    },
-    {
-        id: 2,
-        category: 'Оновлення',
-        title: 'Коли варто оновити гардероб білизни?',
-        image: '/images/tips/tips-2.jpg',
-        icon: '/icons/tips-icon-2.svg',
-        link: '/tips/update',
-        popup: [
-            {
-                title: 'Білизна втратила свої властивості',
-                text: 'З часом навіть якісні тканини втрачають свою пружність і підтримку. Якщо білизна більше не сідає так, як раніше, або виглядає зношеною після прання – це знак, що пора її оновити.'
-            },
-            {
-                title: 'Відчуваєте дискомфорт під час носіння',
-                text: 'Якщо бюстгальтер залишає сліди на шкірі, а трусики врізаються або, навпаки, сповзають – ймовірно, змінився ваш розмір. Білизна має ідеально сідати на тіло, не створюючи дискомфорту'
-            },
-            {
-                title: 'Хочеться змін і нових відчуттів',
-                text: 'Білизна – це не тільки про комфорт, а й про настрій. Новий комплект може додати впевненості, та відчуття оновлення у повсякденному житті'
-            },
-            {
-                title: 'Тканина стала неприємною на дотик',
-                text: 'Якщо білизна вже не така м’яка, як раніше, а тканина стала жорсткішою або викликає  подразнення, це сигнал, що пора її оновити. '
-            }
-        ]
-    },
-    {
-        id: 3,
-        category: 'Прання',
-        title: 'Як прати нижню білизну?',
-        image: '/images/tips/tips-3.jpg',
-        icon: '/icons/tips-icon-3.svg',
-        link: '/tips/washing',
-        popup: [
-            {
-                title: 'Сортуйте за кольором та типом тканини ',
-                text: 'Щоб білизна зберігала вигляд і м’якість, періть білі, кольорові та темні речі окремо. Мереживні, шовкові й делікатні тканини краще не змішувати з щільними – так вони довше залишатимуться ніжними.'
-            },
-            {
-                title: 'Використовуйте м’які мийні засоби ',
-                text: 'Агресивні відбілювачі та хлор можуть пошкодити тканину, тому краще обирати м’які рідкі засоби, які добре виполіскуються і не залишають слідів'
-            },
-            {
-                title: 'Обирайте правильний режим прання ',
-                text: 'Режим: делікатне або ручне прання Температура: до 30°C (шовк — до 20°C) Віджим: до 600 об/хв або без нього'
-            },
-            {
-                title: 'Сушіть білизну правильно ',
-                text: 'Висока температура – ворог делікатних тканин.  Уникайте машинного сушіння, батарей та обігрівачів. Найкраще – дати білизні висохнути природним шляхом  у добре провітрюваному місці'
-            }
-        ]
-    },
-    {
-        id: 4,
-        category: 'Догляд',
-        title: 'Як доглядати за купальником?',
-        image: '/images/tips/tips-4.jpg',
-        icon: '/icons/tips-icon-4.svg',
-        link: '/tips/swimwear-care',
-        popup: [
-            {
-                title: 'Промивайте одразу після використання ',
-                text: 'Після купання в морі чи басейні обов’язково промивайте купальник холодною проточною водою, щоб видалити сіль, хлор та інші забруднення. Це допоможе запобігти вигоранню тканини'
-            },
-            {
-                title: 'Правильно сушіть купальник',
-                text: 'Уникайте прямих сонячних променів — ультрафіолет шкодить тканині й спричиняє вигорання. Сушіть купальник у тіні або на повітрі.'
-            },
-            {
-                title: 'Зберігайте правильно',
-                text: 'Купальник краще зберігати в сухому та прохолодному місці, подалі від джерел тепла й вологи. Щоб уникнути пошкоджень, використовуйте тканинні мішечки'
-            },
-            {
-                title: 'Періть якомога рідше',
-                text: 'Часте прання поступово зношує тканину та зменшує її еластичність. Щоб купальник залишався м’яким і тримав форму, обирайте делікатне прання лише за потреби, використовуючи спеціальні засоби.'
-            }
-        ]
-    },
+    { id: 1, categoryKey: 'storage', titleKey: 'storage', popupKey: 'storage', image: '/images/tips/tips-1.jpg', icon: '/icons/tips-icon-1.svg' },
+    { id: 2, categoryKey: 'update', titleKey: 'update', popupKey: 'update', image: '/images/tips/tips-2.jpg', icon: '/icons/tips-icon-2.svg' },
+    { id: 3, categoryKey: 'washing', titleKey: 'washing', popupKey: 'washing', image: '/images/tips/tips-3.jpg', icon: '/icons/tips-icon-3.svg' },
+    { id: 4, categoryKey: 'care', titleKey: 'care', popupKey: 'care', image: '/images/tips/tips-4.jpg', icon: '/icons/tips-icon-4.svg' }
 ];
+
+export interface PopupBlock {
+    title: string;
+    text: string;
+}
+
 const useIsMobile = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 1024);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
     return isMobile;
 };
 
 const TipsBlock = () => {
     const [activeTip, setActiveTip] = useState<null | typeof tips[0]>(null);
     const isMobile = useIsMobile();
+    const { t } = useTranslation();
 
     return (
         <section className={s.tipsSection}>
-            <h2 className={s.title}>Поради від SAY</h2>
+            <h2 className={s.title}>{t('tips.sectionTitle')}</h2>
 
             {isMobile ? (
-                <Swiper
-                    spaceBetween={16}
-                    slidesPerView={1.5}
-                >
+                <Swiper spaceBetween={16} slidesPerView={1.5}>
                     {tips.map((tip) => (
                         <SwiperSlide key={tip.id}>
                             <div className={s.card}>
                                 <div className={s.imageWrap}>
-                                    <img src={tip.image} alt={tip.title} className={s.image} />
+                                    <img src={tip.image} alt={t(`tips.title.${tip.titleKey}`)} className={s.image} />
                                     <img src={tip.icon} alt="" className={s.icon} />
                                 </div>
                                 <div className={s.wrapContentTip}>
-                                    <p className={s.category}>{tip.category}</p>
-                                    <h3 className={s.tipTitle}>{tip.title}</h3>
+                                    <p className={s.category}>{t(`tips.category.${tip.categoryKey}`)}</p>
+                                    <h3 className={s.tipTitle}>{t(`tips.title.${tip.titleKey}`)}</h3>
                                     <button className={s.link} onClick={() => setActiveTip(tip)}>
-                                        <span className={s.spanLink}>Читати детальніше</span>
+                                        <span className={s.spanLink}>{t('tips.buttonReadMore')}</span>
                                         <svg className={s.iconLink} xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21" fill="none">
-                                            <path d="M5.83325 14.6668L14.1666 6.3335M14.1666 6.3335H5.83325M14.1666 6.3335V14.6668" stroke="#0C1618" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M5.83325 14.6668L14.1666 6.3335M14.1666 6.3335H5.83325M14.1666 6.3335V14.6668" stroke="#0C1618" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </button>
                                 </div>
@@ -162,16 +64,16 @@ const TipsBlock = () => {
                     {tips.map((tip) => (
                         <div key={tip.id} className={s.card}>
                             <div className={s.imageWrap}>
-                                <img src={tip.image} alt={tip.title} className={s.image} />
+                                <img src={tip.image} alt={t(`tips.title.${tip.titleKey}`)} className={s.image} />
                                 <img src={tip.icon} alt="" className={s.icon} />
                             </div>
                             <div className={s.wrapContentTip}>
-                                <p className={s.category}>{tip.category}</p>
-                                <h3 className={s.tipTitle}>{tip.title}</h3>
+                                <p className={s.category}>{t(`tips.category.${tip.categoryKey}`)}</p>
+                                <h3 className={s.tipTitle}>{t(`tips.title.${tip.titleKey}`)}</h3>
                                 <button className={s.link} onClick={() => setActiveTip(tip)}>
-                                    <span className={s.spanLink}>Читати детальніше</span>
+                                    <span className={s.spanLink}>{t('tips.buttonReadMore')}</span>
                                     <svg className={s.iconLink} xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21" fill="none">
-                                        <path d="M5.83325 14.6668L14.1666 6.3335M14.1666 6.3335H5.83325M14.1666 6.3335V14.6668" stroke="#0C1618" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M5.83325 14.6668L14.1666 6.3335M14.1666 6.3335H5.83325M14.1666 6.3335V14.6668" stroke="#0C1618" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 </button>
                             </div>
@@ -184,8 +86,8 @@ const TipsBlock = () => {
                 <TipsPopup
                     isOpen={!!activeTip}
                     onClose={() => setActiveTip(null)}
-                    blocks={activeTip.popup}
-                    title={activeTip.title}
+                    blocks={t(`tips.popup.${activeTip.popupKey}`, { returnObjects: true }) as PopupBlock[]}
+                    title={t(`tips.title.${activeTip.titleKey}`)}
                 />
             )}
         </section>

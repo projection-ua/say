@@ -8,6 +8,7 @@ import { CartItem } from '../../types/cartTypes';
 import { Link } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
 import RecommendedProducts from "../RecommendedProducts/RecommendedProducts";
+import {useTranslation} from "react-i18next";
 
 
 
@@ -35,6 +36,9 @@ const CartDrawer = () => {
         0
     );
 
+    const { t, i18n } = useTranslation();
+    const langPrefix = i18n.language === 'uk' ? '/uk' : (i18n.language === 'ru' ? '/ru' : '');
+
 
     const discount = subtotal - total;
     const deliveryThreshold = 2000;
@@ -46,7 +50,7 @@ const CartDrawer = () => {
 
                 <div className={s.body}>
                     <div className={s.header}>
-                        <h2 className={s.title}>КОШИК <span className={s.countCart}>( {items.length} )</span></h2>
+                        <h2 className={s.title}>{t('cart.title')} <span className={s.countCart}>({items.length})</span></h2>
                         <button onClick={() => dispatch(setCartOpen(false))} className={s.closeBtn}>✕</button>
                     </div>
                     <div className={s.wrapPanelCart}>
@@ -130,24 +134,24 @@ const CartDrawer = () => {
 
                             <div className={s.rightPanel}>
                                 <div className={s.bonusBar}>
-                                    До безкоштовної доставки залишилось <b>{remainingToFreeShipping} грн</b>.
+                                    {t('cart.freeShippingLeft')} <b>{remainingToFreeShipping} грн</b>.
                                     <div className={s.bonusProgress}>
                                         <div className={s.progressLine} style={{ width: `${Math.min((total / deliveryThreshold) * 100, 100)}%` }}></div>
                                     </div>
                                 </div>
 
                                 <div className={s.summaryBlock}>
-                                    <div className={s.line}><span className={s.firstSpan}>Сума замовлення</span><span className={s.spanBold}>{subtotal.toLocaleString()} ₴</span></div>
-                                    {discount > 0 && <div className={s.line}><span className={s.firstSpan}>Сума знижки</span><span className={s.spanBoldGray}>{discount.toLocaleString()} ₴</span></div>}
-                                    <div className={s.line}><span className={s.firstSpan}>Вартість доставки</span><span className={s.spanBold}>За тарифами "Нової Пошти"</span></div>
+                                    <div className={s.line}><span className={s.firstSpan}>{t('cart.orderSum')}</span><span className={s.spanBold}>{subtotal.toLocaleString()} ₴</span></div>
+                                    {discount > 0 && <div className={s.line}><span className={s.firstSpan}>{t('cart.discountSum')}</span><span className={s.spanBoldGray}>{discount.toLocaleString()} ₴</span></div>}
+                                    <div className={s.line}><span className={s.firstSpan}>{t('cart.deliveryCost')}</span><span className={s.spanBold}>{t('cart.deliveryInfo')}</span></div>
 
                                     <div className={s.totalLine}>
-                                        <p>РАЗОМ</p>
+                                        <p>{t('cart.total')}</p>
                                         <p>{total.toLocaleString()} ₴</p>
                                     </div>
 
-                                    <Link to="/checkout" onClick={() => dispatch(setCartOpen(false))} className={s.checkout}>ОФОРМИТИ ЗАМОВЛЕННЯ</Link>
-                                    <button className={s.continue} onClick={() => dispatch(setCartOpen(false))}>ПРОДОВЖИТИ ПОКУПКИ</button>
+                                    <Link to={`${langPrefix}/checkout`} onClick={() => dispatch(setCartOpen(false))} className={s.checkout}>{t('cart.checkout')}</Link>
+                                    <button className={s.continue} onClick={() => dispatch(setCartOpen(false))}>{t('cart.continueShopping')}</button>
                                 </div>
                             </div>
 
@@ -157,7 +161,7 @@ const CartDrawer = () => {
                 </div>
 
                 <div className={s.wrapRecomended}>
-                    <h3 className={s.titleRec}>Рекомендовані товари</h3>
+                    <h3 className={s.titleRec}>{t('cart.recommendedProducts')}</h3>
                     <RecommendedProducts />
                 </div>
 

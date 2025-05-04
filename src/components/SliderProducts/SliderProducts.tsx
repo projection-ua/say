@@ -7,6 +7,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { Link } from 'react-router-dom';
 import {LoaderMini} from "../LoaderMini/LoaderMini.tsx";
+import {useTranslation} from "react-i18next";
+
 
 // Створимо простий хук для перевірки ширини
 const useIsMobile = () => {
@@ -31,6 +33,11 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
     const [loading, setLoading] = useState(true);
     const uniqueId = useId();
     const isMobile = useIsMobile();
+
+    const { t } = useTranslation();
+
+    const { i18n } = useTranslation();
+    const langPrefix = i18n.language === 'ru' ? '/ru' : '';
 
     useEffect(() => {
         const fetchFiltered = async () => {
@@ -102,10 +109,10 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
                 {isMobile ? '' : (
                     <div className={s.buttonWrapper}>
                         <Link
-                            to={filterTag === 'new' ? '/new' : '/sales'}
+                            to={`${langPrefix}${filterTag === 'new' ? '/new' : '/sales'}`}
                             className={s.linkAllProducts}
                         >
-                            Показати все
+                            {t('view_all')}
                         </Link>
                     </div>
                 )}
@@ -125,10 +132,10 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
 
                             <div className={s.buttonWrapper}>
                                 <Link
-                                    to={filterTag === 'new' ? '/new' : '/sales'}
+                                    to={`${langPrefix}${filterTag === 'new' ? '/new' : '/sales'}`}
                                     className={s.linkAllProducts}
                                 >
-                                    Показати все
+                                    {t('view_all')}
                                 </Link>
                             </div>
                         </>

@@ -12,6 +12,7 @@ import { NpLocation } from "../../types/npTypes";
 import { NovaPoshtaMapPopup } from "../../components/MapPopup/MapPopup";
 import { LoaderMini } from "../../components/LoaderMini/LoaderMini";
 import { StepNavigation } from '../../components/StepNavigation/StepNavigation';
+import {useTranslation} from "react-i18next";
 
 
 interface ShippingMethod {
@@ -120,6 +121,12 @@ const CheckoutPage: React.FC = () => {
     const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
     const [errorMessage, setErrorMessage] = useState('');
+
+
+    const { t, i18n } = useTranslation();
+    const langPrefix = i18n.language === 'uk' ? '/uk' : (i18n.language === 'ru' ? '/ru' : '');
+
+
 
     const [isLoadingCheckoutData, setIsLoadingCheckoutData] = useState(true);
 
@@ -434,9 +441,11 @@ const CheckoutPage: React.FC = () => {
                 console.log('✅ Замовлення створено успішно:', responseData);
                 setIsSubmitting(false);
                 dispatch(clearCart());
-                navigate('/checkout-success', {
+
+                navigate(`${langPrefix}/checkout-success`, {
                     state: { order: responseData },
                 });
+
             } catch (error) {
                 if (error instanceof Error) {
                     console.error('❌ Виникла помилка при оформленні замовлення:', error.message);
@@ -599,6 +608,7 @@ const CheckoutPage: React.FC = () => {
         }
     };
 
+
     return (
         <>
             {isMobile && (
@@ -613,17 +623,17 @@ const CheckoutPage: React.FC = () => {
                             <>
                                 {step === 1 && (
                                     <div className={s.personalInfo}>
-                                        <h2>Персональна інформація</h2>
+                                        <h2>{t('personalInfo.title')}</h2>
                                         <div className={s.inputsWrap}>
                                             <div className={s.inputRow}>
                                                 <div className={s.inputField}>
-                                                    <input placeholder="Прізвище" {...formik.getFieldProps('lastName')} />
+                                                    <input placeholder={t('personalInfo.lastName')} {...formik.getFieldProps('lastName')} />
                                                     {formik.touched.lastName && formik.errors.lastName && (
                                                         <div className={s.errorText}>{formik.errors.lastName}</div>
                                                     )}
                                                 </div>
                                                 <div className={s.inputField}>
-                                                    <input placeholder="Ім'я" {...formik.getFieldProps('firstName')} />
+                                                    <input placeholder={t('personalInfo.firstName')} {...formik.getFieldProps('firstName')} />
                                                     {formik.touched.firstName && formik.errors.firstName && (
                                                         <div className={s.errorText}>{formik.errors.firstName}</div>
                                                     )}
@@ -631,13 +641,13 @@ const CheckoutPage: React.FC = () => {
                                             </div>
                                             <div className={s.inputRow}>
                                                 <div className={s.inputField}>
-                                                    <input placeholder="Телефон" {...formik.getFieldProps('phone')} />
+                                                    <input placeholder={t('personalInfo.phone')} {...formik.getFieldProps('phone')} />
                                                     {formik.touched.phone && formik.errors.phone && (
                                                         <div className={s.errorText}>{formik.errors.phone}</div>
                                                     )}
                                                 </div>
                                                 <div className={s.inputField}>
-                                                    <input placeholder="E-mail" {...formik.getFieldProps('email')} />
+                                                    <input placeholder={t('personalInfo.email')} {...formik.getFieldProps('email')} />
                                                     {formik.touched.email && formik.errors.email && (
                                                         <div className={s.errorText}>{formik.errors.email}</div>
                                                     )}
@@ -649,20 +659,18 @@ const CheckoutPage: React.FC = () => {
 
                                 {step === 2 && (
                                     <div className={s.shippingInfo}>
-                                        <h2>Доставка</h2>
+                                        <h2>{t('checkout.shippingTitle')}</h2>
 
                                         {isLoadingCheckoutData ? (
                                             <div className={s.checkoutLoader}>
                                                 <LoaderMini />
                                             </div>
                                         ) : (
-
                                             <>
-
                                                 <div className={s.inputRow}>
                                                     <div className={s.inputField}>
                                                         <Select
-                                                            placeholder="Оберіть спосіб"
+                                                            placeholder={t('checkout.chooseShippingMethod')}
                                                             options={shippingMethods.map(method => ({
                                                                 value: method.id.toString(),
                                                                 label: method.title,
@@ -685,7 +693,7 @@ const CheckoutPage: React.FC = () => {
                                                     </div>
                                                     <div className={s.inputField}>
                                                         <Select
-                                                            placeholder="Оберіть спосіб доставки"
+                                                            placeholder={t('checkout.chooseDeliveryType')}
                                                             options={deliveryTypeOptions}
                                                             value={deliveryTypeOptions.find(opt => opt.value === formik.values.deliveryType) || null}
                                                             onChange={(option) => {
@@ -702,14 +710,12 @@ const CheckoutPage: React.FC = () => {
                                                     </div>
                                                 </div>
 
-
                                                 {formik.values.deliveryType === 'courier' && (
                                                     <>
-
                                                         <div className={s.inputRow}>
                                                             <div className={s.inputField}>
                                                                 <Select
-                                                                    placeholder="Оберіть місто"
+                                                                    placeholder={t('checkout.chooseCity')}
                                                                     options={allCityOptions}
                                                                     filterOption={filterCityOptions}
                                                                     value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
@@ -731,7 +737,7 @@ const CheckoutPage: React.FC = () => {
                                                             {selectedCity && (
                                                                 <div className={s.inputField}>
                                                                     <Select
-                                                                        placeholder="Оберіть вулицю"
+                                                                        placeholder={t('checkout.chooseStreet')}
                                                                         options={getStreetOptions()}
                                                                         value={
                                                                             formik.values.shippingStreet
@@ -751,19 +757,20 @@ const CheckoutPage: React.FC = () => {
 
                                                         <div className={s.inputRow}>
                                                             <div className={s.inputField}>
-                                                                <input placeholder="Будинок" {...formik.getFieldProps('shippingHouse')} />
+                                                                <input placeholder={t('checkout.house')} {...formik.getFieldProps('shippingHouse')} />
                                                                 {formik.touched.shippingHouse && formik.errors.shippingHouse && (
                                                                     <div className={s.errorText}>{formik.errors.shippingHouse}</div>
                                                                 )}
                                                             </div>
                                                             <div className={s.inputField}>
-                                                                <input placeholder="Підʼїзд" {...formik.getFieldProps('shippingEntrance')} />
+                                                                <input placeholder={t('checkout.entrance')} {...formik.getFieldProps('shippingEntrance')} />
                                                             </div>
                                                             <div className={s.inputField}>
-                                                                <input placeholder="Квартира" {...formik.getFieldProps('shippingApartment')} />
+                                                                <input placeholder={t('checkout.apartment')} {...formik.getFieldProps('shippingApartment')} />
                                                             </div>
                                                         </div>
-                                                        <textarea placeholder="Залишити коментар курʼєру" {...formik.getFieldProps('shippingComment')} />
+
+                                                        <textarea placeholder={t('checkout.commentCourier')} {...formik.getFieldProps('shippingComment')} />
                                                     </>
                                                 )}
 
@@ -772,7 +779,7 @@ const CheckoutPage: React.FC = () => {
                                                         <div className={s.inputRow}>
                                                             <div className={s.inputField}>
                                                                 <Select
-                                                                    placeholder="Оберіть місто"
+                                                                    placeholder={t('checkout.chooseCity')}
                                                                     options={allCityOptions}
                                                                     filterOption={filterCityOptions}
                                                                     value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
@@ -792,12 +799,10 @@ const CheckoutPage: React.FC = () => {
                                                             </div>
 
                                                             {selectedCity && (
-
                                                                 <>
-
                                                                     <div className={s.inputField}>
                                                                         <Select
-                                                                            placeholder="Оберіть відділення"
+                                                                            placeholder={t('checkout.chooseWarehouse')}
                                                                             options={getFilteredWarehouses(formik.values.deliveryType)}
                                                                             value={
                                                                                 formik.values.warehouseId
@@ -813,11 +818,8 @@ const CheckoutPage: React.FC = () => {
                                                                         )}
                                                                     </div>
 
-                                                                    <button
-                                                                        className={s.mapBtn}
-                                                                        onClick={() => setShowMapPopup(true)}
-                                                                    >
-                                                                        Обрати на мапі
+                                                                    <button className={s.mapBtn} onClick={() => setShowMapPopup(true)}>
+                                                                        {t('checkout.chooseOnMap')}
                                                                     </button>
 
                                                                     {showMapPopup && (
@@ -830,20 +832,13 @@ const CheckoutPage: React.FC = () => {
                                                                                 formik.setFieldValue('warehouseId', warehouse);
                                                                                 setShowMapPopup(false);
                                                                             }}
-                                                                            onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
+                                                                            onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)}
                                                                         />
                                                                     )}
                                                                 </>
-
-
-
                                                             )}
-
-
-
                                                         </div>
                                                     </>
-
                                                 )}
 
                                                 {formik.values.deliveryType === 'postomat' && (
@@ -851,7 +846,7 @@ const CheckoutPage: React.FC = () => {
                                                         <div className={s.inputRow}>
                                                             <div className={s.inputField}>
                                                                 <Select
-                                                                    placeholder="Оберіть місто"
+                                                                    placeholder={t('checkout.chooseCity')}
                                                                     options={allCityOptions}
                                                                     filterOption={filterCityOptions}
                                                                     value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
@@ -871,11 +866,10 @@ const CheckoutPage: React.FC = () => {
                                                             </div>
 
                                                             {selectedCity && (
-
                                                                 <>
                                                                     <div className={s.inputField}>
                                                                         <Select
-                                                                            placeholder="Оберіть поштомат"
+                                                                            placeholder={t('checkout.choosePostomat')}
                                                                             options={getFilteredWarehouses(formik.values.deliveryType)}
                                                                             value={
                                                                                 formik.values.warehouseId
@@ -886,17 +880,13 @@ const CheckoutPage: React.FC = () => {
                                                                             isSearchable
                                                                             classNamePrefix="custom-select"
                                                                         />
-
                                                                         {formik.touched.warehouseId && formik.errors.warehouseId && (
                                                                             <div className={s.errorText}>{formik.errors.warehouseId}</div>
                                                                         )}
                                                                     </div>
 
-                                                                    <button
-                                                                        className={s.mapBtn}
-                                                                        onClick={() => setShowMapPopup(true)}
-                                                                    >
-                                                                        Обрати на мапі
+                                                                    <button className={s.mapBtn} onClick={() => setShowMapPopup(true)}>
+                                                                        {t('checkout.chooseOnMap')}
                                                                     </button>
 
                                                                     {showMapPopup && (
@@ -909,16 +899,11 @@ const CheckoutPage: React.FC = () => {
                                                                                 formik.setFieldValue('warehouseId', warehouse);
                                                                                 setShowMapPopup(false);
                                                                             }}
-                                                                            onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
+                                                                            onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)}
                                                                         />
                                                                     )}
-
                                                                 </>
-
-
                                                             )}
-
-
                                                         </div>
                                                     </>
                                                 )}
@@ -929,7 +914,7 @@ const CheckoutPage: React.FC = () => {
 
                                 {step === 3 && (
                                     <div className={s.paymentInfo}>
-                                        <h2>Оплата</h2>
+                                        <h2>{t('checkout.paymentTitle')}</h2>
 
                                         {isLoadingCheckoutData ? (
                                             <div className={s.checkoutLoader}>
@@ -937,7 +922,6 @@ const CheckoutPage: React.FC = () => {
                                             </div>
                                         ) : (
                                             <>
-
                                                 <div className={s.paymentRow}>
                                                     {paymentMethods.map((method) => (
                                                         <label key={method.id}>
@@ -956,31 +940,29 @@ const CheckoutPage: React.FC = () => {
                                                     ))}
                                                 </div>
 
-
                                                 {formik.touched.paymentMethod && formik.errors.paymentMethod && (
                                                     <div className={s.errorText}>{formik.errors.paymentMethod}</div>
                                                 )}
                                             </>
                                         )}
 
-
                                         <div className={s.desctiptionOrder}>
-                                            <h2>Коментар</h2>
-                                            <textarea placeholder="Залишити коментар до замовлення" {...formik.getFieldProps('comment')} />
+                                            <h2>{t('checkout.commentTitle')}</h2>
+                                            <textarea placeholder={t('checkout.commentPlaceholder')} {...formik.getFieldProps('comment')} />
 
                                             <button type="submit" className={s.submitButton} disabled={isSubmitting}>
-                                                {isSubmitting ? 'Надсилаємо...' : 'ПІДТВЕРДИТИ ЗАМОВЛЕННЯ'}
+                                                {isSubmitting ? t('checkout.sending') : t('checkout.confirmOrder')}
                                             </button>
                                         </div>
 
                                         <div className={s.checkboxRow}>
                                             <label>
                                                 <input type="checkbox" {...formik.getFieldProps('newsletter')} />
-                                                Підписатися на e-mail розсилку
+                                                {t('checkout.subscribeNewsletter')}
                                             </label>
                                             <label>
                                                 <input type="checkbox" {...formik.getFieldProps('acceptTerms')} />
-                                                Приймаю умови оферти, політики конфіденційності та заяви про обробку персональних даних
+                                                {t('checkout.acceptTerms')}
                                             </label>
                                             {formik.touched.acceptTerms && formik.errors.acceptTerms && (
                                                 <div className={s.errorText}>{formik.errors.acceptTerms}</div>
@@ -992,12 +974,12 @@ const CheckoutPage: React.FC = () => {
                                 <div className={s.stepButtons}>
                                     {step > 1 && (
                                         <button type="button" className={s.buttonPrev} onClick={() => setStep((prev) => prev - 1)}>
-                                            Назад
+                                            {t('checkout.back')}
                                         </button>
                                     )}
                                     {step < 3 && (
                                         <button type="button" className={s.buttonNext} onClick={() => setStep((prev) => prev + 1)}>
-                                            Далі
+                                            {t('checkout.next')}
                                         </button>
                                     )}
                                 </div>
@@ -1007,17 +989,17 @@ const CheckoutPage: React.FC = () => {
                         {!isMobile && (
                             <div className={s.gapFrom}>
                                 <div className={s.personalInfo}>
-                                    <h2>Персональна інформація</h2>
+                                    <h2>{t('personalInfo.title')}</h2>
                                     <div className={s.inputsWrap}>
                                         <div className={s.inputRow}>
                                             <div className={s.inputField}>
-                                                <input placeholder="Прізвище" {...formik.getFieldProps('lastName')} />
+                                                <input placeholder={t('personalInfo.lastName')} {...formik.getFieldProps('lastName')} />
                                                 {formik.touched.lastName && formik.errors.lastName && (
                                                     <div className={s.errorText}>{formik.errors.lastName}</div>
                                                 )}
                                             </div>
                                             <div className={s.inputField}>
-                                                <input placeholder="Ім'я" {...formik.getFieldProps('firstName')} />
+                                                <input placeholder={t('personalInfo.firstName')} {...formik.getFieldProps('firstName')} />
                                                 {formik.touched.firstName && formik.errors.firstName && (
                                                     <div className={s.errorText}>{formik.errors.firstName}</div>
                                                 )}
@@ -1025,13 +1007,13 @@ const CheckoutPage: React.FC = () => {
                                         </div>
                                         <div className={s.inputRow}>
                                             <div className={s.inputField}>
-                                                <input placeholder="Телефон" {...formik.getFieldProps('phone')} />
+                                                <input placeholder={t('personalInfo.phone')} {...formik.getFieldProps('phone')} />
                                                 {formik.touched.phone && formik.errors.phone && (
                                                     <div className={s.errorText}>{formik.errors.phone}</div>
                                                 )}
                                             </div>
                                             <div className={s.inputField}>
-                                                <input placeholder="E-mail" {...formik.getFieldProps('email')} />
+                                                <input placeholder={t('personalInfo.email')} {...formik.getFieldProps('email')} />
                                                 {formik.touched.email && formik.errors.email && (
                                                     <div className={s.errorText}>{formik.errors.email}</div>
                                                 )}
@@ -1041,20 +1023,18 @@ const CheckoutPage: React.FC = () => {
                                 </div>
 
                                 <div className={s.shippingInfo}>
-                                    <h2>Доставка</h2>
+                                    <h2>{t('checkout.shippingTitle')}</h2>
 
                                     {isLoadingCheckoutData ? (
                                         <div className={s.checkoutLoader}>
                                             <LoaderMini />
                                         </div>
                                     ) : (
-
                                         <>
-
                                             <div className={s.inputRow}>
                                                 <div className={s.inputField}>
                                                     <Select
-                                                        placeholder="Оберіть спосіб"
+                                                        placeholder={t('checkout.chooseShippingMethod')}
                                                         options={shippingMethods.map(method => ({
                                                             value: method.id.toString(),
                                                             label: method.title,
@@ -1077,7 +1057,7 @@ const CheckoutPage: React.FC = () => {
                                                 </div>
                                                 <div className={s.inputField}>
                                                     <Select
-                                                        placeholder="Оберіть спосіб доставки"
+                                                        placeholder={t('checkout.chooseDeliveryType')}
                                                         options={deliveryTypeOptions}
                                                         value={deliveryTypeOptions.find(opt => opt.value === formik.values.deliveryType) || null}
                                                         onChange={(option) => {
@@ -1094,14 +1074,12 @@ const CheckoutPage: React.FC = () => {
                                                 </div>
                                             </div>
 
-
                                             {formik.values.deliveryType === 'courier' && (
                                                 <>
-
                                                     <div className={s.inputRow}>
                                                         <div className={s.inputField}>
                                                             <Select
-                                                                placeholder="Оберіть місто"
+                                                                placeholder={t('checkout.chooseCity')}
                                                                 options={allCityOptions}
                                                                 filterOption={filterCityOptions}
                                                                 value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
@@ -1123,7 +1101,7 @@ const CheckoutPage: React.FC = () => {
                                                         {selectedCity && (
                                                             <div className={s.inputField}>
                                                                 <Select
-                                                                    placeholder="Оберіть вулицю"
+                                                                    placeholder={t('checkout.chooseStreet')}
                                                                     options={getStreetOptions()}
                                                                     value={
                                                                         formik.values.shippingStreet
@@ -1143,19 +1121,19 @@ const CheckoutPage: React.FC = () => {
 
                                                     <div className={s.inputRow}>
                                                         <div className={s.inputField}>
-                                                            <input placeholder="Будинок" {...formik.getFieldProps('shippingHouse')} />
+                                                            <input placeholder={t('checkout.house')} {...formik.getFieldProps('shippingHouse')} />
                                                             {formik.touched.shippingHouse && formik.errors.shippingHouse && (
                                                                 <div className={s.errorText}>{formik.errors.shippingHouse}</div>
                                                             )}
                                                         </div>
                                                         <div className={s.inputField}>
-                                                            <input placeholder="Підʼїзд" {...formik.getFieldProps('shippingEntrance')} />
+                                                            <input placeholder={t('checkout.entrance')} {...formik.getFieldProps('shippingEntrance')} />
                                                         </div>
                                                         <div className={s.inputField}>
-                                                            <input placeholder="Квартира" {...formik.getFieldProps('shippingApartment')} />
+                                                            <input placeholder={t('checkout.apartment')} {...formik.getFieldProps('shippingApartment')} />
                                                         </div>
                                                     </div>
-                                                    <textarea placeholder="Залишити коментар курʼєру" {...formik.getFieldProps('shippingComment')} />
+                                                    <textarea placeholder={t('checkout.commentCourier')} {...formik.getFieldProps('shippingComment')} />
                                                 </>
                                             )}
 
@@ -1164,7 +1142,7 @@ const CheckoutPage: React.FC = () => {
                                                     <div className={s.inputRow}>
                                                         <div className={s.inputField}>
                                                             <Select
-                                                                placeholder="Оберіть місто"
+                                                                placeholder={t('checkout.chooseCity')}
                                                                 options={allCityOptions}
                                                                 filterOption={filterCityOptions}
                                                                 value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
@@ -1184,12 +1162,10 @@ const CheckoutPage: React.FC = () => {
                                                         </div>
 
                                                         {selectedCity && (
-
                                                             <>
-
                                                                 <div className={s.inputField}>
                                                                     <Select
-                                                                        placeholder="Оберіть відділення"
+                                                                        placeholder={t('checkout.chooseWarehouse')}
                                                                         options={getFilteredWarehouses(formik.values.deliveryType)}
                                                                         value={
                                                                             formik.values.warehouseId
@@ -1209,7 +1185,7 @@ const CheckoutPage: React.FC = () => {
                                                                     className={s.mapBtn}
                                                                     onClick={() => setShowMapPopup(true)}
                                                                 >
-                                                                    Обрати на мапі
+                                                                    {t('checkout.chooseOnMap')}
                                                                 </button>
 
                                                                 {showMapPopup && (
@@ -1222,20 +1198,13 @@ const CheckoutPage: React.FC = () => {
                                                                             formik.setFieldValue('warehouseId', warehouse);
                                                                             setShowMapPopup(false);
                                                                         }}
-                                                                        onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
+                                                                        onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)}
                                                                     />
                                                                 )}
                                                             </>
-
-
-
                                                         )}
-
-
-
                                                     </div>
                                                 </>
-
                                             )}
 
                                             {formik.values.deliveryType === 'postomat' && (
@@ -1243,7 +1212,7 @@ const CheckoutPage: React.FC = () => {
                                                     <div className={s.inputRow}>
                                                         <div className={s.inputField}>
                                                             <Select
-                                                                placeholder="Оберіть місто"
+                                                                placeholder={t('checkout.chooseCity')}
                                                                 options={allCityOptions}
                                                                 filterOption={filterCityOptions}
                                                                 value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
@@ -1263,11 +1232,10 @@ const CheckoutPage: React.FC = () => {
                                                         </div>
 
                                                         {selectedCity && (
-
                                                             <>
                                                                 <div className={s.inputField}>
                                                                     <Select
-                                                                        placeholder="Оберіть поштомат"
+                                                                        placeholder={t('checkout.choosePostomat')}
                                                                         options={getFilteredWarehouses(formik.values.deliveryType)}
                                                                         value={
                                                                             formik.values.warehouseId
@@ -1278,7 +1246,6 @@ const CheckoutPage: React.FC = () => {
                                                                         isSearchable
                                                                         classNamePrefix="custom-select"
                                                                     />
-
                                                                     {formik.touched.warehouseId && formik.errors.warehouseId && (
                                                                         <div className={s.errorText}>{formik.errors.warehouseId}</div>
                                                                     )}
@@ -1288,7 +1255,7 @@ const CheckoutPage: React.FC = () => {
                                                                     className={s.mapBtn}
                                                                     onClick={() => setShowMapPopup(true)}
                                                                 >
-                                                                    Обрати на мапі
+                                                                    {t('checkout.chooseOnMap')}
                                                                 </button>
 
                                                                 {showMapPopup && (
@@ -1301,16 +1268,11 @@ const CheckoutPage: React.FC = () => {
                                                                             formik.setFieldValue('warehouseId', warehouse);
                                                                             setShowMapPopup(false);
                                                                         }}
-                                                                        onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)} // 👈 Передаємо зміну типу
+                                                                        onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)}
                                                                     />
                                                                 )}
-
                                                             </>
-
-
                                                         )}
-
-
                                                     </div>
                                                 </>
                                             )}
@@ -1319,7 +1281,7 @@ const CheckoutPage: React.FC = () => {
                                 </div>
 
                                 <div className={s.paymentInfo}>
-                                    <h2>Оплата</h2>
+                                    <h2>{t('checkout.paymentTitle')}</h2>
 
                                     {isLoadingCheckoutData ? (
                                         <div className={s.checkoutLoader}>
@@ -1327,7 +1289,6 @@ const CheckoutPage: React.FC = () => {
                                         </div>
                                     ) : (
                                         <>
-
                                             <div className={s.paymentRow}>
                                                 {paymentMethods.map((method) => (
                                                     <label key={method.id}>
@@ -1346,31 +1307,29 @@ const CheckoutPage: React.FC = () => {
                                                 ))}
                                             </div>
 
-
                                             {formik.touched.paymentMethod && formik.errors.paymentMethod && (
                                                 <div className={s.errorText}>{formik.errors.paymentMethod}</div>
                                             )}
                                         </>
                                     )}
 
-
                                     <div className={s.desctiptionOrder}>
-                                        <h2>Коментар</h2>
-                                        <textarea placeholder="Залишити коментар до замовлення" {...formik.getFieldProps('comment')} />
+                                        <h2>{t('checkout.commentTitle')}</h2>
+                                        <textarea placeholder={t('checkout.commentPlaceholder')} {...formik.getFieldProps('comment')} />
 
                                         <button type="submit" className={s.submitButton} disabled={isSubmitting}>
-                                            {isSubmitting ? 'Надсилаємо...' : 'ПІДТВЕРДИТИ ЗАМОВЛЕННЯ'}
+                                            {isSubmitting ? t('checkout.sending') : t('checkout.confirmOrder')}
                                         </button>
                                     </div>
 
                                     <div className={s.checkboxRow}>
                                         <label>
                                             <input type="checkbox" {...formik.getFieldProps('newsletter')} />
-                                            Підписатися на e-mail розсилку
+                                            {t('checkout.subscribeNewsletter')}
                                         </label>
                                         <label>
                                             <input type="checkbox" {...formik.getFieldProps('acceptTerms')} />
-                                            Приймаю умови оферти, політики конфіденційності та заяви про обробку персональних даних
+                                            {t('checkout.acceptTerms')}
                                         </label>
                                         {formik.touched.acceptTerms && formik.errors.acceptTerms && (
                                             <div className={s.errorText}>{formik.errors.acceptTerms}</div>
@@ -1383,7 +1342,7 @@ const CheckoutPage: React.FC = () => {
 
                     <div className={s.checkoutSummary}>
                         <div className={s.headingSummaryWrap}>
-                            <h3 className={s.headingSummary}>ВСЬОГО ДО ОПЛАТИ</h3>
+                            <h3 className={s.headingSummary}>{t('checkout.totalToPay')}</h3>
                             <p className={s.priceMain}>{items.reduce((sum, item) => sum + (item.sale_price || item.price) * item.quantity, 0).toLocaleString()} ₴</p>
                         </div>
                         <div className={s.cartItems}>
@@ -1392,7 +1351,7 @@ const CheckoutPage: React.FC = () => {
                                     <div className={s.cartItemLeft}><img src={item.image} alt={item.name} /></div>
                                     <div className={s.cartItemCenter}>
                                         <div className={s.skuPriceWrap}>
-                                            <p className={s.skuText}><span className={s.skuItem}>Код товару:</span> {item.sku}</p>
+                                            <p className={s.skuText}><span className={s.skuItem}>{t('checkout.sku')}:</span> {item.sku} {item.sku}</p>
                                             <button className={s.delateItem} type="button" onClick={() => dispatch(removeFromCart(item))}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                                     <path d="M1.51863 15.6603L8.00044 9.17851L14.4823 15.6603L15.6608 14.4818L9.17895 8L15.6608 1.51819L14.4823 0.339676L8.00044 6.82149L1.51863 0.339677L0.340119 1.51819L6.82193 8L0.340119 14.4818L1.51863 15.6603Z" fill="#003C3A"/>
@@ -1453,7 +1412,7 @@ const CheckoutPage: React.FC = () => {
 
                         <div className={`${s.wrapCoupon} ${isCouponOpen ? s.active : ''}`}>
                             <button className={s.accordionToggle} onClick={() => setCouponOpen(!isCouponOpen)}>
-                                Додати промокод
+                                {t('checkout.addPromoCode')}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
                                     <g clipPath="url(#clip0_2368_15893)">
                                         <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
@@ -1472,16 +1431,25 @@ const CheckoutPage: React.FC = () => {
                                         <input
                                             type="text"
                                             {...formik.getFieldProps('coupon')}
-                                            placeholder="Ваш купон"
+                                            placeholder={t('checkout.promoPlaceholder')}
                                             className={s.couponInput}
                                         />
-                                        <button type="button" className={s.checkBtn} onClick={checkCoupon} disabled={isCheckingCoupon}>
-                                            {isCheckingCoupon ? 'Перевірка...' : 'Перевірити'}
+                                        <button
+                                            type="button"
+                                            className={s.checkBtn}
+                                            onClick={checkCoupon}
+                                            disabled={isCheckingCoupon}
+                                        >
+                                            {isCheckingCoupon ? t('checkout.checkingPromo') : t('checkout.checkPromo')}
                                         </button>
                                     </div>
+
                                     {couponValid && couponAmount && (
-                                        <p className={s.couponSuccess}>Знижка: -{couponAmount} ₴</p>
+                                        <p className={s.couponSuccess}>
+                                            {t('checkout.discountApplied', { amount: couponAmount })}
+                                        </p>
                                     )}
+
                                     {couponError && (
                                         <p className={s.couponError}>{couponError}</p>
                                     )}
@@ -1493,7 +1461,7 @@ const CheckoutPage: React.FC = () => {
 
                         <div className={`${s.wrapCoupon} ${isGiftOpen ? s.active : ''}`}>
                             <button className={s.accordionToggle} onClick={() => setGiftOpen(!isGiftOpen)}>
-                                Подарунковий сертифікат
+                                {t('checkout.giftCertificate')}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
                                     <g clipPath="url(#clip0_2368_15893)">
                                         <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
@@ -1512,28 +1480,30 @@ const CheckoutPage: React.FC = () => {
                                         <input
                                             type="text"
                                             {...formik.getFieldProps('giftCard')}
-                                            placeholder="Ваш сертифікат"
+                                            placeholder={t('checkout.giftPlaceholder')}
                                             className={s.couponInput}
                                         />
 
                                         <button
                                             type="button"
                                             className={s.checkBtn}
-                                            onClick={checkGiftCard} // 👈 твоя функція перевірки
+                                            onClick={checkGiftCard}
                                             disabled={isCheckingGift}
                                         >
-                                            {isCheckingGift ? 'Перевірка...' : 'Перевірити сертифікат'}
+                                            {isCheckingGift ? t('checkout.checkingGift') : t('checkout.checkGift')}
                                         </button>
                                     </div>
 
                                     {giftValid && (
                                         <div className={s.validText}>
-                                            ✅ Сертифікат дійсний. Знижка: {giftAmount?.toLocaleString()} ₴
+                                            {t('checkout.giftValid', { amount: giftAmount?.toLocaleString() })}
                                         </div>
                                     )}
 
                                     {giftValid === false && giftError && (
-                                        <div className={s.errorText}>❌ {giftError}</div>
+                                        <div className={s.errorText}>
+                                            {t('checkout.giftInvalid', { error: giftError })}
+                                        </div>
                                     )}
                                 </div>
                             )}
@@ -1541,37 +1511,47 @@ const CheckoutPage: React.FC = () => {
 
 
 
+
                         <div className={s.checkoutSummaryBlock}>
                             <div className={s.summaryLine}>
-                                <span>Сума замовлення</span>
+                                <span>{t('checkout.orderAmount')}</span>
                                 <span className={s.spanBlack}>{subtotal.toLocaleString()} ₴</span>
                             </div>
 
                             <div className={s.summaryLine}>
-                                <span>Сума знижки промокода</span>
-                                <span className={s.spanGray}>{appliedCouponDiscount > 0 ? `-${appliedCouponDiscount.toLocaleString()} ₴` : '0 ₴'}</span>
+                                <span>{t('checkout.couponDiscount')}</span>
+                                <span className={s.spanGray}>
+                                    {appliedCouponDiscount > 0 ? `-${appliedCouponDiscount.toLocaleString()} ₴` : '0 ₴'}
+                                </span>
                             </div>
 
                             <div className={s.summaryLine}>
-                                <span>Подарунковий сертифікат</span>
-                                <span className={s.spanGray}>{appliedGiftCard > 0 ? `-${appliedGiftCard.toLocaleString()} ₴` : '0 ₴'}</span>
+                                <span>{t('checkout.giftCertificateAmount')}</span>
+                                <span className={s.spanGray}>
+                                    {appliedGiftCard > 0 ? `-${appliedGiftCard.toLocaleString()} ₴` : '0 ₴'}
+                                </span>
                             </div>
 
                             <div className={s.summaryLine}>
-                                <span>Сума знижки</span>
-                                <span className={s.spanGray}>{discountProducts > 0 ? `${discountProducts.toLocaleString()} ₴` : '0 ₴'}</span>
+                                <span>{t('checkout.productDiscount')}</span>
+                                <span className={s.spanGray}>
+                                    {discountProducts > 0 ? `${discountProducts.toLocaleString()} ₴` : '0 ₴'}
+                                </span>
                             </div>
 
                             <div className={s.summaryLine}>
-                                <span>Вартість доставки</span>
-                                <span className={s.spanBlack}>{shippingCost > 0 ? `${shippingCost.toLocaleString()} ₴` : 'За тарифами "Нової Пошти"'}</span>
+                                <span>{t('checkout.shippingCost')}</span>
+                                <span className={s.spanBlack}>
+                                    {shippingCost > 0 ? `${shippingCost.toLocaleString()} ₴` : t('checkout.shippingByTariff')}
+                                </span>
                             </div>
 
                             <div className={s.checkoutTotal}>
-                                <h3 className={s.headingSummary}>РАЗОМ</h3>
+                                <h3 className={s.headingSummary}>{t('checkout.finalTotal')}</h3>
                                 <p className={s.priceMain}>{finalTotal.toLocaleString()} ₴</p>
                             </div>
                         </div>
+
 
                     </div>
                 </div>
