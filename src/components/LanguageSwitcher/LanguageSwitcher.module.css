@@ -20,14 +20,14 @@
 .menu li:hover {
     background: #F2F2F2;
 }
-button{
+.dropdown button{
     display: flex;
     gap: 12px;
     align-items: center;
     padding: 8px 18px;
 }
 
-.dropdown, button{
+.dropdown{
     color: var(--Green-Black, #0C1618);
     font-variant-numeric: lining-nums proportional-nums;
     font-family: Raleway;
