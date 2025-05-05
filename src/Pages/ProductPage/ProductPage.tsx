@@ -27,10 +27,16 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {useTranslation} from "react-i18next";
 
+import { gtagEvent } from '../../gtag';
+
 const ProductPage = () => {
     const { slug } = useParams();
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
+
+
+
+
 
     const [quantity, setQuantity] = useState(1);
 
@@ -73,6 +79,24 @@ const ProductPage = () => {
     const [variations, setVariations] = useState<Variation[]>([]);
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
+
+
+    useEffect(() => {
+        if (!product) return;
+
+        const targetItem = selectedVariation ?? product;
+
+        gtagEvent('view_item', {
+            currency: 'UAH',
+            value: +targetItem.price,
+            items: [{
+                item_id: targetItem.id,
+                item_name: product.name,
+                price: +targetItem.price,
+            }]
+        });
+    }, [product, selectedVariation]);
+
 
 
     const [loading, setLoading] = useState(true);
@@ -265,6 +289,8 @@ const ProductPage = () => {
             dispatch(setCartOpen(true));
         }
     });
+
+
 
 
 
