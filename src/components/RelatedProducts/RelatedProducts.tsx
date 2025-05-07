@@ -28,10 +28,13 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
             try {
                 const products = await getProducts();
 
+                // 1️⃣ Фільтруємо тільки ті, що не приховані
+                const catalogProducts = products.filter(p => !p.hiddenInCatalog);
+
                 // ID категорій товару
                 const categoryIds = relatedToProduct.categories.map((cat) => cat.id);
 
-                const filtered = products
+                const filtered = catalogProducts // 👈 працюємо тільки з "дозволеними" товарами
                     .filter((product) => {
                         // Виняток для самого товару
                         if (product.id === relatedToProduct.id) return false;
@@ -98,8 +101,8 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
                             prevEl: `#${prevId}`,
                         } : false}
                     >
-                        {relatedProducts.map((product) => (
-                            <SwiperSlide key={product.id}>
+                        {relatedProducts.map((product, index) => (
+                            <SwiperSlide key={`${product.id}-${index}`}>
                                 <ProductItem product={product} />
                             </SwiperSlide>
                         ))}

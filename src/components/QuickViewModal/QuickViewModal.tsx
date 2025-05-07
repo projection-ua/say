@@ -77,7 +77,7 @@ const QuickViewModal = ({ product, onClose }: Props) => {
 
         product.attributes.forEach(attr => {
             if (attr.options.length > 0) {
-                initialOptions[attr.name] = attr.options[0]; // обираємо перший варіант
+                initialOptions[attr.name] = attr.options[0].name; // ← взяли ім'я першої опції
             }
         });
 
@@ -183,11 +183,11 @@ const QuickViewModal = ({ product, onClose }: Props) => {
                                 <div className={s.options}>
                                     {attr.options.map((opt) => (
                                         <button
-                                            key={opt}
-                                            className={`${s.optionBtn} ${selectedOptions[attr.name] === opt ? s.active : ''}`}
-                                            onClick={() => handleSelectOption(attr.name, opt)}
+                                            key={opt.slug}
+                                            className={`${s.optionBtn} ${selectedOptions[attr.name] === opt.name ? s.active : ''}`}
+                                            onClick={() => handleSelectOption(attr.name, opt.name)}
                                         >
-                                            {opt}
+                                            {opt.name}
                                         </button>
                                     ))}
                                 </div>

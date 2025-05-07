@@ -117,8 +117,8 @@ export const RecommendedProducts = () => {
                 slidesPerView={isMobile ? 2 : 6.4}
                 className={s.recommendedSwiper}
             >
-                {products.map((product: ProductInfo) => (
-                    <SwiperSlide key={product.id}>
+                {products.map((product: ProductInfo, index) => (
+                    <SwiperSlide key={`${product.id}-${index}`}>
                         <ProductItem viewMode="cart" product={product} />
                     </SwiperSlide>
                 ))}

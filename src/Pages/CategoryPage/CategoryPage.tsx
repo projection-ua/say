@@ -30,6 +30,7 @@ const CategoryPage = () => {
     const { t, i18n } = useTranslation();
     const langPrefix = i18n.language === 'ua' ? '/ua' : i18n.language === 'ru' ? '/ru' : '';
 
+
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
 
@@ -111,7 +112,7 @@ const CategoryPage = () => {
         products.forEach((product) => {
             product.attributes.forEach(({ name, options }) => {
                 if (!attributesMap[name]) attributesMap[name] = new Set();
-                options.forEach((opt) => attributesMap[name].add(opt));
+                options.forEach((opt) => attributesMap[name].add(opt.name));
             });
         });
         return Object.entries(attributesMap).map(([name, options]) => ({
@@ -122,26 +123,46 @@ const CategoryPage = () => {
     }, [products]);
 
     const filteredProducts = useMemo(() => {
-        return products.filter((product) => {
+        const catalogProducts = products.filter(p => !p.hiddenInCatalog); // 👈 фільтр прихованих
+
+        return catalogProducts.filter((product) => {
             if (selectedSubcategory) {
                 const hasSubcategory = product.categories?.some(cat => cat.slug === selectedSubcategory);
                 if (!hasSubcategory) return false;
             }
+
             const hasActiveAttributes = Object.values(selectedAttributes).some(options => options.length > 0);
             if (hasActiveAttributes) {
                 for (const [attrName, selectedOptions] of Object.entries(selectedAttributes)) {
                     if (!selectedOptions.length) continue;
-                    const productAttr = product.attributes.find(attr => attr.name === attrName);
-                    if (!productAttr || !selectedOptions.some(opt => productAttr.options.includes(opt))) {
-                        return false;
+
+                    if (attrName === 'Колір') {
+                        if (!selectedOptions.includes(product.colorName)) {
+                            return false;
+                        }
+                    } else {
+                        const productAttr = product.attributes.find(attr => attr.name === attrName);
+                        if (!productAttr) return false;
+
+                        const hasOption = selectedOptions
+                            .filter((opt: string): opt is string => typeof opt === 'string')
+                            .some((opt: string) =>
+                                productAttr.options.some(o => o.name === opt)
+                            );
+
+                        if (!hasOption) return false;
                     }
+
                 }
             }
+
             const price = parseFloat(product.price);
             if (price < priceRange.min || price > priceRange.max) return false;
+
             return true;
         });
     }, [products, selectedSubcategory, selectedAttributes, priceRange]);
+
 
     const sortedProducts = useMemo(() => {
         let sorted = [...filteredProducts];
@@ -207,7 +228,32 @@ const CategoryPage = () => {
         setSearchParams(params);
     };
 
-    console.log(subcategories.length);
+
+
+    const allAttributeColors = Array.from(new Set(
+        products
+            .filter(p => !!p.colorName)
+            .map(p => ({
+                id_variations: {
+                    variation_id: p.variation_id,
+                    variation_atribute_color: p.colorName,
+                    variation_slug: p.slug,
+                },
+            }))
+            .filter(c => c.id_variations.variation_atribute_color)
+            .map(c => c.id_variations.variation_atribute_color)
+    )).map(colorName => ({
+        id_variations: {
+            variation_id: 0, // це опціонально якщо не треба id
+            variation_atribute_color: colorName,
+            variation_slug: '', // теж якщо потрібно
+        },
+    }));
+
+
+
+
+
 
     return (
         <div className={s.categoryPage}>
@@ -313,6 +359,7 @@ const CategoryPage = () => {
                                 <CatalogFilters
                                     subcategories={subcategories}
                                     allAttributes={allAttributes}
+                                    attributeColor={allAttributeColors}
                                     priceRange={priceRange}
                                     selectedSubcategory={selectedSubcategory}
                                     selectedAttributes={selectedAttributes}
@@ -332,8 +379,8 @@ const CategoryPage = () => {
                                 {loading ? (
                                     <Loader />
                                 ) : visibleProducts.length ? (
-                                    visibleProducts.map((product) => (
-                                        <ProductItem key={product.id} product={product} />
+                                    visibleProducts.map((product, index) => (
+                                        <ProductItem key={`${product.id}-${index}`} product={product} />
                                     ))
                                 ) : (
                                     <p>Товари не знайдено.</p>
@@ -368,6 +415,7 @@ const CategoryPage = () => {
                         <CatalogFilters
                             subcategories={subcategories}
                             allAttributes={allAttributes}
+                            attributeColor={allAttributeColors}
                             priceRange={priceRange}
                             selectedSubcategory={selectedSubcategory}
                             selectedAttributes={selectedAttributes}

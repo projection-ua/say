@@ -25,6 +25,13 @@ interface CatalogFiltersProps {
     onChangeSubcategory: (slug: string | null) => void;
     onChangePrice: (range: { min: number; max: number }) => void;
     onChangeAttributes: (updated: Record<string, string[]>) => void;
+    attributeColor: {
+        id_variations: {
+            variation_id: number;
+            variation_atribute_color: string;
+            variation_slug: string;
+        }
+    }[];
 }
 
 const CatalogFilters = ({
@@ -36,6 +43,7 @@ const CatalogFilters = ({
                             onChangeSubcategory,
                             onChangePrice,
                             onChangeAttributes,
+                            attributeColor,
                         }: CatalogFiltersProps) => {
     const [openBlocks, setOpenBlocks] = useState<Record<string, boolean>>({
         'filter-price': true,
@@ -64,11 +72,27 @@ const CatalogFilters = ({
             ? selected.filter((opt) => opt !== option)
             : [...selected, option];
 
+        console.log('🛠️ Змінюємо атрибут:', {
+            attrName,
+            option,
+            selectedBefore: selected,
+            selectedAfter: updated,
+        });
+
         onChangeAttributes({
             ...selectedAttributes,
             [attrName]: updated,
         });
     };
+
+    useEffect(() => {
+        console.log('🔍 Поточний стан фільтрів:', {
+            priceRange,
+            selectedSubcategory,
+            selectedAttributes,
+        });
+    }, [priceRange, selectedSubcategory, selectedAttributes]);
+
 
     return (
         <div className={s.filters}>
@@ -178,18 +202,43 @@ const CatalogFilters = ({
                         </div>
                         {openBlocks[blockId] && (
                             <ul className={s.optionsList}>
-                                {attr.options.map((opt) => (
-                                    <li key={opt}>
-                                        <label>
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedAttributes[attr.name]?.includes(opt) || false}
-                                                onChange={() => handleAttributeToggle(attr.name, opt)}
-                                            />
-                                            {opt}
-                                        </label>
-                                    </li>
-                                ))}
+                                {(attr.slug === "pa_kolir"
+                                        ? attributeColor.map((color) => {
+                                            const colorName = color.id_variations.variation_atribute_color;
+
+                                            console.log('🎨 Рендеримо варіацію кольору:', {
+                                                id: color.id_variations.variation_id,
+                                                name: colorName,
+                                                slug: color.id_variations.variation_slug,
+                                            });
+
+                                            return (
+                                                <li key={`${attr.slug}-${color.id_variations.variation_id}`}>
+                                                    <label>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedAttributes[attr.name]?.includes(colorName) || false}
+                                                            onChange={() => handleAttributeToggle(attr.name, colorName)}
+                                                        />
+                                                        {colorName}
+                                                    </label>
+                                                </li>
+                                            );
+                                        })
+                                        : attr.options.map((opt) => (
+                                            <li key={opt}>
+                                                <label>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedAttributes[attr.name]?.includes(opt) || false}
+                                                        onChange={() => handleAttributeToggle(attr.name, opt)}
+                                                    />
+                                                    {opt}
+                                                </label>
+                                            </li>
+                                        ))
+                                )}
+
                             </ul>
                         )}
                     </div>

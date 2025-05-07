@@ -22,40 +22,82 @@ interface Props {
     metaData?: MetaDataItem[];
 }
 
+
 // Розмірні сітки
-const SIZE_GRIDS: Record<'panties' | 'bra', Record<string, SizeEntry[]>> = {
-    panties: {
-        S: [
-            { bust: '80–86 см', waist: '60–68 см', hips: '85–91 см', size: 'XS' },
-            { bust: '87–92 см', waist: '69–75 см', hips: '92–98 см', size: 'S' },
-            { bust: '93–97 см', waist: '76–82 см', hips: '99–104 см', size: 'M' },
-            { bust: '98–102 см', waist: '83–88 см', hips: '105–110 см', size: 'L' },
-        ],
-        M: [
-            { bust: '85–90 см', waist: '65–72 см', hips: '90–96 см', size: 'S' },
-            { bust: '91–96 см', waist: '73–79 см', hips: '97–103 см', size: 'M' },
-            { bust: '97–102 см', waist: '80–86 см', hips: '104–110 см', size: 'L' },
-        ],
-        L: [
-            { bust: '88–92 см', waist: '66–70 см', hips: '90–95 см', size: 'S' },
-            { bust: '93–97 см', waist: '71–75 см', hips: '96–100 см', size: 'M' },
-            { bust: '98–102 см', waist: '76–80 см', hips: '101–105 см', size: 'L' },
-        ],
+const SIZE_GRIDS: Record<string, Record<string, SizeEntry[]>> = {
+    // 🔹 Комплекти білизни повномірні
+    'full_set': {
+        S: [{ bust: '70B | 75B | 70C', waist: '-', hips: '88–94 см', size: 'S' }],
+        M: [{ bust: '80B | 75C | 80C', waist: '-', hips: '94–100 см', size: 'M' }],
+        L: [{ bust: '85B | 85C | 75D', waist: '-', hips: '98–105 см', size: 'L' }],
     },
-    bra: {
-        S: [
-            { bust: '70–75 см', waist: '60–65 см', hips: '-', size: '70A / 70B' },
-            { bust: '75–80 см', waist: '66–70 см', hips: '-', size: '75A / 75B' },
-            { bust: '80–85 см', waist: '71–75 см', hips: '-', size: '80A / 80B' },
-        ],
-        M: [
-            { bust: '85–90 см', waist: '76–80 см', hips: '-', size: '85B / 85C' },
-            { bust: '90–95 см', waist: '81–85 см', hips: '-', size: '90B / 90C' },
-        ],
-        L: [
-            { bust: '95–100 см', waist: '86–90 см', hips: '-', size: '95B / 95C' },
-            { bust: '100–105 см', waist: '91–95 см', hips: '-', size: '100B / 100C' },
-        ],
+    // 🔹 Комплекти білизни маломірні
+    'small_set': {
+        S: [{ bust: '70A | 70B | 75B', waist: '-', hips: '83–88 см', size: 'S' }],
+        M: [{ bust: '70B | 75B | 70C', waist: '-', hips: '88–95 см', size: 'M' }],
+        L: [{ bust: '80B | 75C | 80C', waist: '-', hips: '90–100 см', size: 'L' }],
+    },
+    // 🔹 Боді повномірні
+    'body_full': {
+        S: [{ bust: '80–90 см', waist: '57–68 см', hips: '85–95 см', size: 'S' }],
+        M: [{ bust: '88–99 см', waist: '65–73 см', hips: '90–99 см', size: 'M' }],
+        L: [{ bust: '95–103 см', waist: '73–83 см', hips: '98–108 см', size: 'L' }],
+    },
+    // 🔹 Боді маломірні
+    'body_small': {
+        S: [{ bust: '80–90 см', waist: '57–68 см', hips: '83–88 см', size: 'S' }],
+        M: [{ bust: '88–99 см', waist: '65–73 см', hips: '87–94 см', size: 'M' }],
+        L: [{ bust: '95–103 см', waist: '73–83 см', hips: '94–100 см', size: 'L' }],
+    },
+    // 🔹 Халати
+    'robes': {
+        S: [{ bust: 'до 94 см', waist: '-', hips: '-', size: 'S' }],
+        M: [{ bust: 'до 98 см', waist: '-', hips: '-', size: 'M' }],
+        L: [{ bust: 'до 102 см', waist: '-', hips: '-', size: 'L' }],
+    },
+    // 🔹 Пеньюари
+    'peignoirs': {
+        S: [{ bust: 'до 93 см', waist: 'до 70 см', hips: '-', size: 'S' }],
+        M: [{ bust: 'до 97 см', waist: 'до 75 см', hips: '-', size: 'M' }],
+        L: [{ bust: 'до 100 см', waist: 'до 80 см', hips: '-', size: 'L' }],
+    },
+    // 🔹 Бодістокінги (one size)
+    'bodystockings': {
+        'S-L': [{ bust: '80–99 см', waist: '60–88 см', hips: '84–104 см', size: 'S-L' }],
+    },
+    // 🔹 Панчохи, колготи (one size)
+    'stockings': {
+        'S-XL': [{ bust: '-', waist: '-', hips: '-', size: 'One Size S-XL' }],
+    },
+    // 🔹 Рольові костюми
+    'role_costumes': {
+        S: [{ bust: '80–90 см', waist: '57–68 см', hips: '85–95 см', size: 'S' }],
+        M: [{ bust: '88–99 см', waist: '65–73 см', hips: '90–99 см', size: 'M' }],
+        L: [{ bust: '95–103 см', waist: '73–83 см', hips: '98–108 см', size: 'L' }],
+    },
+    // 🔹 Купальники роздільні
+    'swim_separate': {
+        S: [{ bust: '80–86 см', waist: '60–68 см', hips: '85–91 см', size: 'S' }],
+        M: [{ bust: '86–91 см', waist: '68–73 см', hips: '91–97 см', size: 'M' }],
+        L: [{ bust: '91–96 см', waist: '72–80 см', hips: '96–101 см', size: 'L' }],
+    },
+    // 🔹 Купальники суцільні повномірні
+    'swim_full': {
+        S: [{ bust: '80–86 см', waist: '60–68 см', hips: '85–91 см', size: 'S' }],
+        M: [{ bust: '86–91 см', waist: '68–73 см', hips: '91–97 см', size: 'M' }],
+        L: [{ bust: '91–96 см', waist: '72–80 см', hips: '96–101 см', size: 'L' }],
+    },
+    // 🔹 Купальники суцільні маломірні
+    'swim_small': {
+        S: [{ bust: '77–83 см', waist: '57–64 см', hips: '83–88 см', size: 'S' }],
+        M: [{ bust: '80–86 см', waist: '60–68 см', hips: '85–91 см', size: 'M' }],
+        L: [{ bust: '86–91 см', waist: '68–73 см', hips: '91–97 см', size: 'L' }],
+    },
+    // 🔹 Пляжні сукні
+    'beach_dress': {
+        S: [{ bust: '83–93 см', waist: '68–73 см', hips: '85–90 см', size: 'S' }],
+        M: [{ bust: '94–102 см', waist: '72–82 см', hips: '91–95 см', size: 'M' }],
+        L: [{ bust: '100–110 см', waist: '83–95 см', hips: '96–100 см', size: 'L' }],
     },
 };
 
@@ -63,8 +105,37 @@ const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, metaData }) => {
     const [tab, setTab] = useState<'grid' | 'help'>('grid');
     const [type, setType] = useState<'panties' | 'bra'>('panties');
 
-    const sizeKey = metaData?.find((m) => m.key === '_rozmirna_sitka')?.value || 'S';
-    const sizeGrid = SIZE_GRIDS[type][sizeKey] || SIZE_GRIDS[type]['S'];
+
+    // ✅ Мапа ключів
+    const SIZE_GRID_KEYS: Record<string, string> = {
+        'повномірить верх/низ': 'full_set',
+        'маломірить верх/низ': 'small_set',
+        '990-993': 'full_set',
+        'халати': 'robes',
+        'пеньюари s/m/l': 'peignoirs',
+        'пеньюари s/m': 'peignoirs',
+        '228': 'body_full',
+        'боді': 'body_full',
+        'боді маломірить': 'body_small',
+        'купальник роздільний': 'swim_separate',
+        'купальник суцільний': 'swim_full',
+        'купальник суцільний маломірить': 'swim_small',
+        'пляжна сукня': 'beach_dress',
+        'рольовий костюм': 'role_costumes',
+        'панчохи, колготи': 'stockings',
+        'бодістокінги': 'bodystockings',
+    };
+
+
+    const rawKey = metaData?.find((m) => m.key === '_rozmirna_sitka')?.value || '';
+    const sizeGridKey = SIZE_GRID_KEYS[rawKey] || 'full_set';
+
+    // Отримуємо об'єкт із усіма розмірами
+    const sizeGridSet = SIZE_GRIDS[sizeGridKey] || SIZE_GRIDS['full_set'];
+
+
+
+
 
     const { t } = useTranslation();
 
@@ -92,16 +163,19 @@ const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, metaData }) => {
                         </button>
                     </div>
 
-                    <div className={s.switcher}>
-                        <label className={s.switchLabel}>
-                            <input type="radio" name="sizeType" value="panties" checked={type === 'panties'} onChange={() => setType('panties')} />
-                            <span className={`${s.switchBtn} ${type === 'panties' ? s.activeSwitch : ''}`}>{t('sizeChart.switchPanties')}</span>
-                        </label>
-                        <label className={s.switchLabel}>
-                            <input type="radio" name="sizeType" value="bra" checked={type === 'bra'} onChange={() => setType('bra')} />
-                            <span className={`${s.switchBtn} ${type === 'bra' ? s.activeSwitch : ''}`}>{t('sizeChart.switchBra')}</span>
-                        </label>
-                    </div>
+                    {tab !== 'grid' && (
+                        <div className={s.switcher}>
+                            <label className={s.switchLabel}>
+                                <input type="radio" name="sizeType" value="panties" checked={type === 'panties'} onChange={() => setType('panties')} />
+                                <span className={`${s.switchBtn} ${type === 'panties' ? s.activeSwitch : ''}`}>{t('sizeChart.switchPanties')}</span>
+                            </label>
+                            <label className={s.switchLabel}>
+                                <input type="radio" name="sizeType" value="bra" checked={type === 'bra'} onChange={() => setType('bra')} />
+                                <span className={`${s.switchBtn} ${type === 'bra' ? s.activeSwitch : ''}`}>{t('sizeChart.switchBra')}</span>
+                            </label>
+                        </div>
+                    )}
+
                 </div>
 
                 {tab === 'grid' ? (
@@ -110,19 +184,35 @@ const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, metaData }) => {
                             <tbody>
                             <tr>
                                 <th>{t('sizeChart.bust')}</th>
-                                {sizeGrid.map((row, idx) => <td key={`bust-${idx}`}>{row.bust}</td>)}
+                                {['S', 'M', 'L'].map((sizeKey) => (
+                                    <td key={`bust-${sizeKey}`}>
+                                        {sizeGridSet[sizeKey]?.[0]?.bust || '-'}
+                                    </td>
+                                ))}
                             </tr>
                             <tr>
                                 <th>{t('sizeChart.waist')}</th>
-                                {sizeGrid.map((row, idx) => <td key={`waist-${idx}`}>{row.waist}</td>)}
+                                {['S', 'M', 'L'].map((sizeKey) => (
+                                    <td key={`waist-${sizeKey}`}>
+                                        {sizeGridSet[sizeKey]?.[0]?.waist || '-'}
+                                    </td>
+                                ))}
                             </tr>
                             <tr>
                                 <th>{t('sizeChart.hips')}</th>
-                                {sizeGrid.map((row, idx) => <td key={`hips-${idx}`}>{row.hips}</td>)}
+                                {['S', 'M', 'L'].map((sizeKey) => (
+                                    <td key={`hips-${sizeKey}`}>
+                                        {sizeGridSet[sizeKey]?.[0]?.hips || '-'}
+                                    </td>
+                                ))}
                             </tr>
                             <tr>
                                 <th>{t('sizeChart.size')}</th>
-                                {sizeGrid.map((row, idx) => <td key={`size-${idx}`}>{row.size}</td>)}
+                                {['S', 'M', 'L'].map((sizeKey) => (
+                                    <td key={`size-${sizeKey}`}>
+                                        {sizeGridSet[sizeKey]?.[0]?.size || '-'}
+                                    </td>
+                                ))}
                             </tr>
                             </tbody>
                         </table>

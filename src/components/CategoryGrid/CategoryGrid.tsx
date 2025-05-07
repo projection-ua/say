@@ -47,7 +47,7 @@ const CategoryGrid = () => {
                         (cat) =>
                             cat.count > 0 &&
                             cat.parent === 0 &&
-                            cat.name.toLowerCase() !== 'без категорії'
+                            cat.name.toLowerCase() !== 'Без категорії'
                     );
                     setCategories(filtered);
                     localStorage.setItem('categories', JSON.stringify(filtered));

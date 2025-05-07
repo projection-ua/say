@@ -100,23 +100,28 @@ const SalePage = () => {
     };
 
     const filteredProducts = useMemo(() => {
-        return products.filter((product) => {
+        const catalogProducts = products.filter((product) => !product.hiddenInCatalog);
+
+        return catalogProducts.filter((product) => {
             if (selectedSubcategory) {
                 const hasSubcategory = product.categories?.some(cat => cat.slug === selectedSubcategory);
                 if (!hasSubcategory) return false;
             }
+
             const hasActiveAttributes = Object.values(selectedAttributes).some(options => options.length > 0);
             if (hasActiveAttributes) {
                 for (const [attrName, selectedOptions] of Object.entries(selectedAttributes)) {
                     if (!selectedOptions.length) continue;
                     const productAttr = product.attributes.find(attr => attr.name === attrName);
-                    if (!productAttr || !selectedOptions.some(opt => productAttr.options.includes(opt))) {
+                    if (!productAttr || !selectedOptions.some(opt => productAttr.options.some(o => o.name === opt))) {
                         return false;
                     }
                 }
             }
+
             const price = parseFloat(product.price);
             if (price < priceRange.min || price > priceRange.max) return false;
+
             return true;
         });
     }, [products, selectedSubcategory, selectedAttributes, priceRange]);
@@ -187,7 +192,7 @@ const SalePage = () => {
         products.forEach((product) => {
             product.attributes.forEach(({ name, options }) => {
                 if (!attributesMap[name]) attributesMap[name] = new Set();
-                options.forEach((opt) => attributesMap[name].add(opt));
+                options.forEach((opt) => attributesMap[name].add(opt.name));
             });
         });
         return Object.entries(attributesMap).map(([name, options]) => ({
@@ -305,8 +310,8 @@ const SalePage = () => {
                                 <Loader />
                             ) : visibleProducts.length ? (
                                 <>
-                                    {visibleProducts.map((product) => (
-                                        <ProductItem key={product.id} product={product} />
+                                    {visibleProducts.map((product, index) => (
+                                        <ProductItem key={`${product.id}-${index}`} product={product} />
                                     ))}
                                     {visibleProducts.length < filteredProducts.length && (
                                         <div className={s.loadMoreWrapper}>

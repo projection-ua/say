@@ -27,10 +27,13 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {useTranslation} from "react-i18next";
 
+import { Link } from 'react-router-dom';
+
 import { gtagEvent } from '../../gtag';
 
 const ProductPage = () => {
-    const { slug } = useParams();
+    const { slug, colorSlug } = useParams();
+
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
 
@@ -159,13 +162,22 @@ const ProductPage = () => {
                 const fetchedVariations = await getVariationsByProductId(found.id);
                 setVariations(fetchedVariations);
 
-                // ✅ Вибираємо перші опції по кожному атрибуту
                 const initialOptions: Record<string, string> = {};
+
                 found.attributes.forEach(attr => {
-                    if (attr.options.length > 0) {
-                        initialOptions[attr.name] = attr.options[0];
+
+                    if (attr.slug === 'pa_kolir' && colorSlug) {
+                        const matchedOption = attr.options.find(opt => opt.slug === colorSlug);
+                        if (matchedOption) {
+                            initialOptions[attr.name] = matchedOption.name; // для Woo API потрібне name
+                        } else {
+                            initialOptions[attr.name] = attr.options[0]?.name;
+                        }
+                    } else {
+                        initialOptions[attr.name] = attr.options[0]?.name;
                     }
                 });
+
                 setSelectedOptions(initialOptions);
             }
 
@@ -173,7 +185,10 @@ const ProductPage = () => {
         };
 
         fetchProduct();
-    }, [slug]);
+    }, [slug, colorSlug]);
+
+
+
 
     useEffect(() => {
         if (!product || variations.length === 0) return;
@@ -398,15 +413,31 @@ const ProductPage = () => {
                                     <div key={attr.name} className={s.attributeGroup}>
                                         <h4 className={s.nameAtribute}>{attr.name}</h4>
                                         <div className={s.options}>
-                                            {attr.options.map(opt => (
-                                                <button
-                                                    key={opt}
-                                                    className={`${s.optionBtn} ${selectedOptions[attr.name] === opt ? s.active : ''}`}
-                                                    onClick={() => handleSelectOption(attr.name, opt)}
-                                                >
-                                                    {opt}
-                                                </button>
-                                            ))}
+                                            {attr.options.map(opt => {
+                                                const key = `${attr.slug}-${opt.slug}`;
+
+                                                if (attr.slug === 'pa_kolir') {
+                                                    return (
+                                                        <Link
+                                                            key={key}
+                                                            to={`/product/${slug}/${opt.slug}`}
+                                                            className={`${s.optionBtn} ${colorSlug === opt.slug ? s.active : ''}`}
+                                                        >
+                                                            {opt.name}
+                                                        </Link>
+                                                    );
+                                                } else {
+                                                    return (
+                                                        <button
+                                                            key={key}
+                                                            className={`${s.optionBtn} ${selectedOptions[attr.name] === opt.name ? s.active : ''}`}
+                                                            onClick={() => handleSelectOption(attr.name, opt.name)}
+                                                        >
+                                                            {opt.name}
+                                                        </button>
+                                                    );
+                                                }
+                                            })}
                                         </div>
                                     </div>
                                 ))}
@@ -597,10 +628,12 @@ const ProductPage = () => {
                     </div>
                 </div>
 
-                <RelatedProducts
-                    relatedToProduct={product}
-                    title={t('product.related')}
-                />
+                {!isGiftCertificate && (
+                    <RelatedProducts
+                        relatedToProduct={product}
+                        title={t('product.related')}
+                    />
+                )}
 
                 <ReviewsList
                     reviews={reviews}
@@ -614,11 +647,14 @@ const ProductPage = () => {
                         product_id={product.id}
                     />
                 )}
-                <SizeChartModal
-                    isOpen={isSizeOpen}
-                    onClose={() => setSizeOpen(false)}
-                    metaData={product?.meta_data ?? []}
-                />
+
+                {!isGiftCertificate && (
+                    <SizeChartModal
+                        isOpen={isSizeOpen}
+                        onClose={() => setSizeOpen(false)}
+                        metaData={product?.meta_data ?? []}
+                    />
+                )}
             </div>
         </>
     );

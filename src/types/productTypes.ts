@@ -14,14 +14,14 @@ export type ProductInfo = {
     date_created: string;
     categories: Category[];
     price_html: string;
+    attribute_color: AttributeOption[];
     stock_status: string;
     meta_data?: MetaDataItem[];
     variations: Variation[]; // 🔄 Замість number[]
     attributes: {
         name: string;
-        options: string[];
         slug: string;
-        option: string;
+        options: AttributeOption[];
     }[];
     featured: boolean;
     quantity: number;
@@ -29,7 +29,23 @@ export type ProductInfo = {
     average_rating: string;
     rating_count: string;
     type: string;
+    colorName: string;
+    hiddenInCatalog: boolean;
 };
+
+
+export interface AttributeOption {
+    name: string;
+    slug: string;
+    id_variations: AttributeColorVariation;
+}
+
+export interface AttributeColorVariation {
+    variation_id?: number;
+    variation_atribute_color?: string;
+    variation_slug?: string;
+}
+
 
 export interface MetaDataItem {
     id: number;

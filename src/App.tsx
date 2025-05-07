@@ -110,8 +110,10 @@ const Layout: React.FC = () => {
                     <Route path="/ru/shop" element={<CategoryPage />} />
                     <Route path="/product-category/:slug" element={<CategoryPage />} />
                     <Route path="/ru/product-category/:slug" element={<CategoryPage />} />
-                    <Route path="/product/:slug/:color?" element={<ProductPage />} />
-                    <Route path="/ru/product/:slug/:color?" element={<ProductPage />} />
+
+                    <Route path="/product/:slug/:colorSlug?" element={<ProductPage />} />
+                    <Route path="/ru/product/:slug/:colorSlug?" element={<ProductPage />} />
+
                     <Route path="/sales" element={<SalePage />} />
                     <Route path="/ru/sales" element={<SalePage />} />
                     <Route path="/new" element={<NewPage />} />

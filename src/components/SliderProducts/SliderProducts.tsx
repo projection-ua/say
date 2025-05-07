@@ -45,7 +45,11 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
                 setLoading(true);
                 const products = await getProducts();
 
-                const filtered = products.filter((product) => {
+                // 1️⃣ Спочатку залишаємо тільки ті товари, які не приховані
+                const catalogProducts = products.filter((product) => !product.hiddenInCatalog);
+
+                // 2️⃣ Далі фільтруємо по тегу
+                const filtered = catalogProducts.filter((product) => {
                     if (filterTag === 'sale') {
                         const salePrice = parseFloat(product.sale_price);
                         const regularPrice = parseFloat(product.regular_price);
@@ -125,8 +129,8 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
                     {isMobile ? (
                         <>
                             <div className={s.productGrid}>
-                                {filteredProducts.slice(0, 4).map((product) => (
-                                    <ProductItem key={product.id} product={product} />
+                                {filteredProducts.slice(0, 4).map((product, index) => (
+                                    <ProductItem key={`${product.id}-${index}`} product={product} />
                                 ))}
                             </div>
 
