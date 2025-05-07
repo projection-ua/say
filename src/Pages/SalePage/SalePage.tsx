@@ -100,7 +100,7 @@ const SalePage = () => {
     };
 
     const filteredProducts = useMemo(() => {
-        const catalogProducts = products.filter((product) => !product.hiddenInCatalog);
+        const catalogProducts = products.filter(p => !p.hiddenInCatalog); // 👈 фільтр прихованих
 
         return catalogProducts.filter((product) => {
             if (selectedSubcategory) {
@@ -112,10 +112,24 @@ const SalePage = () => {
             if (hasActiveAttributes) {
                 for (const [attrName, selectedOptions] of Object.entries(selectedAttributes)) {
                     if (!selectedOptions.length) continue;
-                    const productAttr = product.attributes.find(attr => attr.name === attrName);
-                    if (!productAttr || !selectedOptions.some(opt => productAttr.options.some(o => o.name === opt))) {
-                        return false;
+
+                    if (attrName === 'Колір') {
+                        if (!selectedOptions.includes(product.colorName)) {
+                            return false;
+                        }
+                    } else {
+                        const productAttr = product.attributes.find(attr => attr.name === attrName);
+                        if (!productAttr) return false;
+
+                        const hasOption = selectedOptions
+                            .filter((opt: string): opt is string => typeof opt === 'string')
+                            .some((opt: string) =>
+                                productAttr.options.some(o => o.name === opt)
+                            );
+
+                        if (!hasOption) return false;
                     }
+
                 }
             }
 
@@ -125,7 +139,6 @@ const SalePage = () => {
             return true;
         });
     }, [products, selectedSubcategory, selectedAttributes, priceRange]);
-
 
     const sortedProducts = useMemo(() => {
         let sorted = [...filteredProducts];
@@ -212,6 +225,27 @@ const SalePage = () => {
         setVisibleCount(prev => prev + 18);
     };
 
+
+    const allAttributeColors = Array.from(new Set(
+        products
+            .filter(p => !!p.colorName)
+            .map(p => ({
+                id_variations: {
+                    variation_id: p.variation_id,
+                    variation_atribute_color: p.colorName,
+                    variation_slug: p.slug,
+                },
+            }))
+            .filter(c => c.id_variations.variation_atribute_color)
+            .map(c => c.id_variations.variation_atribute_color)
+    )).map(colorName => ({
+        id_variations: {
+            variation_id: 0, // це опціонально якщо не треба id
+            variation_atribute_color: colorName,
+            variation_slug: '', // теж якщо потрібно
+        },
+    }));
+
     return (
         <div className={s.categoryPage}>
 
@@ -291,6 +325,7 @@ const SalePage = () => {
                                 <CatalogFilters
                                     subcategories={subcategories}
                                     allAttributes={allAttributes}
+                                    attributeColor={allAttributeColors}
                                     priceRange={priceRange}
                                     selectedSubcategory={selectedSubcategory}
                                     selectedAttributes={selectedAttributes}
@@ -343,6 +378,7 @@ const SalePage = () => {
                         <CatalogFilters
                             subcategories={subcategories}
                             allAttributes={allAttributes}
+                            attributeColor={allAttributeColors}
                             priceRange={priceRange}
                             selectedSubcategory={selectedSubcategory}
                             selectedAttributes={selectedAttributes}
