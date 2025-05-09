@@ -20,6 +20,8 @@ export const FaqPage = () => {
     const [faqs, setFaqs] = useState<FaqItem[]>([]);
     const [openItem, setOpenItem] = useState<number | null>(null);
 
+    const {i18n} = useTranslation();
+
 
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
@@ -28,18 +30,32 @@ export const FaqPage = () => {
 
     useEffect(() => {
         const fetchSeo = async () => {
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/pages?slug=faqs`);
+            const langPage = i18n.language === 'ru' ? 'ru' : ''; // визначаємо мову
+
+            const url = langPage
+                ? `${apiUrlWp}wp-json/wp/v2/pages?slug=faqs&lang=${langPage}`
+                : `${apiUrlWp}wp-json/wp/v2/pages?slug=faqs`;
+
+            const response = await fetch(url);
             const data = await response.json();
             setSeoData(data[0]?.yoast_head_json);
         };
 
         fetchSeo();
-    }, []);
+    }, [i18n.language]);
+
+
 
     useEffect(() => {
         const fetchFaqs = async () => {
             try {
-                const response = await fetch('https://api.say.in.ua/wp-json/wp/v2/faq');
+                const lang = i18n.language === 'ru' ? 'ru' : ''; // визначаємо мову
+
+                const url = lang
+                    ? `https://api.say.in.ua/wp-json/wp/v2/faq?lang=${lang}`
+                    : `https://api.say.in.ua/wp-json/wp/v2/faq`;
+
+                const response = await fetch(url);
                 const data = await response.json();
                 setFaqs(data);
             } catch (error) {
@@ -48,7 +64,8 @@ export const FaqPage = () => {
         };
 
         fetchFaqs();
-    }, []);
+    }, [i18n.language]);
+
 
     const toggleItem = (id: number) => {
         setOpenItem(prev => (prev === id ? null : id));

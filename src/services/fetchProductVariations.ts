@@ -2,7 +2,10 @@ import axios from 'axios';
 import { Variation } from '../types/productTypes';
 import { apiUrl, consumerKey, consumerSecret } from '../App';
 
-export const getVariationsByProductId = async (productId: number): Promise<Variation[]> => {
+export const getVariationsByProductId = async (
+    productId: number,
+    lang: string
+): Promise<Variation[]> => {
     try {
         const response = await axios.get(`${apiUrl}/${productId}/variations`, {
             auth: {
@@ -10,7 +13,8 @@ export const getVariationsByProductId = async (productId: number): Promise<Varia
                 password: consumerSecret,
             },
             params: {
-                per_page: 100, // максимальна кількість варіацій за раз
+                per_page: 100,
+                lang, // 🔥 додаємо мову сюди
             },
         });
 

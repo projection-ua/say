@@ -58,6 +58,8 @@ const ProductPage = () => {
     });
 
 
+    const { t, i18n } = useTranslation();
+    const langPrefix = i18n.language === '' ? '' : i18n.language === 'ru' ? '/ru' : '';
 
 
 
@@ -66,13 +68,15 @@ const ProductPage = () => {
 
     useEffect(() => {
         const fetchSeo = async () => {
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/product?slug=${slug}`);
+            const lang = i18n.language === 'ru' ? `&lang=ru` : ''; // ✅ для укр нічого не додаємо
+            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/product?slug=${slug}${lang}`);
             const data = await response.json();
             setSeoData(data[0]?.yoast_head_json);
         };
 
         fetchSeo();
-    }, [slug]);
+    }, [slug, i18n.language]);
+
 
 
     const dispatch = useDispatch();
@@ -125,7 +129,7 @@ const ProductPage = () => {
     const [reviews, setReviews] = useState<ReviewerType[]>([]);
 
 
-    const { t } = useTranslation();
+
 
 
 
@@ -147,45 +151,51 @@ const ProductPage = () => {
     }, [product?.id]);
 
 
-
-
     useEffect(() => {
         const fetchProduct = async () => {
             setLoading(true);
-            const products = await getProducts();
-            const found = products.find((p) => p.slug === slug);
-            setProduct(found || null);
-            setSelectedOptions({});
-            setSelectedVariation(null);
 
-            if (found) {
-                const fetchedVariations = await getVariationsByProductId(found.id);
-                setVariations(fetchedVariations);
+            try {
+                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
 
-                const initialOptions: Record<string, string> = {};
+                const products = await getProducts(lang);
+                const found = products.find((p) => p.slug === slug);
+                setProduct(found || null);
+                setSelectedOptions({});
+                setSelectedVariation(null);
 
-                found.attributes.forEach(attr => {
+                if (found) {
+                    const fetchedVariations = await getVariationsByProductId(found.id, lang);
+                    setVariations(fetchedVariations);
 
-                    if (attr.slug === 'pa_kolir' && colorSlug) {
-                        const matchedOption = attr.options.find(opt => opt.slug === colorSlug);
-                        if (matchedOption) {
-                            initialOptions[attr.name] = matchedOption.name; // для Woo API потрібне name
-                        } else {
-                            initialOptions[attr.name] = attr.options[0]?.name;
+                    const initialOptions: Record<string, string> = {};
+
+                    found.attributes.forEach(attr => {
+                        if (attr.slug === 'pa_kolir' && colorSlug) {
+                            const matchedOption = attr.options.find(opt => opt.slug === colorSlug);
+                            if (matchedOption) {
+                                initialOptions[attr.name] = matchedOption.name; // Woo API потрібен name
+                            } else if (attr.options[0]) {
+                                initialOptions[attr.name] = attr.options[0].name;
+                            }
+                        } else if (attr.options[0]) {
+                            initialOptions[attr.name] = attr.options[0].name;
                         }
-                    } else {
-                        initialOptions[attr.name] = attr.options[0]?.name;
-                    }
-                });
+                    });
 
-                setSelectedOptions(initialOptions);
+                    setSelectedOptions(initialOptions);
+                }
+            } catch (err) {
+                console.error('❌ Failed to fetch product or variations:', err);
+                setProduct(null);
+                setVariations([]);
+            } finally {
+                setLoading(false);
             }
-
-            setLoading(false);
         };
 
         fetchProduct();
-    }, [slug, colorSlug]);
+    }, [slug, colorSlug, i18n.language]); // додали i18n.language
 
 
 
@@ -344,8 +354,8 @@ const ProductPage = () => {
 
                 <Breadcrumbs
                     crumbs={[
-                        { label: 'Головна', url: '/' },
-                        { label: product.categories?.[0]?.name, url: `/product-category/${product.categories?.[0]?.slug}` },
+                        { label: 'Головна', url: `${langPrefix}/` },
+                        { label: product.categories?.[0]?.name, url: `${langPrefix}/product-category/${product.categories?.[0]?.slug}` },
                         { label: product.name },
                     ]}
                 />
@@ -420,7 +430,7 @@ const ProductPage = () => {
                                                     return (
                                                         <Link
                                                             key={key}
-                                                            to={`/product/${slug}/${opt.slug}`}
+                                                            to={`${langPrefix}/product/${slug}/${opt.slug}`}
                                                             className={`${s.optionBtn} ${colorSlug === opt.slug ? s.active : ''}`}
                                                         >
                                                             {opt.name}

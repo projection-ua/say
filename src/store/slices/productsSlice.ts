@@ -3,13 +3,17 @@ import axios from 'axios';
 import { ProductInfo } from '../../types/productTypes';
 import { apiUrl, consumerKey, consumerSecret } from '../../App.tsx';
 
-export const fetchProducts = createAsyncThunk<ProductInfo[]>(
+export const fetchProducts = createAsyncThunk<
+    ProductInfo[],
+    string,
+    { rejectValue: unknown }
+>(
     'products/fetchProducts',
-    async (_, { rejectWithValue }) => {
+    async (lang, { rejectWithValue }) => {
         try {
-            const response = await axios.get(apiUrl, {
+            const response = await axios.get(`${apiUrl}`, {
                 auth: { username: consumerKey, password: consumerSecret },
-                params: { per_page: 100 },
+                params: { per_page: 100, lang },
             });
             return Array.isArray(response.data) ? response.data : [];
         } catch (err) {
@@ -20,13 +24,13 @@ export const fetchProducts = createAsyncThunk<ProductInfo[]>(
 );
 
 interface ProductsState {
-    items: ProductInfo[];
+    items: Record<string, ProductInfo[]>;
     loading: boolean;
     error: string | null;
 }
 
 const initialState: ProductsState = {
-    items: [],
+    items: {},
     loading: false,
     error: null,
 };
@@ -34,7 +38,12 @@ const initialState: ProductsState = {
 const productsSlice = createSlice({
     name: 'products',
     initialState,
-    reducers: {},
+    reducers: {
+        loadProductsFromCache: (state, action) => {
+            const { lang, products } = action.payload;
+            state.items[lang] = products;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchProducts.pending, (state) => {
@@ -42,19 +51,18 @@ const productsSlice = createSlice({
                 state.error = null;
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
+                const lang = action.meta.arg;
                 const flattenedProducts: ProductInfo[] = [];
-
 
                 action.payload.forEach((product: ProductInfo) => {
                     const hasAttributeColor = Array.isArray(product.attribute_color) && product.attribute_color.length > 0;
 
                     if (hasAttributeColor) {
-                        // 👉 додаємо варіації як окремі товари
                         product.attribute_color.forEach((colorObj: any) => {
                             const varData = colorObj.id_variations;
 
                             flattenedProducts.push({
-                                ...product, // бере всі поля з product
+                                ...product,
                                 id: product.id,
                                 name: varData.variation_name ?? product.name,
                                 description: product.description ?? '',
@@ -82,12 +90,10 @@ const productsSlice = createSlice({
                                 rating_count: product.rating_count ?? '',
                                 type: product.type ?? '',
                                 colorName: varData.variation_atribute_color ?? '',
-                                // 👇 можна додати флаг для UI
                                 hiddenInCatalog: false,
                             });
                         });
 
-                        // ✅ додаємо головний товар, але ставимо hiddenInCatalog: true
                         flattenedProducts.push({
                             ...product,
                             hiddenInCatalog: true,
@@ -100,8 +106,42 @@ const productsSlice = createSlice({
                     }
                 });
 
+                state.items[lang] = flattenedProducts;
 
-                state.items = flattenedProducts;
+                try {
+                    const lightProducts = flattenedProducts.map((product) => ({
+                        id: product.id,
+                        name: product.name,
+                        slug: product.slug,
+                        price: product.price,
+                        regular_price: product.regular_price,
+                        sale_price: product.sale_price,
+                        on_sale: product.on_sale,
+                        sku: product.sku,
+                        variation_id: product.variation_id,
+                        stock_status: product.stock_status,
+                        stock_quantity: product.stock_quantity,
+                        images: product.images,
+                        categories: product.categories,
+                        attribute_color: product.attribute_color,
+                        colorName: product.colorName,
+                        hiddenInCatalog: product.hiddenInCatalog,
+                    }));
+
+                    // 🚀 Очищаємо попередній кеш
+                    Object.keys(sessionStorage).forEach((key) => {
+                        if (key.startsWith('products_') && key !== `products_${lang}`) {
+                            sessionStorage.removeItem(key);
+                        }
+                    });
+
+                    // ✅ Зберігаємо новий кеш
+                    sessionStorage.setItem(`products_${lang}`, JSON.stringify(lightProducts));
+
+
+                } catch (e) {
+                    console.warn('⚠️ Failed to cache products:', e);
+                }
                 state.loading = false;
             })
             .addCase(fetchProducts.rejected, (state, action) => {

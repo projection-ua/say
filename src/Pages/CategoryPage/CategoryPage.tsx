@@ -28,7 +28,7 @@ const CategoryPage = () => {
     const { slug } = useParams();
 
     const { t, i18n } = useTranslation();
-    const langPrefix = i18n.language === 'ua' ? '/ua' : i18n.language === 'ru' ? '/ru' : '';
+    const langPrefix = i18n.language === '' ? '/' : i18n.language === 'ru' ? '/ru' : '';
 
 
     const location = useLocation();
@@ -38,13 +38,15 @@ const CategoryPage = () => {
 
     useEffect(() => {
         const fetchSeo = async () => {
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/categories?slug=${slug}`);
+            const lang = i18n.language === 'ua' || i18n.language === 'uk' ? '' : `&lang=${i18n.language}`;
+            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/categories?slug=${slug}${lang}`);
             const data = await response.json();
             setSeoData(data[0]?.yoast_head_json);
         };
 
         fetchSeo();
-    }, [slug]);
+    }, [slug, i18n.language]);
+
 
 
     const [products, setProducts] = useState<ProductInfo[]>([]);
@@ -74,38 +76,60 @@ const CategoryPage = () => {
     });
     const [sortOption, setSortOption] = useState(() => searchParams.get('sort') || 'default');
 
+
+
+
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const allProducts = await getProducts();
-                const categories = await getCategories();
+                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+
+                const [allProducts, categories] = await Promise.all([
+                    getProducts(lang),
+                    getCategories(lang),
+                ]);
+
+                console.log(`✅ Завантажено ${allProducts.length} продуктів`);
+                console.log(`✅ Завантажено ${categories.length} категорій`);
+
                 const current = slug ? categories.find(cat => cat.slug === slug) || null : null;
                 setCategory(current);
+
                 const children = slug
-                    ? categories.filter(cat => cat.parent === current?.id && cat.name.toLowerCase() !== 'без категорії')
-                    : categories.filter(cat => cat.parent === 0 && cat.name.toLowerCase() !== 'без категорії');
+                    ? categories.filter(cat =>
+                        cat.parent === current?.id &&
+                        cat.name.toLowerCase() !== 'без категорії'
+                    )
+                    : categories.filter(cat =>
+                        cat.parent === 0 &&
+                        cat.name.toLowerCase() !== 'без категорії'
+                    );
+
                 setSubcategories(children);
 
-                console.log('current:', current);
-                console.log('current id:', current?.id);
-                console.log('categories:', categories);
-
+                console.log('🔎 current:', current);
+                console.log('🔎 current id:', current?.id);
+                console.log('🔎 categories:', categories);
 
                 const filtered = slug
                     ? allProducts.filter(product =>
                         product.categories?.some(cat => cat.slug === slug)
                     )
                     : allProducts;
+
                 setProducts(filtered);
             } catch (error) {
-                console.error('Помилка при завантаженні категорії або продуктів:', error);
+                console.error('❌ Помилка при завантаженні категорії або продуктів:', error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchData();
-    }, [slug]);
+    }, [slug, i18n.language]);
+
+
 
     const allAttributes = useMemo(() => {
         const attributesMap: Record<string, Set<string>> = {};
@@ -287,7 +311,7 @@ const CategoryPage = () => {
                     <Breadcrumbs
                         variant="catalog"
                         crumbs={[
-                            { label: 'Головна', url: '/' },
+                            { label: 'Головна', url: `${langPrefix}/` },
                             { label: category?.name || 'Каталог' },
                         ]}
                     />

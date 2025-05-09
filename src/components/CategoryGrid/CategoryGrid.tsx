@@ -28,38 +28,33 @@ const CategoryGrid = () => {
     const isMobile = useIsMobile(); // використання мобайл-перевірки
 
 
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
-    const { i18n } = useTranslation();
     const langPrefix = i18n.language === 'ru' ? '/ru' : '';
 
     useEffect(() => {
-        const cachedCategories = localStorage.getItem('categories');
+        const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
 
-        if (cachedCategories) {
-            setCategories(JSON.parse(cachedCategories));
-            setLoading(false);
-        } else {
-            const fetch = async () => {
-                try {
-                    const data = await getCategories();
-                    const filtered = data.filter(
-                        (cat) =>
-                            cat.count > 0 &&
-                            cat.parent === 0 &&
-                            cat.name.toLowerCase() !== 'Без категорії'
-                    );
-                    setCategories(filtered);
-                    localStorage.setItem('categories', JSON.stringify(filtered));
-                } catch {
-                    setError('Не вдалося завантажити категорії');
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetch();
-        }
-    }, []);
+        const fetch = async () => {
+            setLoading(true); // показати лоадер
+            try {
+                const data = await getCategories(lang); // НЕ читаємо кеш вручну тут
+                const filtered = data.filter(
+                    (cat) =>
+                        cat.count > 0 &&
+                        cat.parent === 0 &&
+                        cat.name.toLowerCase() !== 'без категорії'
+                );
+                setCategories(filtered);
+            } catch {
+                setError('Не вдалося завантажити категорії');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetch();
+    }, [i18n.language]); // ключова залежність
 
     if (loading) return <LoaderMini/>;
     if (error) return <p className={s.error}>{error}</p>;
@@ -102,7 +97,7 @@ const CategoryGrid = () => {
                         <Link to={`${langPrefix}/product-category/${cat.slug}`} key={cat.id} className={s.card}>
                             <div className={s.wrapImgCat}>
                                 <img
-                                    src={cat.image?.src || '../public/images/category-img.jpg'}
+                                    src={cat.image?.src || '../images/category-img.jpg'}
                                     alt={cat.image?.alt || cat.name}
                                     className={s.image}
                                 />

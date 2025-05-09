@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { ProductInfo } from '../../types/productTypes';
 import { CategoryInfo } from '../../types/categoryTypes';
 import { apiUrlWp, consumerKey, consumerSecret } from '../../App';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     isOpen: boolean;
@@ -17,6 +18,10 @@ export const SearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const [categories, setCategories] = useState<CategoryInfo[]>([]);
     const modalRef = useRef<HTMLDivElement>(null);
 
+    const { t, i18n } = useTranslation();
+    const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+    const langPrefix = i18n.language === 'ru' ? '/ru' : '';
+
     // Пошук продуктів і категорій
     useEffect(() => {
         const fetchResults = async () => {
@@ -28,9 +33,9 @@ export const SearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
             try {
                 const [productsRes, categoriesRes] = await Promise.all([
-                    fetch(`${apiUrlWp}wp-json/wc/v3/products?search=${encodeURIComponent(query)}&per_page=4&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`)
+                    fetch(`${apiUrlWp}wp-json/wc/v3/products?search=${encodeURIComponent(query)}&per_page=4&lang=${lang}&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`)
                         .then(res => res.json()),
-                    fetch(`${apiUrlWp}wp-json/wc/v3/products/categories?search=${encodeURIComponent(query)}&per_page=3&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`)
+                    fetch(`${apiUrlWp}wp-json/wc/v3/products/categories?search=${encodeURIComponent(query)}&per_page=3&lang=${lang}&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`)
                         .then(res => res.json()),
                 ]);
 
@@ -43,7 +48,7 @@ export const SearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         const delay = setTimeout(fetchResults, 300); // debounce 300ms
         return () => clearTimeout(delay);
-    }, [query]);
+    }, [query, lang]);
 
     // Закриття при кліку поза модалкою або натисканні Escape
     useEffect(() => {
@@ -88,7 +93,7 @@ export const SearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         <div className={s.header}>
                             <input
                                 type="text"
-                                placeholder="Пошук товарів та категорій..."
+                                placeholder={t('search_placeholder')}
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 autoFocus
@@ -105,11 +110,11 @@ export const SearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             {query && (
                                 <>
                                     <div className={s.block}>
-                                        <p className={s.label}>Товари</p>
+                                        <p className={s.label}>{t('products')}</p>
                                         <ul>
                                             {products.map((product) => (
                                                 <li key={product.id}>
-                                                    <Link to={`/product/${product.slug}`} onClick={onClose}>
+                                                    <Link to={`${langPrefix}/product/${product.slug}`} onClick={onClose}>
                                                         {product.images?.[0]?.src && (
                                                             <img src={product.images[0].src} alt={product.name} />
                                                         )}
@@ -127,11 +132,11 @@ export const SearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                     </div>
 
                                     <div className={s.block}>
-                                        <p className={s.label}>Категорії</p>
+                                        <p className={s.label}>{t('categories')}</p>
                                         <ul>
                                             {categories.map((cat) => (
                                                 <li key={cat.id}>
-                                                    <Link to={`/product-category/${cat.slug}`} onClick={onClose}>
+                                                    <Link to={`${langPrefix}/product-category/${cat.slug}`} onClick={onClose}>
                                                         {cat.name}
                                                     </Link>
                                                 </li>

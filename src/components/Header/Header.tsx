@@ -31,9 +31,8 @@ interface Menu {
 
 const Header = () => {
 
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
-    const { i18n } = useTranslation();
     const langPrefix = i18n.language === 'ru' ? '/ru' : '';
 
     const dispatch = useDispatch();
@@ -134,12 +133,12 @@ const Header = () => {
     };
 
 
-
     useEffect(() => {
+
         const fetchMenus = async () => {
             try {
                 setLoading(true); // 👉 показуємо лоадер
-                const response = await fetch('https://say.projection-learn.website/wp-json/responses/v1/menus');
+                const response = await fetch(`https://api.say.in.ua/wp-json/responses/v1/menus`);
                 const data: Menu[] = await response.json();
                 const mainMenu = data.find((menu) => menu.slug === 'main');
                 if (mainMenu) {
@@ -148,12 +147,12 @@ const Header = () => {
             } catch (error) {
                 console.error('Failed to fetch menu:', error);
             } finally {
-                setLoading(false); // 👉 ховаємо лоадер
+                setLoading(false);
             }
         };
 
         fetchMenus();
-    }, []);
+    }, [i18n.language]); // 👈 додати залежність від мови
 
 
     const convertUrl = (url: string) => {

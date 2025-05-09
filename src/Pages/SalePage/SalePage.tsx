@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useSearchParams, useParams } from 'react-router-dom';
+import {useSearchParams, useParams} from 'react-router-dom';
 import { getProducts } from '../../services/fetchProducts';
 import { getCategories } from '../../services/fetchCategories.ts';
 import { CategoryInfo } from '../../types/categoryTypes.ts';
@@ -12,6 +12,7 @@ import Loader from '../../components/Loader/Loader';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
 import {useLocation} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 
 const SalePage = () => {
     const { slug } = useParams();
@@ -22,6 +23,8 @@ const SalePage = () => {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
+
+    const { t, i18n } = useTranslation();
 
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
@@ -168,37 +171,62 @@ const SalePage = () => {
 
     const [visibleCount, setVisibleCount] = useState(18);
 
+
+
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const allProducts = await getProducts();
-                const categories = await getCategories();
+                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+
+                const [allProducts, categories] = await Promise.all([
+                    getProducts(lang),
+                    getCategories(lang),
+                ]);
+
+                console.log(`✅ Завантажено ${allProducts.length} продуктів`);
+                console.log(`✅ Завантажено ${categories.length} категорій`);
 
                 const current = slug ? categories.find(cat => cat.slug === slug) || null : null;
 
                 const children = slug
-                    ? categories.filter(cat => cat.parent === current?.id && cat.name.toLowerCase() !== 'без категорії')
-                    : categories.filter(cat => cat.parent === 0 && cat.name.toLowerCase() !== 'без категорії');
+                    ? categories.filter(cat =>
+                        cat.parent === current?.id &&
+                        cat.name.toLowerCase() !== 'без категорії'
+                    )
+                    : categories.filter(cat =>
+                        cat.parent === 0 &&
+                        cat.name.toLowerCase() !== 'без категорії'
+                    );
+
                 setSubcategories(children);
+
+                console.log('🔎 current:', current);
+                console.log('🔎 current id:', current?.id);
+                console.log('🔎 categories:', categories);
 
                 const filtered = slug
                     ? allProducts.filter(product =>
-                        product.categories?.some(cat => cat.slug === slug) &&
-                        (product.on_sale || parseFloat(product.sale_price) < parseFloat(product.regular_price))
+                        product.categories?.some(cat => cat.slug === slug)
                     )
-                    : allProducts.filter(product =>
-                        product.on_sale || parseFloat(product.sale_price) < parseFloat(product.regular_price)
-                    );
+                    : allProducts.filter(product => {
+                        const salePrice = parseFloat(product.sale_price);
+                        const regularPrice = parseFloat(product.regular_price);
+                        return !isNaN(salePrice) && !isNaN(regularPrice) && salePrice < regularPrice;
+                    });
+
+
                 setProducts(filtered);
             } catch (error) {
-                console.error('Помилка при завантаженні категорії або продуктів:', error);
+                console.error('❌ Помилка при завантаженні категорії або продуктів:', error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchData();
-    }, [slug]);
+    }, [slug, i18n.language]);
+
 
     const allAttributes = useMemo(() => {
         const attributesMap: Record<string, Set<string>> = {};
@@ -288,32 +316,32 @@ const SalePage = () => {
                                 <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M9.83333 15.625H13.1667V13.75H9.83333V15.625ZM4 4.375V6.25H19V4.375H4ZM6.5 10.9375H16.5V9.0625H6.5V10.9375Z" fill="black" />
                                 </svg>
-                                Фільтр
+                                {t('title_filter')}
                             </button>
                         )}
                         {!isMobile && (
                             <div className={s.filtersHeader}>
-                                <h3 className={s.titleFilter}>Фільтр</h3>
+                                <h3 className={s.titleFilter}>{t('title_filter')}</h3>
                             </div>
                         )}
 
                         <div className={`${s.sortWrapper} ${isSortOpen ? s.active : ''}`}>
                             <button className={s.sortButton} onClick={() => setIsSortOpen(prev => !prev)}>
-                                Сортування
+                                {t('sort_heading')}
                                 <span className={s.arrow}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="9" viewBox="0 0 16 9" fill="none">
-                                      <path d="M2 2L8 8L14 2" stroke="#1A1A1A" stroke-width="2" stroke-linecap="square" stroke-linejoin="round"/>
+                                      <path d="M2 2L8 8L14 2" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="square" strokeLinejoin="round"/>
                                     </svg>
                                 </span>
                             </button>
 
                             {isSortOpen && (
                                 <div className={s.sortDropdown}>
-                                    <button onClick={() => handleSortChange('bestsellers')}>Бестселери</button>
-                                    <button onClick={() => handleSortChange('new')}>Новинки</button>
-                                    <button onClick={() => handleSortChange('sale')}>Акційні товари</button>
-                                    <button onClick={() => handleSortChange('price_desc')}>Ціна за зменшенням</button>
-                                    <button onClick={() => handleSortChange('price_asc')}>Ціна за зростанням</button>
+                                    <button onClick={() => handleSortChange('bestsellers')}>{t('sort.bestsellers')}</button>
+                                    <button onClick={() => handleSortChange('new')}>{t('sort.new')}</button>
+                                    <button onClick={() => handleSortChange('sale')}>{t('sort.sale')}</button>
+                                    <button onClick={() => handleSortChange('price_desc')}>{t('sort.price_desc')}</button>
+                                    <button onClick={() => handleSortChange('price_asc')}>{t('sort.price_asc')}</button>
                                 </div>
                             )}
                         </div>
@@ -334,43 +362,46 @@ const SalePage = () => {
                                     onChangePrice={setPriceRange}
                                 />
                                 <div className={s.buttons}>
-                                    <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
-                                    <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                                    <button onClick={applyFilters} className={s.applyBtn}>{t('filters.apply')}</button>
+                                    <button onClick={resetFilters} className={s.resetBtn}>{t('filters.reset')}</button>
                                 </div>
                             </div>
                         )}
 
-                        <div className={s.productGrid}>
-                            {loading ? (
-                                <Loader />
-                            ) : visibleProducts.length ? (
-                                <>
-                                    {visibleProducts.map((product, index) => (
+                        <div className={s.wrapProducts}>
+                            <div className={s.productGrid}>
+                                {loading ? (
+                                    <Loader />
+                                ) : visibleProducts.length ? (
+                                    visibleProducts.map((product, index) => (
                                         <ProductItem key={`${product.id}-${index}`} product={product} />
-                                    ))}
-                                    {visibleProducts.length < filteredProducts.length && (
-                                        <div className={s.loadMoreWrapper}>
-                                            <button className={s.loadMoreBtn} onClick={handleLoadMore}>
-                                                Завантажити ще
-                                            </button>
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                <p>Товари не знайдено.</p>
+                                    ))
+                                ) : (
+                                    <p>Товарів зі знижкою немає.</p>
+                                )}
+                            </div>
+                            {!loading && visibleProducts.length < sortedProducts.length && (
+                                <div className={s.loadMoreWrapper}>
+                                    <button className={s.loadMoreBtn} onClick={handleLoadMore}>
+                                        {t('loadMore')}
+                                    </button>
+                                </div>
                             )}
                         </div>
+
+
                     </div>
                 </div>
             </div>
+
             {isMobile && isFilterOpen && (
                 <div className={s.popupOverlay}>
                     <div className={s.popupContent}>
                         <div className={s.popupHeader}>
-                            <h3>Фільтри</h3>
+                            <h3>{t('title_filter')}</h3>
                             <button className={s.closeButton} onClick={() => setIsFilterOpen(false)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M1.26837 15.955L7.99948 9.22384L14.7306 15.955L15.9544 14.7311L9.22332 8L15.9544 1.26889L14.7306 0.0450475L7.99948 6.77616L1.26837 0.0450488L0.04453 1.26889L6.77564 8L0.04453 14.7311L1.26837 15.955Z" fill="#1A1A1A"/>
+                                    <path d="M1.26935 15.955L8.00046 9.22384L14.7316 15.955L15.9554 14.7311L9.2243 8L15.9554 1.26889L14.7316 0.0450475L8.00046 6.77616L1.26935 0.0450488L0.0455065 1.26889L6.77662 8L0.0455065 14.7311L1.26935 15.955Z" fill="#1A1A1A"/>
                                 </svg>
                             </button>
                         </div>
@@ -387,8 +418,8 @@ const SalePage = () => {
                             onChangePrice={setPriceRange}
                         />
                         <div className={s.popupButtons}>
-                            <button onClick={applyFilters} className={s.applyBtn}>Застосувати фільтри</button>
-                            <button onClick={resetFilters} className={s.resetBtn}>Скинути всі налаштування</button>
+                            <button onClick={applyFilters} className={s.applyBtn}>{t('filters.apply')}</button>
+                            <button onClick={resetFilters} className={s.resetBtn}>{t('filters.reset')}</button>
                         </div>
                     </div>
                 </div>

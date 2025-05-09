@@ -32,7 +32,7 @@ import 'swiper/css/pagination';
 
 import i18n from './i18n';
 
-
+export const lang = i18n.language === 'ua' ? 'ru' : i18n.language; // WPML використовує 'uk' для української
 export const apiUrlWp = 'https://api.say.in.ua/';
 export const apiUrl = 'https://api.say.in.ua/wp-json/wc/v3/products';
 export const consumerKey = 'ck_49130dfdfc750a8753ce12f98c540d6fc3d7bb77';

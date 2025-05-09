@@ -385,7 +385,7 @@
 
 .sizeButton{
     display: flex;
-    padding: 0.625vw 0.20vw;
+    padding: 0.625vw 0.625vw;
     justify-content: center;
     align-items: center;
     gap: 0.52vw;

@@ -32,6 +32,8 @@ const QuickViewModal = ({ product, onClose }: Props) => {
     const { t, i18n } = useTranslation();
     const langPrefix = i18n.language === 'ua' ? '/ua' : i18n.language === 'ru' ? '/ru' : '';
 
+    const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+
     const wishList = useSelector((state: RootState) => state.wishlist.items);
     const isInWishlist    = wishList.some((item) => item.id === product?.id);
     const handleWishlistToggle = () => {
@@ -47,7 +49,7 @@ const QuickViewModal = ({ product, onClose }: Props) => {
     useEffect(() => {
         setMounted(true);
         const fetch = async () => {
-            const result = await getVariationsByProductId(product.id);
+            const result = await getVariationsByProductId(product.id, lang);
             setVariations(result);
         };
         fetch();

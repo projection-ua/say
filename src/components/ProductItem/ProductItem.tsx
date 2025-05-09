@@ -59,7 +59,9 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
 
 
 
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const langPrefix = i18n.language === 'ru' ? '/ru' : '';
+
 
 
 
@@ -68,7 +70,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
     return (
         <div className={`${s.productItem} ${s[viewMode] || ''}`}>
             <Link
-                to={`/product/${product.slug || product.id}`}
+                to={`${langPrefix}/product/${product.slug || product.id}`}
                 className={s.productLink}
                 data-product-id={product.id}
             >
@@ -92,11 +94,13 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
                         {product.featured && <div className={s.markerPopular}>Bestseller</div>}
                     </div>
 
-                    {product.images && product.images.length > 0 && (
+                    {product.images && product.images.length > 0 && product.images[0].src ? (
                         <>
                             <img
                                 src={
-                                    product.images[0].media_details?.sizes?.medium_large?.url || product.images[0].src
+                                    product.images[0].media_details?.sizes?.medium_large?.url ||
+                                    product.images[0].src ||
+                                    '/images/image-product.jpg'
                                 }
                                 alt={product.name}
                                 className={s.productImage}
@@ -106,29 +110,40 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, viewMode = 'default'
                                     ${product.images[0].media_details?.sizes?.large?.url || product.images[0].src} 1024w,
                                     ${product.images[0].media_details?.sizes?.["1536x1536"]?.url || product.images[0].src} 1536w,
                                     ${product.images[0].media_details?.sizes?.["2048x2048"]?.url || product.images[0].src} 2048w
-                                  `}
+                                `}
                                 sizes="(max-width: 600px) 300px, (max-width: 1200px) 600px, 1024px"
                             />
 
-                            {product.images.length > 1 && (
+                            {product.images.length > 1 && product.images[1]?.src && (
                                 <img
                                     src={
-                                        product.images[1].media_details?.sizes?.medium_large?.url || product.images[1].src
+                                        product.images[1].media_details?.sizes?.medium_large?.url ||
+                                        product.images[1].src ||
+                                        '/images/image-product.jpg'
                                     }
                                     alt={product.name}
                                     className={s.productImageBack}
                                     loading="lazy"
                                     srcSet={`
-                                      ${product.images[1].media_details?.sizes?.medium?.url || product.images[1].src} 300w,
-                                      ${product.images[1].media_details?.sizes?.large?.url || product.images[1].src} 1024w,
-                                      ${product.images[1].media_details?.sizes?.["1536x1536"]?.url || product.images[1].src} 1536w,
-                                      ${product.images[1].media_details?.sizes?.["2048x2048"]?.url || product.images[1].src} 2048w
+                                        ${product.images[1].media_details?.sizes?.medium?.url || product.images[1].src} 300w,
+                                        ${product.images[1].media_details?.sizes?.large?.url || product.images[1].src} 1024w,
+                                        ${product.images[1].media_details?.sizes?.["1536x1536"]?.url || product.images[1].src} 1536w,
+                                        ${product.images[1].media_details?.sizes?.["2048x2048"]?.url || product.images[1].src} 2048w
                                     `}
                                     sizes="(max-width: 600px) 300px, (max-width: 1200px) 600px, 1024px"
                                 />
                             )}
                         </>
+                    ) : (
+                        <img
+                            src="/images/image-product.jpg"
+                            alt={product.name}
+                            className={s.productImage}
+                            loading="lazy"
+                        />
                     )}
+
+
 
 
 

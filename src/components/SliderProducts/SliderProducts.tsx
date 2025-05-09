@@ -43,12 +43,13 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
         const fetchFiltered = async () => {
             try {
                 setLoading(true);
-                const products = await getProducts();
 
-                // 1️⃣ Спочатку залишаємо тільки ті товари, які не приховані
+                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+                const products = await getProducts(lang);
+
+                // Фільтрація
                 const catalogProducts = products.filter((product) => !product.hiddenInCatalog);
 
-                // 2️⃣ Далі фільтруємо по тегу
                 const filtered = catalogProducts.filter((product) => {
                     if (filterTag === 'sale') {
                         const salePrice = parseFloat(product.sale_price);
@@ -92,7 +93,8 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
         };
 
         fetchFiltered();
-    }, [filterTag]);
+    }, [filterTag, i18n.language]);
+
 
     const prevId = `prev-${uniqueId}`;
     const nextId = `next-${uniqueId}`;
@@ -164,8 +166,8 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
                                     prevEl: `#${prevId}`,
                                 }}
                             >
-                                {filteredProducts.map((product) => (
-                                    <SwiperSlide key={product.id}>
+                                {filteredProducts.map((product, index) => (
+                                    <SwiperSlide key={`${product.id}-${index}`}>
                                         <ProductItem product={product} />
                                     </SwiperSlide>
                                 ))}

@@ -6,6 +6,7 @@ import s from './RelatedProducts.module.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import {LoaderMini} from "../LoaderMini/LoaderMini.tsx";
+import {useTranslation} from "react-i18next";
 
 interface SliderProductsProps {
     relatedToProduct: ProductInfo;
@@ -22,11 +23,15 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
 
 
+    const { i18n } = useTranslation();
+
     useEffect(() => {
         const fetchRelated = async () => {
             setLoading(true);
             try {
-                const products = await getProducts();
+                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+
+                const products = await getProducts(lang);
 
                 // 1️⃣ Фільтруємо тільки ті, що не приховані
                 const catalogProducts = products.filter(p => !p.hiddenInCatalog);
@@ -34,7 +39,7 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
                 // ID категорій товару
                 const categoryIds = relatedToProduct.categories.map((cat) => cat.id);
 
-                const filtered = catalogProducts // 👈 працюємо тільки з "дозволеними" товарами
+                const filtered = catalogProducts
                     .filter((product) => {
                         // Виняток для самого товару
                         if (product.id === relatedToProduct.id) return false;
@@ -55,7 +60,8 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
         };
 
         fetchRelated();
-    }, [relatedToProduct]);
+    }, [relatedToProduct, i18n.language]); // додали i18n.language
+
 
     const prevId = `prev-${uniqueId}`;
     const nextId = `next-${uniqueId}`;
