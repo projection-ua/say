@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import {Link, useSearchParams, useParams, useLocation} from 'react-router-dom';
+import {Link, useSearchParams, useParams, useLocation, useNavigate} from 'react-router-dom';
 import { getProducts } from '../../services/fetchProducts';
 import { getCategories } from '../../services/fetchCategories.ts';
 import { CategoryInfo } from '../../types/categoryTypes.ts';
@@ -11,7 +11,7 @@ import Loader from '../../components/Loader/Loader';
 import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs.tsx';
 
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import {apiUrlWp} from "../../App.tsx";
+import {apiUrlWp, consumerKey, consumerSecret} from "../../App.tsx";
 import {useTranslation} from "react-i18next";
 
 const useIsMobile = () => {
@@ -29,7 +29,7 @@ const CategoryPage = () => {
 
     const { t, i18n } = useTranslation();
     const langPrefix = i18n.language === '' ? '/' : i18n.language === 'ru' ? '/ru' : '';
-
+    const navigate = useNavigate();
 
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
@@ -76,6 +76,54 @@ const CategoryPage = () => {
     });
     const [sortOption, setSortOption] = useState(() => searchParams.get('sort') || 'default');
 
+
+    const [hasRedirected, setHasRedirected] = useState(false);
+
+    useEffect(() => {
+        if (!category?.translations || hasRedirected) return;
+
+        const newLang = i18n.language === 'ua' ? 'uk' : i18n.language;
+        const translatedId = category.translations[newLang];
+
+        if (!translatedId || category.id === translatedId) return;
+
+        const fetchTranslatedCategory = async () => {
+            try {
+                const authHeader = 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`);
+
+                const response = await fetch(
+                    `${apiUrlWp}wp-json/wc/v3/products/categories/${translatedId}?lang=${newLang}`,
+                    {
+                        headers: {
+                            'Authorization': authHeader,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                if (data?.slug) {
+                    const langPrefix = newLang === 'ru' ? '/ru' : ''; // + '/ua' якщо треба
+                    const newUrl = `${langPrefix}/product-category/${data.slug}`;
+                    const currentPath = window.location.pathname.replace(/\/$/, '');
+                    const targetPath = newUrl.replace(/\/$/, '');
+
+                    if (currentPath !== targetPath) {
+                        console.log('🔄 Перенаправлення категорії на:', targetPath);
+                        setHasRedirected(true);
+                        navigate(newUrl); // 🚀 SPA редірект
+                    } else {
+                        console.log('✅ Вже на правильній сторінці категорії');
+                    }
+                }
+
+            } catch (error) {
+                console.error('Помилка при завантаженні перекладу категорії:', error);
+            }
+        };
+
+        fetchTranslatedCategory();
+    }, [i18n.language, category, hasRedirected]);
 
 
 

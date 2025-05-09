@@ -27,6 +27,9 @@ export type ProductInfo = {
     quantity: number;
     stock_quantity: number;
     average_rating: string;
+    translations?: {
+        [langCode: string]: string | number;
+    };
     rating_count: string;
     type: string;
     colorName: string;

@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux';
 import { ProductInfo, Variation } from '../../types/productTypes';
 import { getProducts } from '../../services/fetchProducts';
@@ -22,10 +22,11 @@ import {RootState} from "../../store/store.ts";
 import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs';
 import SizeChartModal from '../../components/SizeChart/SizeChart.tsx';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import {apiUrlWp} from "../../App.tsx";
+import {apiUrlWp, consumerKey, consumerSecret} from "../../App.tsx";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {useTranslation} from "react-i18next";
+
 
 import { Link } from 'react-router-dom';
 
@@ -66,6 +67,8 @@ const ProductPage = () => {
 
 
 
+
+
     useEffect(() => {
         const fetchSeo = async () => {
             const lang = i18n.language === 'ru' ? `&lang=ru` : ''; // ✅ для укр нічого не додаємо
@@ -78,9 +81,63 @@ const ProductPage = () => {
     }, [slug, i18n.language]);
 
 
+    const navigate = useNavigate();
+
 
     const dispatch = useDispatch();
     const [product, setProduct] = useState<ProductInfo | null>(null);
+
+
+    const [hasRedirected, setHasRedirected] = useState(false);
+
+    useEffect(() => {
+        if (!product?.translations || hasRedirected) return;
+
+        const newLang = i18n.language === 'ua' ? 'uk' : i18n.language;
+        const translatedId = product.translations[newLang];
+
+        if (!translatedId || product.id === translatedId) return;
+
+        const fetchTranslatedProduct = async () => {
+            try {
+                const authHeader = 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`);
+
+                const response = await fetch(
+                    `${apiUrlWp}wp-json/wc/v3/products/${translatedId}?lang=${newLang}`,
+                    {
+                        headers: {
+                            'Authorization': authHeader,
+                        },
+                    }
+                );
+
+                const data = await response.json();
+
+                if (data?.slug) {
+                    const langPrefix = newLang === 'ru' ? '/ru' : ''; // + '/ua' якщо треба
+                    const newUrl = `${langPrefix}/product/${data.slug}`;
+                    const currentPath = window.location.pathname.replace(/\/$/, '');
+                    const targetPath = newUrl.replace(/\/$/, '');
+
+                    if (currentPath !== targetPath) {
+                        console.log('🔄 Перенаправлення на:', targetPath);
+                        setHasRedirected(true);
+                        navigate(newUrl);  // 🚀 SPA-перехід без reload
+                    } else {
+                        console.log('✅ Вже на правильній сторінці, редірект не потрібен');
+                    }
+                }
+
+            } catch (error) {
+                console.error('Помилка при завантаженні перекладу товару:', error);
+            }
+        };
+
+        fetchTranslatedProduct();
+    }, [i18n.language, product, hasRedirected]);
+
+
+
 
 
     const [variations, setVariations] = useState<Variation[]>([]);
@@ -314,6 +371,7 @@ const ProductPage = () => {
             dispatch(setCartOpen(true));
         }
     });
+
 
 
 

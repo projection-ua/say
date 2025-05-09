@@ -10,11 +10,14 @@ import { RootState } from '../../store/store';
 import { removeFromWishlist } from '../../store/slices/wishlistSlice';
 import React from "react";
 import { useEffect, useState } from 'react';
+import {useTranslation} from "react-i18next";
 
 interface Props {
     isOpen: boolean;
     onClose: () => void;
 }
+
+
 
 export const useIsMobile = (breakpoint: number = 768) => {
     const [isMobile, setIsMobile] = useState(false);
@@ -37,6 +40,7 @@ export const WishlistPopup: React.FC<Props> = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
 
     const isMobile = useIsMobile(); // 👈 додай цей рядок
+    const { t } = useTranslation();
 
     const handleRemove = (id: number) => {
         dispatch(removeFromWishlist(id));
@@ -49,7 +53,7 @@ export const WishlistPopup: React.FC<Props> = ({ isOpen, onClose }) => {
             <div className={`${s.popup} ${isOpen ? s.active : ''}`}>
 
                 <div className={s.wrapHeader}>
-                    <h2 className={s.title}>ОБРАНЕ <span className={s.countWishlist}>( {wishlist.length} )</span></h2>
+                    <h2 className={s.title}><span>{t('wishlist')}</span> <span className={s.countWishlist}>( {wishlist.length} )</span></h2>
                     <button className={s.closeBtn} onClick={onClose}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
                             <path d="M2.22197 19.1924L10.0001 11.4142L17.7783 19.1924L19.1925 17.7782L11.4144 10L19.1925 2.22182L17.7783 0.807611L10.0001 8.58579L2.22197 0.807613L0.807751 2.22183L8.58592 10L0.807751 17.7782L2.22197 19.1924Z" fill="#1A1A1A"/>
