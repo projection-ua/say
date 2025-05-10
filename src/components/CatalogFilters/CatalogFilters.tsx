@@ -168,7 +168,7 @@ const CatalogFilters = ({
                                         checked={selectedSubcategory === null}
                                         onChange={() => onChangeSubcategory(null)}
                                     />
-                                    Усі
+                                    {t('filters.all')}
                                 </label>
                             </li>
                             {subcategories.map((subcat) => (

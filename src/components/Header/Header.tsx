@@ -134,15 +134,35 @@ const Header = () => {
 
 
     useEffect(() => {
+        const currentLang = i18n.language;
 
         const fetchMenus = async () => {
             try {
-                setLoading(true); // 👉 показуємо лоадер
-                const response = await fetch(`https://api.say.in.ua/wp-json/responses/v1/menus`);
+                setLoading(true);
+
+                let url = 'https://api.say.in.ua/wp-json/responses/v1/menus';
+                if (currentLang === 'ru') {
+                    url += '?lang=ru';
+                }
+
+                const response = await fetch(url);
                 const data: Menu[] = await response.json();
-                const mainMenu = data.find((menu) => menu.slug === 'main');
+
+                console.log('Fetched menus:', data);
+
+                // 🔥 Обираємо правильне меню залежно від мови
+                const expectedSlug = currentLang === 'ru' ? 'main-russian' : 'main';
+
+                const mainMenu = data.find((menu) => menu.slug === expectedSlug);
+
+
+                console.log('Found menu:', mainMenu);
+
                 if (mainMenu) {
                     setMainMenuItems(mainMenu.items);
+                    setCategoryImages({}); // 🧹 скидаємо, щоб було чисто для нової мови
+                } else {
+                    console.warn(`No menu found for slug: ${expectedSlug}`);
                 }
             } catch (error) {
                 console.error('Failed to fetch menu:', error);
@@ -152,7 +172,9 @@ const Header = () => {
         };
 
         fetchMenus();
-    }, [i18n.language]); // 👈 додати залежність від мови
+    }, [i18n.language]);
+
+
 
 
     const convertUrl = (url: string) => {
@@ -177,9 +199,15 @@ const Header = () => {
 
 
     const getLastSlug = (url: string) => {
-        const parts = new URL(url, window.location.origin).pathname.split('/').filter(Boolean);
-        return parts[parts.length - 1];
+        try {
+            const parts = new URL(url, window.location.origin).pathname.split('/').filter(Boolean);
+            return parts[parts.length - 1];
+        } catch (e) {
+            console.warn('getLastSlug error:', e);
+            return '';
+        }
     };
+
 
 
     const [isSearchOpen, setSearchOpen] = useState(false);
@@ -263,7 +291,7 @@ const Header = () => {
                                 </li>
 
                                 {mainMenuItems
-                                    .filter((item) => item.parent_id === "0")
+                                    .filter((item) => !item.parent_id || item.parent_id === "0")
                                     .map((parent) => {
                                         const children = mainMenuItems.filter((child) => child.parent_id === parent.id.toString());
                                         const slug = getLastSlug(parent.url);
@@ -363,7 +391,7 @@ const Header = () => {
                                         </li>
 
                                         {mainMenuItems
-                                            .filter((item) => item.parent_id === "0")
+                                            .filter((item) => !item.parent_id || item.parent_id === "0")
                                             .map((parent) => {
                                                 const children = mainMenuItems.filter(
                                                     (child) => child.parent_id === parent.id.toString()

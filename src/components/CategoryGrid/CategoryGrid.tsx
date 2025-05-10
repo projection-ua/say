@@ -43,7 +43,7 @@ const CategoryGrid = () => {
                     (cat) =>
                         cat.count > 0 &&
                         cat.parent === 0 &&
-                        cat.name.toLowerCase() !== 'без категорії'
+                        !['без категорії', 'без категории'].includes(cat.name.toLowerCase())
                 );
                 setCategories(filtered);
             } catch {

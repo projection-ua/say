@@ -147,12 +147,13 @@ const CategoryPage = () => {
                 const children = slug
                     ? categories.filter(cat =>
                         cat.parent === current?.id &&
-                        cat.name.toLowerCase() !== 'без категорії'
+                        !['без категорії', 'без категории'].includes(cat.name.toLowerCase())
                     )
                     : categories.filter(cat =>
                         cat.parent === 0 &&
-                        cat.name.toLowerCase() !== 'без категорії'
+                        !['без категорії', 'без категории'].includes(cat.name.toLowerCase())
                     );
+
 
                 setSubcategories(children);
 
