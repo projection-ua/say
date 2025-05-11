@@ -29,9 +29,8 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
         const fetchRelated = async () => {
             setLoading(true);
             try {
-                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
 
-                const products = await getProducts(lang);
+                const products = await getProducts();
 
                 // 1️⃣ Фільтруємо тільки ті, що не приховані
                 const catalogProducts = products.filter(p => !p.hiddenInCatalog);
