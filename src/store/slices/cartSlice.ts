@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CartItem } from '../../types/cartTypes';
+import { gtagEvent } from '../../gtag';
+
 
 const STORAGE_KEY = 'cart';
 
@@ -44,6 +46,17 @@ const cartSlice = createSlice({
             }
 
             saveToStorage(state.items);
+
+            gtagEvent('add_to_cart', {
+                currency: 'UAH',
+                value: +action.payload.price * action.payload.quantity,
+                items: [{
+                    item_id: action.payload.id,
+                    item_name: action.payload.name,
+                    quantity: action.payload.quantity,
+                    price: +action.payload.price,
+                }],
+            });
         },
 
         updateQuantity(state, action: PayloadAction<{ id: number; variationId?: number; quantity: number }>) {
@@ -57,14 +70,43 @@ const cartSlice = createSlice({
         },
 
         removeFromCart(state, action: PayloadAction<{ id: number; variationId?: number }>) {
+            const removed = state.items.filter(i =>
+                i.id === action.payload.id &&
+                i.variationId === action.payload.variationId
+            );
+
             state.items = state.items.filter(
                 i => !(i.id === action.payload.id && i.variationId === action.payload.variationId)
             );
 
             saveToStorage(state.items);
+
+            if (removed.length) {
+                gtagEvent('remove_from_cart', {
+                    currency: 'UAH',
+                    items: removed.map(item => ({
+                        item_id: item.id,
+                        item_name: item.name,
+                        quantity: item.quantity,
+                        price: +item.price,
+                    })),
+                });
+            }
         },
 
         clearCart(state) {
+            if (state.items.length) {
+                gtagEvent('remove_from_cart', {
+                    currency: 'UAH',
+                    items: state.items.map(item => ({
+                        item_id: item.id,
+                        item_name: item.name,
+                        quantity: item.quantity,
+                        price: +item.price,
+                    })),
+                });
+            }
+
             state.items = [];
             saveToStorage([]);
         },

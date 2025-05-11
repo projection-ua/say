@@ -21,7 +21,7 @@ export interface HomePageProps {
 
 const HomePage : React.FC <HomePageProps> = ({slides}) => {
 
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
@@ -33,13 +33,15 @@ const HomePage : React.FC <HomePageProps> = ({slides}) => {
 
     useEffect(() => {
         const fetchSeo = async () => {
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/pages?slug=main`);
+            const lang = i18n.language === 'ru' ? '&lang=ru' : ''; // тільки для російської
+            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/pages?slug=main${lang}`);
             const data = await response.json();
             setSeoData(data[0]?.yoast_head_json);
         };
 
         fetchSeo();
-    }, []);
+    }, [i18n.language]);
+
 
 
 

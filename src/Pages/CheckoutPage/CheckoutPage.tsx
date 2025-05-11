@@ -13,6 +13,7 @@ import { NovaPoshtaMapPopup } from "../../components/MapPopup/MapPopup";
 import { LoaderMini } from "../../components/LoaderMini/LoaderMini";
 import { StepNavigation } from '../../components/StepNavigation/StepNavigation';
 import {useTranslation} from "react-i18next";
+import { gtagEvent } from '../../gtag';
 
 
 interface ShippingMethod {
@@ -113,6 +114,9 @@ interface OrderData {
 
 const CheckoutPage: React.FC = () => {
     const { items } = useSelector((state: RootState) => state.cart);
+
+
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -135,6 +139,23 @@ const CheckoutPage: React.FC = () => {
 
     const [npLocations, setNpLocations] = useState<NpLocation[]>([]);
     const [selectedCity, setSelectedCity] = useState<string>('');
+
+
+    useEffect(() => {
+        if (!items.length) return;
+
+        gtagEvent('begin_checkout', {
+            currency: 'UAH',
+            value: items.reduce((sum, item) => sum + (item.sale_price ?? item.price) * item.quantity, 0),
+            items: items.map(item => ({
+                item_id: item.id,
+                item_name: item.name,
+                quantity: item.quantity,
+                price: +item.price,
+            })),
+        });
+    }, []);
+
 
 
     const deliveryTypeOptions = [
@@ -436,6 +457,20 @@ const CheckoutPage: React.FC = () => {
                         return;
                     }
                 }
+
+
+                gtagEvent('purchase', {
+                    transaction_id: responseData.id,
+                    value: finalTotal,
+                    currency: 'UAH',
+                    coupon: formik.values.coupon || undefined,
+                    items: items.map(item => ({
+                        item_id: item.id,
+                        item_name: item.name,
+                        quantity: item.quantity,
+                        price: +item.price,
+                    })),
+                });
 
 
                 console.log('✅ Замовлення створено успішно:', responseData);

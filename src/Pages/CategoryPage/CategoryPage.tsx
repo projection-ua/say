@@ -134,7 +134,7 @@ const CategoryPage = () => {
                 const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
 
                 const [allProducts, categories] = await Promise.all([
-                    getProducts(lang),
+                    getProducts(),
                     getCategories(lang),
                 ]);
 
@@ -183,7 +183,7 @@ const CategoryPage = () => {
     const allAttributes = useMemo(() => {
         const attributesMap: Record<string, Set<string>> = {};
         products.forEach((product) => {
-            product.attributes.forEach(({ name, options }) => {
+            (product.attributes ?? []).forEach(({ name, options }) => {
                 if (!attributesMap[name]) attributesMap[name] = new Set();
                 options.forEach((opt) => attributesMap[name].add(opt.name));
             });

@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
 import RecommendedProducts from "../RecommendedProducts/RecommendedProducts";
 import {useTranslation} from "react-i18next";
+import { gtagEvent } from '../../gtag';
 
 
 
@@ -25,6 +26,24 @@ const CartDrawer = () => {
 
     const dispatch = useDispatch();
     const { items, isCartOpen } = useSelector((state: RootState) => state.cart);
+
+
+    useEffect(() => {
+        if (!isCartOpen || items.length === 0) return;
+
+        gtagEvent('view_cart', {
+            currency: 'UAH',
+            value: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+            items: items.map(item => ({
+                item_id: item.id,
+                item_name: item.name,
+                quantity: item.quantity,
+                price: +item.price,
+            }))
+        });
+    }, [isCartOpen]);
+
+
 
     const subtotal = items.reduce(
         (sum, item) => sum + (item.regular_price || item.price) * item.quantity,

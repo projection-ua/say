@@ -215,7 +215,7 @@ const ProductPage = () => {
             try {
                 const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
 
-                const products = await getProducts(lang);
+                const products = await getProducts();
                 const found = products.find((p) => p.slug === slug);
                 setProduct(found || null);
                 setSelectedOptions({});

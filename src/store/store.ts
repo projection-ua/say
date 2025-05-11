@@ -11,7 +11,7 @@ import categoriesReducer from './slices/categoriesSlice';
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['cart', 'wishlist', 'products'], // що зберігати
+    whitelist: ['cart', 'wishlist'],
 };
 
 const rootReducer = combineReducers({

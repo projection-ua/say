@@ -180,7 +180,7 @@ const NewPage = () => {
                 const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
 
                 const [allProducts, categories] = await Promise.all([
-                    getProducts(lang),
+                    getProducts(),
                     getCategories(lang),
                 ]);
 

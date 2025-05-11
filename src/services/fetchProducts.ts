@@ -1,37 +1,35 @@
 import { store } from '../store/store';
-import { fetchProducts } from '../store/slices/productsSlice';
+import { fetchProducts, loadProductsFromCache } from '../store/slices/productsSlice';
 import { ProductInfo } from '../types/productTypes';
+import i18n from 'i18next';
 
-export const getProducts = async (lang: string): Promise<ProductInfo[]> => {
+export const getCurrentLang = (): string => {
+    const lang = i18n.language;
+    return lang === 'ua' ? 'uk' : lang;
+};
+
+export const getProducts = async (): Promise<ProductInfo[]> => {
+    const lang = getCurrentLang();
     const state = store.getState();
     const existingProducts = state.products.items[lang];
 
-    if (existingProducts && existingProducts.length > 0) {
-        return existingProducts;
-    }
+    if (existingProducts?.length) return existingProducts;
 
-    const cachedProducts = sessionStorage.getItem(`products_${lang}`);
+    const cachedProducts = localStorage.getItem(`products_${lang}`);
     if (cachedProducts) {
         const parsed: ProductInfo[] = JSON.parse(cachedProducts);
-        if (parsed.length > 0) {
-            store.dispatch({
-                type: 'products/loadProductsFromCache',
-                payload: {
-                    lang,
-                    products: parsed,
-                },
-            });
+        if (parsed.length) {
+            store.dispatch(loadProductsFromCache({ lang, products: parsed }));
             return parsed;
         }
     }
 
-    const resultAction = await store.dispatch(fetchProducts(lang));
+    const resultAction = await store.dispatch(fetchProducts());
 
     if (fetchProducts.fulfilled.match(resultAction)) {
-        const newState = store.getState();
-        return newState.products.items[lang] || [];
-    } else {
-        console.error('Не вдалося завантажити товари:', resultAction.error);
-        return [];
+        return store.getState().products.items[lang] || [];
     }
+
+    console.error('❌ Не вдалося завантажити товари');
+    return [];
 };

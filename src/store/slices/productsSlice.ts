@@ -2,19 +2,28 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { ProductInfo } from '../../types/productTypes';
 import { apiUrl, consumerKey, consumerSecret } from '../../App.tsx';
+import i18n from 'i18next';
+
+// ✅ Уніфікована мова
+const getCurrentLang = (): string => {
+    const lang = i18n.language;
+    return lang === 'ua' ? 'uk' : lang;
+};
 
 export const fetchProducts = createAsyncThunk<
     ProductInfo[],
-    string,
+    void,
     { rejectValue: unknown }
 >(
     'products/fetchProducts',
-    async (lang, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
+        const lang = getCurrentLang();
         try {
             const response = await axios.get(`${apiUrl}`, {
                 auth: { username: consumerKey, password: consumerSecret },
                 params: { per_page: 100, lang },
             });
+
             return Array.isArray(response.data) ? response.data : [];
         } catch (err) {
             console.error('Fetch error:', err);
@@ -51,7 +60,7 @@ const productsSlice = createSlice({
                 state.error = null;
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
-                const lang = action.meta.arg;
+                const lang = getCurrentLang();
                 const flattenedProducts: ProductInfo[] = [];
 
                 action.payload.forEach((product: ProductInfo) => {
@@ -128,20 +137,18 @@ const productsSlice = createSlice({
                         hiddenInCatalog: product.hiddenInCatalog,
                     }));
 
-                    // 🚀 Очищаємо попередній кеш
-                    Object.keys(sessionStorage).forEach((key) => {
+                    // 🔄 Очистка попередніх мов
+                    Object.keys(localStorage).forEach((key) => {
                         if (key.startsWith('products_') && key !== `products_${lang}`) {
-                            sessionStorage.removeItem(key);
+                            localStorage.removeItem(key);
                         }
                     });
 
-                    // ✅ Зберігаємо новий кеш
-                    sessionStorage.setItem(`products_${lang}`, JSON.stringify(lightProducts));
-
-
+                    localStorage.setItem(`products_${lang}`, JSON.stringify(lightProducts));
                 } catch (e) {
                     console.warn('⚠️ Failed to cache products:', e);
                 }
+
                 state.loading = false;
             })
             .addCase(fetchProducts.rejected, (state, action) => {
@@ -151,4 +158,5 @@ const productsSlice = createSlice({
     },
 });
 
+export const { loadProductsFromCache } = productsSlice.actions;
 export default productsSlice.reducer;
