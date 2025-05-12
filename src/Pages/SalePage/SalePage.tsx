@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import {useSearchParams, useParams} from 'react-router-dom';
-import { getProducts } from '../../services/fetchProducts';
+import {useSearchParams} from 'react-router-dom';
 import { getCategories } from '../../services/fetchCategories.ts';
 import { CategoryInfo } from '../../types/categoryTypes.ts';
 import { ProductInfo } from '../../types/productTypes';
@@ -8,6 +7,7 @@ import ProductItem from '../../components/ProductItem/ProductItem';
 import s from '../CategoryPage/CategoryPage.module.css';
 import CatalogFilters from '../../components/CatalogFilters/CatalogFilters';
 import Loader from '../../components/Loader/Loader';
+import {getProductsSale} from "../../services/fetchSaleProducts.ts";
 
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
@@ -15,7 +15,6 @@ import {useLocation} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 
 const SalePage = () => {
-    const { slug } = useParams();
     const [products, setProducts] = useState<ProductInfo[]>([]);
     const [loading, setLoading] = useState(true);
     const [subcategories, setSubcategories] = useState<CategoryInfo[]>([]);
@@ -47,6 +46,35 @@ const SalePage = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isSortOpen, setIsSortOpen] = useState(false);
     const [sortOption, setSortOption] = useState(() => searchParams.get('sort') || 'default');
+    const [visibleCount, setVisibleCount] = useState(18);
+
+
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+
+                const [allProducts, categories] = await Promise.all([
+                    getProductsSale({ lang, onSale: true }), // ⬅️ оновлений запит
+                    getCategories(lang),
+                ]);
+
+                setProducts(allProducts);
+                setSubcategories(
+                    categories.filter(cat => cat.parent === 0 && !['без категорії', 'без категории'].includes(cat.name.toLowerCase()))
+                );
+                setVisibleCount(18);
+            } catch (err) {
+                console.error('❌ Помилка при завантаженні:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [i18n.language]);
 
 
 
@@ -164,68 +192,6 @@ const SalePage = () => {
     }, [filteredProducts, sortOption]);
 
 
-
-
-
-
-
-    const [visibleCount, setVisibleCount] = useState(18);
-
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
-
-                const [allProducts, categories] = await Promise.all([
-                    getProducts(),
-                    getCategories(lang),
-                ]);
-
-                console.log(`✅ Завантажено ${allProducts.length} продуктів`);
-                console.log(`✅ Завантажено ${categories.length} категорій`);
-
-                const current = slug ? categories.find(cat => cat.slug === slug) || null : null;
-
-                const children = slug
-                    ? categories.filter(cat =>
-                        cat.parent === current?.id &&
-                        cat.name.toLowerCase() !== 'без категорії'
-                    )
-                    : categories.filter(cat =>
-                        cat.parent === 0 &&
-                        cat.name.toLowerCase() !== 'без категорії'
-                    );
-
-                setSubcategories(children);
-
-                console.log('🔎 current:', current);
-                console.log('🔎 current id:', current?.id);
-                console.log('🔎 categories:', categories);
-
-                const filtered = slug
-                    ? allProducts.filter(product =>
-                        product.categories?.some(cat => cat.slug === slug)
-                    )
-                    : allProducts.filter(product => {
-                        const salePrice = parseFloat(product.sale_price);
-                        const regularPrice = parseFloat(product.regular_price);
-                        return !isNaN(salePrice) && !isNaN(regularPrice) && salePrice < regularPrice;
-                    });
-
-
-                setProducts(filtered);
-            } catch (error) {
-                console.error('❌ Помилка при завантаженні категорії або продуктів:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [slug, i18n.language]);
 
 
     const allAttributes = useMemo(() => {

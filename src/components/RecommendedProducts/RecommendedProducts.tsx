@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -10,82 +10,81 @@ import s from "./RecommendedProducts.module.css";
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css/pagination';
 
+import { useTranslation } from "react-i18next";
 
-export const RecommendedProducts = () => {
+interface RecommendedProductsProps {
+    isVisible: boolean;
+}
+
+export const RecommendedProducts = ({ isVisible }: RecommendedProductsProps) => {
     const prevButtonRef = useRef<HTMLDivElement>(null);
     const nextButtonRef = useRef<HTMLDivElement>(null);
-
-    const [products, setProducts] = useState<ProductInfo[]>([]);
-    const [loading, setLoading] = useState(true);
-
-
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
     const paginationRef = useRef<HTMLDivElement | null>(null);
 
+    const [products, setProducts] = useState<ProductInfo[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [loaded, setLoaded] = useState(false);
+
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
 
 
 
-    useEffect(() => {
-        const fetchRecommendedProducts = async () => {
-            try {
-                // Перше: популярні товари
-                const popularParams = new URLSearchParams({
+    const { i18n } = useTranslation();
+
+    const loadRecommendedProducts = useCallback(async () => {
+        setLoading(true);
+        try {
+            const lang = i18n.language === "ua" ? "uk" : i18n.language;
+
+            const params = new URLSearchParams({
+                per_page: "10",
+                orderby: "popularity",
+                lang, // 🟢 додали мову
+            });
+
+            const response = await fetch(`${apiUrl}?${params}`, {
+                headers: {
+                    Authorization: "Basic " + btoa(`${consumerKey}:${consumerSecret}`),
+                },
+            });
+
+            let data = await response.json();
+
+            if (!data.length) {
+                const fallbackParams = new URLSearchParams({
                     per_page: "10",
-                    orderby: "popularity",
+                    orderby: "meta_value_num",
+                    meta_key: "total_sales",
+                    lang, // 🟢 теж не забуваємо
                 });
 
-                const popularResponse = await fetch(`${apiUrl}?${popularParams.toString()}`, {
+                const fallback = await fetch(`${apiUrl}?${fallbackParams}`, {
                     headers: {
                         Authorization: "Basic " + btoa(`${consumerKey}:${consumerSecret}`),
                     },
                 });
 
-                if (!popularResponse.ok) {
-                    throw new Error("Помилка при завантаженні популярних товарів");
-                }
-
-                const popularData = await popularResponse.json();
-
-                if (popularData.length > 0) {
-                    setProducts(popularData);
-                } else {
-                    // Якщо популярних немає, тоді тягнемо товари з найбільшими total_sales
-                    const bestSalesParams = new URLSearchParams({
-                        per_page: "10",
-                        orderby: "meta_value_num",
-                        meta_key: "total_sales",
-                    });
-
-                    const bestSalesResponse = await fetch(`${apiUrl}?${bestSalesParams.toString()}`, {
-                        headers: {
-                            Authorization: "Basic " + btoa(`${consumerKey}:${consumerSecret}`),
-                        },
-                    });
-
-                    if (!bestSalesResponse.ok) {
-                        throw new Error("Помилка при завантаженні товарів по продажах");
-                    }
-
-                    const bestSalesData = await bestSalesResponse.json();
-                    setProducts(bestSalesData);
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
+                data = await fallback.json();
             }
-        };
 
-        fetchRecommendedProducts();
-    }, []);
+            setProducts(data);
+        } catch (err) {
+            console.error("🔴 Recommended fetch error:", err);
+        } finally {
+            setLoading(false);
+            setLoaded(true);
+        }
+    }, [i18n.language]);
 
-    if (loading) {
-        return <div>Завантаження...</div>;
-    }
 
-    if (!products.length) {
-        return <div>Немає рекомендованих товарів</div>;
-    }
+    useEffect(() => {
+        if (isVisible && !loaded) {
+            loadRecommendedProducts();
+        }
+    }, [isVisible]);
+
+    if (!isVisible || loading) return null;
+    if (!products.length) return null;
 
     return (
         <section className={s.recommendedSection}>

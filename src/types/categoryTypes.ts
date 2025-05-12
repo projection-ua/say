@@ -5,6 +5,7 @@ export type CategoryInfo = {
     description?: string;
     count: number;
     parent: number;
+    lang: string;
     translations?: {
         [langCode: string]: string | number;
     };

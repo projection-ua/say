@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import {useSearchParams, useParams} from 'react-router-dom';
-import { getProducts } from '../../services/fetchProducts';
+import {useSearchParams} from 'react-router-dom';
 import { getCategories } from '../../services/fetchCategories.ts';
 import { CategoryInfo } from '../../types/categoryTypes.ts';
 import { ProductInfo } from '../../types/productTypes';
@@ -14,10 +13,10 @@ import {useTranslation} from "react-i18next";
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp} from "../../App.tsx";
 import {useLocation} from "react-router-dom";
+import {getProductsNews} from "../../services/fetchNewsProducts.ts";
 
 
 const NewPage = () => {
-    const { slug } = useParams();
     const [products, setProducts] = useState<ProductInfo[]>([]);
     const [loading, setLoading] = useState(true);
     const [subcategories, setSubcategories] = useState<CategoryInfo[]>([]);
@@ -48,6 +47,35 @@ const NewPage = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isSortOpen, setIsSortOpen] = useState(false);
     const [sortOption, setSortOption] = useState(() => searchParams.get('sort') || 'default');
+    const [visibleCount, setVisibleCount] = useState(18);
+
+
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+
+                const [allProducts, categories] = await Promise.all([
+                    getProductsNews({ lang, onSale: true }), // ⬅️ оновлений запит
+                    getCategories(lang),
+                ]);
+
+                setProducts(allProducts);
+                setSubcategories(
+                    categories.filter(cat => cat.parent === 0 && !['без категорії', 'без категории'].includes(cat.name.toLowerCase()))
+                );
+                setVisibleCount(18);
+            } catch (err) {
+                console.error('❌ Помилка при завантаженні:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [i18n.language]);
 
 
 
@@ -144,7 +172,6 @@ const NewPage = () => {
         });
     }, [products, selectedSubcategory, selectedAttributes, priceRange]);
 
-
     const sortedProducts = useMemo(() => {
         let sorted = [...filteredProducts];
         if (sortOption === 'bestsellers') {
@@ -167,66 +194,6 @@ const NewPage = () => {
 
 
 
-
-
-
-
-    const [visibleCount, setVisibleCount] = useState(18);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
-
-                const [allProducts, categories] = await Promise.all([
-                    getProducts(),
-                    getCategories(lang),
-                ]);
-
-                console.log(`✅ Завантажено ${allProducts.length} продуктів`);
-                console.log(`✅ Завантажено ${categories.length} категорій`);
-
-                const current = slug ? categories.find(cat => cat.slug === slug) || null : null;
-
-                const children = slug
-                    ? categories.filter(cat =>
-                        cat.parent === current?.id &&
-                        cat.name.toLowerCase() !== 'без категорії'
-                    )
-                    : categories.filter(cat =>
-                        cat.parent === 0 &&
-                        cat.name.toLowerCase() !== 'без категорії'
-                    );
-
-                setSubcategories(children);
-
-                console.log('🔎 current:', current);
-                console.log('🔎 current id:', current?.id);
-                console.log('🔎 categories:', categories);
-
-                const filtered = slug
-                    ? allProducts.filter(product =>
-                        product.categories?.some(cat => cat.slug === slug)
-                    )
-                    : allProducts.filter((product) => {
-                        if (!product.date_created) return false;
-                        const createdDate = new Date(product.date_created);
-                        const daysDiff = (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
-                        return daysDiff <= 30; // Новинки за останні 30 днів
-                    });
-
-
-                setProducts(filtered);
-            } catch (error) {
-                console.error('❌ Помилка при завантаженні категорії або продуктів:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [slug, i18n.language]);
 
     const allAttributes = useMemo(() => {
         const attributesMap: Record<string, Set<string>> = {};
@@ -273,6 +240,7 @@ const NewPage = () => {
             variation_slug: '', // теж якщо потрібно
         },
     }));
+
 
 
     return (

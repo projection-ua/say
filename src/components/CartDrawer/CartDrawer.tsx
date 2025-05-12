@@ -181,7 +181,7 @@ const CartDrawer = () => {
 
                 <div className={s.wrapRecomended}>
                     <h3 className={s.titleRec}>{t('cart.recommendedProducts')}</h3>
-                    <RecommendedProducts />
+                    <RecommendedProducts isVisible={isCartOpen} />
                 </div>
 
             </div>

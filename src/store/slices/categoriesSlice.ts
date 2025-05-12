@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl, consumerKey, consumerSecret } from '../../App.tsx';
-import { CategoryInfo } from '../../types/categoryTypes'; // тип для категорій
+import { CategoryInfo } from '../../types/categoryTypes';
 
 // 🔥 Отримати ВСІ категорії
 export const fetchCategories = createAsyncThunk<
     CategoryInfo[],
-    string, // 🟢 тип аргумента (мова: 'ua' | 'ru' і т.д.)
+    string, // мова: 'uk' | 'ru' і т.д.
     { rejectValue: unknown }
 >(
     'categories/fetchCategories',
@@ -14,10 +14,10 @@ export const fetchCategories = createAsyncThunk<
         try {
             const response = await axios.get(`${apiUrl}/categories`, {
                 auth: { username: consumerKey, password: consumerSecret },
-                params: { per_page: 100, lang }, // 🟢 динамічно підставляємо lang
+                params: { per_page: 100, lang },
             });
 
-            return response.data;
+            return Array.isArray(response.data) ? response.data : [];
         } catch (err) {
             console.error('Error fetching categories:', err);
             return rejectWithValue(err);
@@ -26,7 +26,7 @@ export const fetchCategories = createAsyncThunk<
 );
 
 interface CategoriesState {
-    items: Record<string, Record<string, CategoryInfo>>;
+    items: Record<string, Record<string, CategoryInfo>>; // items[lang][slug]
     loading: boolean;
     error: string | null;
 }
@@ -53,22 +53,30 @@ const categoriesSlice = createSlice({
                 state.error = null;
             })
             .addCase(fetchCategories.fulfilled, (state, action) => {
-                state.loading = false;
                 const lang = action.meta.arg;
+                state.loading = false;
+
                 if (!state.items[lang]) {
                     state.items[lang] = {};
                 }
+
+                const enriched: Record<string, CategoryInfo> = {};
                 action.payload.forEach((cat) => {
-                    state.items[lang][cat.slug] = cat;
+                    const categoryWithLang = { ...cat, lang }; // ✅ додаємо lang
+                    enriched[cat.slug] = categoryWithLang;
                 });
 
+                state.items[lang] = enriched;
+
+                // 🔄 очищення старих мов
                 Object.keys(localStorage).forEach((key) => {
                     if (key.startsWith('categories_') && key !== `categories_${lang}`) {
                         localStorage.removeItem(key);
                     }
                 });
 
-                localStorage.setItem(`categories_${lang}`, JSON.stringify(state.items[lang]));
+                // 💾 збереження у кеш
+                localStorage.setItem(`categories_${lang}`, JSON.stringify(enriched));
             })
             .addCase(fetchCategories.rejected, (state, action) => {
                 state.loading = false;
@@ -77,4 +85,5 @@ const categoriesSlice = createSlice({
     },
 });
 
+export const { loadCategoriesFromCache } = categoriesSlice.actions;
 export default categoriesSlice.reducer;

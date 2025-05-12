@@ -4,34 +4,51 @@ import { CategoryInfo } from '../types/categoryTypes';
 
 export const getCategories = async (lang: string): Promise<CategoryInfo[]> => {
     const state = store.getState();
-    const existingCategories = state.categories.items[lang];
+    const existing = state.categories.items[lang];
 
-    if (existingCategories && Object.keys(existingCategories).length > 0) {
-        return Object.values(existingCategories);
+    if (existing && Object.keys(existing).length > 0) {
+        return Object.values(existing);
     }
 
-    const cachedCategories = localStorage.getItem(`categories_${lang}`);
-    if (cachedCategories) {
-        const parsed: Record<string, CategoryInfo> = JSON.parse(cachedCategories);
-        store.dispatch({
-            type: 'categories/loadCategoriesFromCache',
-            payload: {
-                lang,
-                categories: parsed,
-            },
+    const cached = localStorage.getItem(`categories_${lang}`);
+    if (cached) {
+        const parsed: Record<string, CategoryInfo> = JSON.parse(cached);
+
+        const isSlugMatchLang = Object.values(parsed).some((cat) => {
+            const slug = cat.slug.toLowerCase();
+            const name = cat.name.toLowerCase();
+
+            // 🔍 Прості евристики:
+            if (lang === 'ru') {
+                return slug.includes('-ru') || /[а-яё]/.test(name);
+            } else {
+                return !slug.includes('-ru') && /[а-щґєіїґ]/.test(name); // укр символи
+            }
         });
-        return Object.values(parsed);
+
+        if (isSlugMatchLang) {
+            store.dispatch({
+                type: 'categories/loadCategoriesFromCache',
+                payload: {
+                    lang,
+                    categories: parsed,
+                },
+            });
+            return Object.values(parsed);
+        } else {
+            console.warn(`⚠️ Кеш не відповідає мові "${lang}", очищаємо.`);
+            localStorage.removeItem(`categories_${lang}`);
+        }
     }
 
-    const resultAction = await store.dispatch(fetchCategories(lang));
+    const result = await store.dispatch(fetchCategories(lang));
 
-    if (fetchCategories.fulfilled.match(resultAction)) {
+    if (fetchCategories.fulfilled.match(result)) {
         const newState = store.getState();
-        return Object.values(newState.categories.items[lang] || {});
+        const loaded = newState.categories.items[lang] || {};
+        return Object.values(loaded);
     } else {
-        console.error('Не вдалося завантажити категорії:', resultAction.error);
+        console.error('❌ Не вдалося завантажити категорії:', result.error);
         return [];
     }
 };
-
-

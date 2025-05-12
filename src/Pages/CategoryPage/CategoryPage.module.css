@@ -16,6 +16,11 @@
     justify-content: center;
     position: relative;
 }
+.heroBannerSmall{
+    width: 83.33vw;
+    margin: 0 auto;
+    margin-bottom: 4.16vw;
+}
 .categoryTitle{
     color: #FFF;
     -webkit-text-stroke-width: 0.5px;
@@ -27,6 +32,19 @@
     line-height: 120%; /* 72px */
     letter-spacing: 0.09vw;
     text-align: center;
+}
+.categoryTitleSmall{
+    color: #0C1618;
+    -webkit-text-stroke-width: 0.5px;
+    -webkit-text-stroke-color: #0C1618;
+    font-family: "Playfair Display";
+    font-size: 3.125vw;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%; /* 72px */
+    letter-spacing: 0.09vw;
+    text-align: left;
+    margin-top: 32px;
 }
 .productListWrapper{
     display: grid;
@@ -114,15 +132,18 @@
     display: flex;
     gap: 1.04vw;
     margin-bottom: 4.16vw;
+    overflow: auto;
 }
 .subcategoryCard{
-    width: 8.43vw;
+    width: max-content;
+    padding: 12px 20px;
+    border: 1px solid #B4BAB6;
+    border-radius: 8px;
+    transition-duration: 0.3s;
 }
-.subcategoryCard img{
-    width: 8.43vw;
-    height: 8.43vw;
-    object-fit: cover;
-    border-radius: 0.31vw;
+.subcategoryCard:hover{
+    background: #003C3A;
+    color: #fff;
 }
 .subcategoryName{
     color: var(--Green-Black, #0C1618);
@@ -130,8 +151,12 @@
     font-size: 0.83vw;
     font-style: normal;
     font-weight: 600;
-    line-height: 120%; /* 19.2px */
-    margin-top: 0.625vw;
+    line-height: 120%;
+    text-transform: uppercase;
+    transition-duration: 0.3s;
+}
+.subcategoryCard:hover .subcategoryName{
+    color: #fff;
 }
 
 .titleFilter{
@@ -236,9 +261,10 @@
         margin: 4.26vw;
         border-radius: 2.13vw;
     }
-    .categoryTitle{
+    .categoryTitle, .categoryTitleSmall{
         font-size: 8.53vw;
     }
+
     .productListWrapper{
         display: grid;
         grid-template-columns: minmax(20px, 1fr);
@@ -258,20 +284,15 @@
         display: flex;
         gap: 2.13vw;
         margin-bottom: 10.66vw;
+        margin-top: 10.66vw;
         overflow: auto;
     }
     .subcategoryCard{
-        width: 29vw;
-    }
-    .subcategoryCard img{
-        width: 29vw;
-        height: 29vw;
-        object-fit: cover;
-        border-radius: 2.13vw;
+        width: max-content;
     }
     .subcategoryName{
         font-size: 3.73vw;
-        margin-top: 2.13vw;
+        margin-top: 0vw;
     }
 
     .titleFilter{

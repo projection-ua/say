@@ -93,26 +93,28 @@ const CategoryGrid = () => {
                 </Swiper>
             ) : (
                 <div className={s.grid}>
-                    {categories.map((cat) => (
-                        <Link to={`${langPrefix}/product-category/${cat.slug}`} key={cat.id} className={s.card}>
-                            <div className={s.wrapImgCat}>
-                                <img
-                                    src={cat.image?.src || '../images/category-img.jpg'}
-                                    alt={cat.image?.alt || cat.name}
-                                    className={s.image}
-                                />
-                                <svg className={s.arrowCat} width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="1" y="1" width="54" height="54" rx="11" fill="#FFFEFC"/>
-                                    <rect x="1" y="1" width="54" height="54" rx="11" stroke="#003C3A" strokeWidth="2"/>
-                                    <path d="M23 33L33 23M33 23H23M33 23V33" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                            </div>
-                            <div className={s.meta}>
-                                <span className={s.count}>{cat.count} {t('products_count')}</span>
-                                <h3 className={s.catTitle}>{cat.name}</h3>
-                            </div>
-                        </Link>
-                    ))}
+                    {[...categories]
+                        .sort((a, b) => (b.count || 0) - (a.count || 0))
+                        .map((cat) => (
+                            <Link to={`${langPrefix}/product-category/${cat.slug}`} key={cat.id} className={s.card}>
+                                <div className={s.wrapImgCat}>
+                                    <img
+                                        src={cat.image?.src || '../images/category-img.jpg'}
+                                        alt={cat.image?.alt || cat.name}
+                                        className={s.image}
+                                    />
+                                    <svg className={s.arrowCat} width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="1" y="1" width="54" height="54" rx="11" fill="#FFFEFC"/>
+                                        <rect x="1" y="1" width="54" height="54" rx="11" stroke="#003C3A" strokeWidth="2"/>
+                                        <path d="M23 33L33 23M33 23H23M33 23V33" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div className={s.meta}>
+                                    <span className={s.count}>{cat.count} {t('products_count')}</span>
+                                    <h3 className={s.catTitle}>{cat.name}</h3>
+                                </div>
+                            </Link>
+                        ))}
                 </div>
             )}
         </section>

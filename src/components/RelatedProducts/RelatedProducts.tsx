@@ -1,6 +1,6 @@
 import { useEffect, useState, useId } from 'react';
 import { ProductInfo } from '../../types/productTypes';
-import { getProducts } from '../../services/fetchProducts';
+import { getRelatedProducts } from '../../services/getRelatedProducts.ts';
 import ProductItem from '../ProductItem/ProductItem';
 import s from './RelatedProducts.module.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -25,31 +25,17 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
 
     const { i18n } = useTranslation();
 
+
+
     useEffect(() => {
         const fetchRelated = async () => {
             setLoading(true);
             try {
-
-                const products = await getProducts();
-
-                // 1️⃣ Фільтруємо тільки ті, що не приховані
-                const catalogProducts = products.filter(p => !p.hiddenInCatalog);
-
-                // ID категорій товару
+                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
                 const categoryIds = relatedToProduct.categories.map((cat) => cat.id);
 
-                const filtered = catalogProducts
-                    .filter((product) => {
-                        // Виняток для самого товару
-                        if (product.id === relatedToProduct.id) return false;
-
-                        // Порівнюємо категорії
-                        const productCatIds = product.categories.map((cat) => cat.id);
-                        return productCatIds.some((id) => categoryIds.includes(id));
-                    })
-                    .slice(0, 12); // обмеження до 12
-
-                setRelatedProducts(filtered);
+                const related = await getRelatedProducts(categoryIds, relatedToProduct.id, lang);
+                setRelatedProducts(related);
             } catch (err) {
                 console.error('Помилка при завантаженні релевантних товарів:', err);
                 setRelatedProducts([]);
@@ -59,7 +45,8 @@ const RelatedProducts = ({ relatedToProduct, title }: SliderProductsProps) => {
         };
 
         fetchRelated();
-    }, [relatedToProduct, i18n.language]); // додали i18n.language
+    }, [relatedToProduct, i18n.language]);
+
 
 
     const prevId = `prev-${uniqueId}`;

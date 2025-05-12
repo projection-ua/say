@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux';
 import { ProductInfo, Variation } from '../../types/productTypes';
-import { getProducts } from '../../services/fetchProducts';
 import { getVariationsByProductId } from '../../services/fetchProductVariations';
 import { addToCart } from '../../store/slices/cartSlice';
 import s from './ProductPage.module.css';
@@ -31,6 +30,7 @@ import {useTranslation} from "react-i18next";
 import { Link } from 'react-router-dom';
 
 import { gtagEvent } from '../../gtag';
+import {getProductBySlug} from "../../services/getProductBySlug.ts";
 
 const ProductPage = () => {
     const { slug, colorSlug } = useParams();
@@ -215,33 +215,43 @@ const ProductPage = () => {
             try {
                 const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
 
-                const products = await getProducts();
-                const found = products.find((p) => p.slug === slug);
-                setProduct(found || null);
+                if (!slug) {
+                    setProduct(null);
+                    setVariations([]);
+                    return;
+                }
+
+                const product = await getProductBySlug(slug, lang);
+
+                if (!product) {
+                    setProduct(null);
+                    setVariations([]);
+                    return;
+                }
+
+                setProduct(product);
                 setSelectedOptions({});
                 setSelectedVariation(null);
 
-                if (found) {
-                    const fetchedVariations = await getVariationsByProductId(found.id, lang);
-                    setVariations(fetchedVariations);
+                const fetchedVariations = await getVariationsByProductId(product.id, lang);
+                setVariations(fetchedVariations);
 
-                    const initialOptions: Record<string, string> = {};
+                const initialOptions: Record<string, string> = {};
 
-                    found.attributes.forEach(attr => {
-                        if (attr.slug === 'pa_kolir' && colorSlug) {
-                            const matchedOption = attr.options.find(opt => opt.slug === colorSlug);
-                            if (matchedOption) {
-                                initialOptions[attr.name] = matchedOption.name; // Woo API потрібен name
-                            } else if (attr.options[0]) {
-                                initialOptions[attr.name] = attr.options[0].name;
-                            }
+                product.attributes.forEach(attr => {
+                    if (attr.slug === 'pa_kolir' && colorSlug) {
+                        const matchedOption = attr.options.find(opt => opt.slug === colorSlug);
+                        if (matchedOption) {
+                            initialOptions[attr.name] = matchedOption.name;
                         } else if (attr.options[0]) {
                             initialOptions[attr.name] = attr.options[0].name;
                         }
-                    });
+                    } else if (attr.options[0]) {
+                        initialOptions[attr.name] = attr.options[0].name;
+                    }
+                });
 
-                    setSelectedOptions(initialOptions);
-                }
+                setSelectedOptions(initialOptions);
             } catch (err) {
                 console.error('❌ Failed to fetch product or variations:', err);
                 setProduct(null);
@@ -252,7 +262,7 @@ const ProductPage = () => {
         };
 
         fetchProduct();
-    }, [slug, colorSlug, i18n.language]); // додали i18n.language
+    }, [slug, colorSlug, i18n.language]);
 
 
 

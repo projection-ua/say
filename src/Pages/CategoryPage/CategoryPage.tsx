@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
 import {Link, useSearchParams, useParams, useLocation, useNavigate} from 'react-router-dom';
-import { getProducts } from '../../services/fetchProducts';
 import { getCategories } from '../../services/fetchCategories.ts';
 import { CategoryInfo } from '../../types/categoryTypes.ts';
 import { ProductInfo } from '../../types/productTypes';
@@ -9,6 +8,7 @@ import s from './CategoryPage.module.css';
 import CatalogFilters from '../../components/CatalogFilters/CatalogFilters';
 import Loader from '../../components/Loader/Loader';
 import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs.tsx';
+import { fetchProductsByCategorySlug } from '../../services/fetchProductsByCategory';
 
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {apiUrlWp, consumerKey, consumerSecret} from "../../App.tsx";
@@ -58,6 +58,7 @@ const CategoryPage = () => {
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isSortOpen, setIsSortOpen] = useState(false);
+
     const [visibleCount, setVisibleCount] = useState(18);
 
     const [selectedSubcategory, setSelectedSubcategory] = useState(() => searchParams.get('subcat') || null);
@@ -132,68 +133,27 @@ const CategoryPage = () => {
             setLoading(true);
             try {
                 const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
-
-                const [allProducts, categories] = await Promise.all([
-                    getProducts(),
-                    getCategories(lang),
-                ]);
-
-                console.log(`✅ Завантажено ${allProducts.length} продуктів`);
-                console.log(`✅ Завантажено ${categories.length} категорій`);
-
+                const categories = await getCategories(lang);
                 const current = slug ? categories.find(cat => cat.slug === slug) || null : null;
                 setCategory(current);
-
                 const children = slug
-                    ? categories.filter(cat =>
-                        cat.parent === current?.id &&
-                        !['без категорії', 'без категории'].includes(cat.name.toLowerCase())
-                    )
-                    : categories.filter(cat =>
-                        cat.parent === 0 &&
-                        !['без категорії', 'без категории'].includes(cat.name.toLowerCase())
-                    );
-
-
+                    ? categories.filter(cat => cat.parent === current?.id && !['без категорії', 'без категории'].includes(cat.name.toLowerCase()))
+                    : categories.filter(cat => cat.parent === 0 && !['без категорії', 'без категории'].includes(cat.name.toLowerCase()));
                 setSubcategories(children);
 
-                console.log('🔎 current:', current);
-                console.log('🔎 current id:', current?.id);
-                console.log('🔎 categories:', categories);
-
-                const filtered = slug
-                    ? allProducts.filter(product =>
-                        product.categories?.some(cat => cat.slug === slug)
-                    )
-                    : allProducts;
-
-                setProducts(filtered);
-            } catch (error) {
-                console.error('❌ Помилка при завантаженні категорії або продуктів:', error);
+                // просто отримаємо ВСІ товари (можеш поставити per_page=100, або збільшити, якщо треба)
+                const fetched = await fetchProductsByCategorySlug(slug || null, 1, lang);
+                setProducts(fetched);
+                setVisibleCount(18); // 🟢 скидай при оновленні категорії
+            } catch (err) {
+                console.error('❌ Помилка при завантаженні:', err);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchData();
     }, [slug, i18n.language]);
 
-
-
-    const allAttributes = useMemo(() => {
-        const attributesMap: Record<string, Set<string>> = {};
-        products.forEach((product) => {
-            (product.attributes ?? []).forEach(({ name, options }) => {
-                if (!attributesMap[name]) attributesMap[name] = new Set();
-                options.forEach((opt) => attributesMap[name].add(opt.name));
-            });
-        });
-        return Object.entries(attributesMap).map(([name, options]) => ({
-            name,
-            slug: name.toLowerCase().replace(/\s+/g, '-'),
-            options: Array.from(options),
-        }));
-    }, [products]);
 
     const filteredProducts = useMemo(() => {
         const catalogProducts = products.filter(p => !p.hiddenInCatalog); // 👈 фільтр прихованих
@@ -237,6 +197,7 @@ const CategoryPage = () => {
     }, [products, selectedSubcategory, selectedAttributes, priceRange]);
 
 
+
     const sortedProducts = useMemo(() => {
         let sorted = [...filteredProducts];
         if (sortOption === 'bestsellers') {
@@ -257,13 +218,42 @@ const CategoryPage = () => {
         return sorted;
     }, [filteredProducts, sortOption]);
 
+
     const visibleProducts = useMemo(() => {
         return sortedProducts.slice(0, visibleCount);
     }, [sortedProducts, visibleCount]);
 
+
     const handleLoadMore = () => {
         setVisibleCount(prev => prev + 18);
     };
+
+
+
+
+
+    const allAttributes = useMemo(() => {
+        const attributesMap: Record<string, Set<string>> = {};
+        products.forEach((product) => {
+            (product.attributes ?? []).forEach(({ name, options }) => {
+                if (!attributesMap[name]) attributesMap[name] = new Set();
+                options.forEach((opt) => attributesMap[name].add(opt.name));
+            });
+        });
+        return Object.entries(attributesMap).map(([name, options]) => ({
+            name,
+            slug: name.toLowerCase().replace(/\s+/g, '-'),
+            options: Array.from(options),
+        }));
+    }, [products]);
+
+
+
+
+
+
+
+
 
     const applyFilters = () => {
         const params: Record<string, string> = {};
@@ -352,11 +342,23 @@ const CategoryPage = () => {
             </HelmetProvider>
 
 
-            <div
-                className={s.heroBanner}
-                style={{ backgroundImage: `url(${category?.image?.src || '/images/category-placeholder.jpg'})` }}
-            >
-                {category && (
+            {category?.parent !== 0 ? (
+                // 🔸 Банер для підкатегорії
+                <div className={s.heroBannerSmall}>
+                    <Breadcrumbs
+                        variant="default"
+                        crumbs={[
+                            { label: 'Головна', url: `${langPrefix}/` },
+                            { label: category?.name || 'Каталог' },
+                        ]}
+                    />
+                    <h1 className={s.categoryTitleSmall}>{category?.name}</h1>
+                </div>
+            ) : (
+                <div
+                    className={s.heroBanner}
+                    style={{ backgroundImage: `url(${category?.image?.src || '/images/category-placeholder.jpg'})` }}
+                >
                     <Breadcrumbs
                         variant="catalog"
                         crumbs={[
@@ -364,9 +366,10 @@ const CategoryPage = () => {
                             { label: category?.name || 'Каталог' },
                         ]}
                     />
-                )}
-                <h1 className={s.categoryTitle}>{category?.name || 'Каталог'}</h1>
-            </div>
+                    <h1 className={s.categoryTitle}>{category?.name || 'Каталог'}</h1>
+                </div>
+            )}
+
 
             <div className={s.container}>
                 {subcategories.length > 0 && (
@@ -377,11 +380,6 @@ const CategoryPage = () => {
                                 key={subcategory.id}
                                 className={s.subcategoryCard}
                             >
-                                <img
-                                    src={subcategory.image?.src || '/images/category-placeholder.jpg'}
-                                    alt={subcategory.name}
-                                    className={s.subcategoryImage}
-                                />
                                 <p className={s.subcategoryName}>{subcategory.name}</p>
                             </Link>
                         ))}
@@ -459,13 +457,14 @@ const CategoryPage = () => {
                                     <p>Товари не знайдено.</p>
                                 )}
                             </div>
-                            {!loading && visibleProducts.length < sortedProducts.length && (
+                            {!loading && visibleCount < sortedProducts.length && (
                                 <div className={s.loadMoreWrapper}>
                                     <button className={s.loadMoreBtn} onClick={handleLoadMore}>
                                         {t('loadMore')}
                                     </button>
                                 </div>
                             )}
+
                         </div>
 
 

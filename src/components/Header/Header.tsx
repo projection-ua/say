@@ -4,8 +4,7 @@ import s from './Header.module.css';
 import Loader from '../Loader/Loader'; // шлях змінюй залежно від структури
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
-import { setCartOpen } from '../../store/slices/cartSlice'; // якщо ти маєш екшен для відкриття Drawer
-import { getCategoryBySlug } from '../../services/fethCategoryBySlug.ts'
+import { setCartOpen } from '../../store/slices/cartSlice';
 import { WishlistPopup } from '../WishlistPopup/WishlistPopup';
 import SearchModal from '../SearchModal/SearchModal.tsx'; // правильний імпорт
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +19,7 @@ interface MenuItem {
     title: string;
     url: string;
     parent_id: string;
+    image: string;
 }
 
 interface Menu {
@@ -37,7 +37,6 @@ const Header = () => {
 
     const dispatch = useDispatch();
     const cartItems = useSelector((state: RootState) => state.cart.items);
-    const [categoryImages, setCategoryImages] = useState<Record<string, string>>({});
 
     const totalCartQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -100,30 +99,6 @@ const Header = () => {
 
 
 
-
-
-    const loadCategoryImage = async (slug: string) => {
-        if (categoryImages[slug]) return; // якщо вже є, не грузимо повторно
-
-        const data = await getCategoryBySlug(slug);
-        if (Array.isArray(data) && data[0]?.image?.src) {
-            setCategoryImages((prev) => ({ ...prev, [slug]: data[0].image.src }));
-        }
-
-        console.log(data);
-    };
-
-    useEffect(() => {
-        mainMenuItems.forEach((item) => {
-            const hasChildren = mainMenuItems.some((child) => child.parent_id === item.id.toString());
-            if (hasChildren) {
-                const slug = getLastSlug(item.url);
-                loadCategoryImage(slug);
-            }
-        });
-    }, [mainMenuItems]);
-
-
     const handleOpenCart = () => {
         dispatch(setCartOpen(true)); // якщо у тебе є action setCartOpen або щось подібне
     };
@@ -160,7 +135,6 @@ const Header = () => {
 
                 if (mainMenu) {
                     setMainMenuItems(mainMenu.items);
-                    setCategoryImages({}); // 🧹 скидаємо, щоб було чисто для нової мови
                 } else {
                     console.warn(`No menu found for slug: ${expectedSlug}`);
                 }
@@ -326,9 +300,9 @@ const Header = () => {
                                                                 className={s.newsBaner}
                                                             >
                                                                 <span>{t('new_from_say')}</span>
-                                                                {categoryImages[slug] && (
+                                                                {parent.image && (
                                                                     <img
-                                                                        src={categoryImages[slug]}
+                                                                        src={parent.image}
                                                                         alt={t('news_menu')}
                                                                         className={s.imgCategory}
                                                                         loading="lazy"

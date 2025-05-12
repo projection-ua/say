@@ -1,6 +1,7 @@
+// ✅ src/components/SliderProducts/SliderProducts.tsx
 import { useEffect, useState, useId } from 'react';
 import { ProductInfo } from '../../types/productTypes';
-import { getProducts } from '../../services/fetchProducts'; // 🔄 без аргументу
+import { fetchSliderProducts } from '../../services/fetchSliderProducts';
 import ProductItem from '../ProductItem/ProductItem';
 import s from './SliderProducts.module.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -38,43 +39,11 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
         const fetchFiltered = async () => {
             try {
                 setLoading(true);
-                const products = await getProducts(); // ✅ без аргументу
-
+                const products = await fetchSliderProducts(filterTag);
                 const catalogProducts = products.filter((product) => !product.hiddenInCatalog);
-
-                const filtered = catalogProducts.filter((product) => {
-                    if (filterTag === 'sale') {
-                        const salePrice = parseFloat(product.sale_price);
-                        const regularPrice = parseFloat(product.regular_price);
-                        const isMainProductOnSale = (
-                            product.on_sale ||
-                            (!isNaN(salePrice) && !isNaN(regularPrice) && salePrice < regularPrice)
-                        );
-                        const isVariationOnSale = Array.isArray(product.variations) &&
-                            product.variations.some((variation) => {
-                                const varSale = parseFloat(variation.sale_price);
-                                const varRegular = parseFloat(variation.regular_price);
-                                return (
-                                    variation.on_sale ||
-                                    (!isNaN(varSale) && !isNaN(varRegular) && varSale < varRegular)
-                                );
-                            });
-                        return isMainProductOnSale || isVariationOnSale;
-                    }
-
-                    if (filterTag === 'new') {
-                        if (!product.date_created) return false;
-                        const createdDate = new Date(product.date_created);
-                        const daysDiff = (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
-                        return daysDiff <= 30;
-                    }
-
-                    return false;
-                });
-
-                setFilteredProducts(filtered.slice(0, 12));
+                setFilteredProducts(catalogProducts.slice(0, 12));
             } catch (err) {
-                console.error('❌ Failed to load products:', err);
+                console.error('❌ Failed to load slider products:', err);
                 setFilteredProducts([]);
             } finally {
                 setLoading(false);
@@ -82,7 +51,7 @@ const SliderProducts = ({ filterTag, title }: SliderProductsProps) => {
         };
 
         fetchFiltered();
-    }, [filterTag, i18n.language]); // 🔁 перезавантаження при зміні мови
+    }, [filterTag, i18n.language]);
 
     const prevId = `prev-${uniqueId}`;
     const nextId = `next-${uniqueId}`;
