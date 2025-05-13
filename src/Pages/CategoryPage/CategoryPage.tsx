@@ -357,7 +357,7 @@ const CategoryPage = () => {
             ) : (
                 <div
                     className={s.heroBanner}
-                    style={{ backgroundImage: `url(${category?.image?.src || '/images/category-placeholder.jpg'})` }}
+                    style={{ backgroundImage: `url(${category?.custom_category_image?.src || '/images/category-placeholder.jpg'})` }}
                 >
                     <Breadcrumbs
                         variant="catalog"

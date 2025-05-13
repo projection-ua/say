@@ -202,7 +202,7 @@ const CatalogFilters = ({
                         </div>
                         {openBlocks[blockId] && (
                             <ul className={s.optionsList}>
-                                {(attr.slug === "pa_kolir"
+                                {(attr.slug === "pa_kolir" || attr.slug === 'kolir'
                                         ? attributeColor.map((color) => {
                                             const colorName = color.id_variations.variation_atribute_color;
 
@@ -213,7 +213,7 @@ const CatalogFilters = ({
                                             });
 
                                             return (
-                                                <li key={`${attr.slug}-${color.id_variations.variation_id}`}>
+                                                <li key={`${attr.slug}-${color.id_variations.variation_id}`} className={`${attr.slug}-${color.id_variations.variation_id}`}>
                                                     <label>
                                                         <input
                                                             type="checkbox"
@@ -226,7 +226,7 @@ const CatalogFilters = ({
                                             );
                                         })
                                         : attr.options.map((opt) => (
-                                            <li key={opt}>
+                                            <li key={opt} className={opt}>
                                                 <label>
                                                     <input
                                                         type="checkbox"
