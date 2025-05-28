@@ -11,7 +11,7 @@ import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs.tsx';
 import { fetchProductsByCategorySlug } from '../../services/fetchProductsByCategory';
 
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import {apiUrlWp, consumerKey, consumerSecret} from "../../App.tsx";
+import { API_BASE_URL } from '../../config/api';
 import {useTranslation} from "react-i18next";
 
 const useIsMobile = () => {
@@ -38,16 +38,14 @@ const CategoryPage = () => {
 
     useEffect(() => {
         const fetchSeo = async () => {
-            const lang = i18n.language === 'ua' || i18n.language === 'uk' ? '' : `&lang=${i18n.language}`;
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/categories?slug=${slug}${lang}`);
+            const lang = i18n.language === 'ua' || i18n.language === 'uk' ? '' : i18n.language;
+            const url = `${API_BASE_URL}/category-seo?slug=${slug}${lang ? `&lang=${lang}` : ''}`;
+            const response = await fetch(url);
             const data = await response.json();
-            setSeoData(data[0]?.yoast_head_json);
+            setSeoData(data);
         };
-
-        fetchSeo();
+        if (slug) fetchSeo();
     }, [slug, i18n.language]);
-
-
 
     const [products, setProducts] = useState<ProductInfo[]>([]);
     const [loading, setLoading] = useState(true);
@@ -55,6 +53,9 @@ const CategoryPage = () => {
     const [subcategories, setSubcategories] = useState<CategoryInfo[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
     const isMobile = useIsMobile();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isSortOpen, setIsSortOpen] = useState(false);
@@ -77,57 +78,6 @@ const CategoryPage = () => {
     });
     const [sortOption, setSortOption] = useState(() => searchParams.get('sort') || 'default');
 
-
-    const [hasRedirected, setHasRedirected] = useState(false);
-
-    useEffect(() => {
-        if (!category?.translations || hasRedirected) return;
-
-        const newLang = i18n.language === 'ua' ? 'uk' : i18n.language;
-        const translatedId = category.translations[newLang];
-
-        if (!translatedId || category.id === translatedId) return;
-
-        const fetchTranslatedCategory = async () => {
-            try {
-                const authHeader = 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`);
-
-                const response = await fetch(
-                    `${apiUrlWp}wp-json/wc/v3/products/categories/${translatedId}?lang=${newLang}`,
-                    {
-                        headers: {
-                            'Authorization': authHeader,
-                        },
-                    }
-                );
-
-                const data = await response.json();
-
-                if (data?.slug) {
-                    const langPrefix = newLang === 'ru' ? '/ru' : ''; // + '/ua' якщо треба
-                    const newUrl = `${langPrefix}/product-category/${data.slug}`;
-                    const currentPath = window.location.pathname.replace(/\/$/, '');
-                    const targetPath = newUrl.replace(/\/$/, '');
-
-                    if (currentPath !== targetPath) {
-                        console.log('🔄 Перенаправлення категорії на:', targetPath);
-                        setHasRedirected(true);
-                        navigate(newUrl); // 🚀 SPA редірект
-                    } else {
-                        console.log('✅ Вже на правильній сторінці категорії');
-                    }
-                }
-
-            } catch (error) {
-                console.error('Помилка при завантаженні перекладу категорії:', error);
-            }
-        };
-
-        fetchTranslatedCategory();
-    }, [i18n.language, category, hasRedirected]);
-
-
-
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -140,11 +90,11 @@ const CategoryPage = () => {
                     ? categories.filter(cat => cat.parent === current?.id && !['без категорії', 'без категории'].includes(cat.name.toLowerCase()))
                     : categories.filter(cat => cat.parent === 0 && !['без категорії', 'без категории'].includes(cat.name.toLowerCase()));
                 setSubcategories(children);
-
-                // просто отримаємо ВСІ товари (можеш поставити per_page=100, або збільшити, якщо треба)
                 const fetched = await fetchProductsByCategorySlug(slug || null, 1, lang);
                 setProducts(fetched);
-                setVisibleCount(18); // 🟢 скидай при оновленні категорії
+                setCurrentPage(1);
+                setHasMore(fetched.length === 18);
+                setVisibleCount(18);
             } catch (err) {
                 console.error('❌ Помилка при завантаженні:', err);
             } finally {
@@ -154,28 +104,92 @@ const CategoryPage = () => {
         fetchData();
     }, [slug, i18n.language]);
 
+    useEffect(() => {
+        if (!category?.translations) return;
+
+        const newLang = i18n.language === 'ua' ? 'uk' : i18n.language;
+        const translatedId = category.translations[newLang];
+
+        if (!translatedId || category.id === translatedId) return;
+
+        const fetchTranslatedCategory = async () => {
+            try {
+                // Запит через бекенд-проксі
+                const response = await fetch(
+                    `${API_BASE_URL}/products/categories/${translatedId}?lang=${newLang}`
+                );
+                const data = await response.json();
+                const translatedCategory = Array.isArray(data) ? data[0] : data;
+
+                if (translatedCategory?.slug) {
+                    const langPrefix = newLang === 'ru' ? '/ru' : '';
+                    const newUrl = `${langPrefix}/product-category/${translatedCategory.slug}`;
+                    const currentPath = window.location.pathname.replace(/\/$/, '');
+                    const targetPath = newUrl.replace(/\/$/, '');
+
+                    if (currentPath !== targetPath) {
+                        navigate(newUrl); // 🚀 SPA редірект
+                    }
+                }
+
+            } catch (error) {
+                console.error('Помилка при завантаженні перекладу категорії:', error);
+            }
+        };
+
+        fetchTranslatedCategory();
+    }, [i18n.language, category]);
 
     const filteredProducts = useMemo(() => {
-        const catalogProducts = products.filter(p => !p.hiddenInCatalog); // 👈 фільтр прихованих
+        const catalogProducts = products.filter(p => !p.hiddenInCatalog);
+        console.log('🔍 Filtering products:', {
+            totalProducts: products.length,
+            catalogProducts: catalogProducts.length,
+            selectedSubcategory,
+            selectedAttributes,
+            priceRange
+        });
 
         return catalogProducts.filter((product) => {
             if (selectedSubcategory) {
                 const hasSubcategory = product.categories?.some(cat => cat.slug === selectedSubcategory);
-                if (!hasSubcategory) return false;
+                if (!hasSubcategory) {
+                    return false;
+                }
             }
 
             const hasActiveAttributes = Object.values(selectedAttributes).some(options => options.length > 0);
             if (hasActiveAttributes) {
+
                 for (const [attrName, selectedOptions] of Object.entries(selectedAttributes)) {
                     if (!selectedOptions.length) continue;
 
-                    if (attrName === 'Колір') {
-                        if (!selectedOptions.includes(product.colorName)) {
+                    if (attrName === 'Колір' || attrName === 'Цвет') {
+                        const productColor = (product.productColor || product.colorName)?.toLowerCase().trim();
+                        const hasSelectedColor = selectedOptions.some(selectedColor => 
+                            selectedColor.toLowerCase().trim() === productColor
+                        );
+                        
+                        if (!hasSelectedColor) {
+                            console.log('❌ Товар не відповідає вибраному кольору:', {
+                                productId: product.id,
+                                productName: product.name,
+                                productColor,
+                                colorName: product.colorName,
+                                selectedColors: selectedOptions
+                            });
                             return false;
                         }
                     } else {
                         const productAttr = product.attributes.find(attr => attr.name === attrName);
-                        if (!productAttr) return false;
+                        if (!productAttr) {
+                            console.log('❌ Атрибут не знайдено:', {
+                                productId: product.id,
+                                productName: product.name,
+                                attrName
+                            });
+                            return false;
+                        }
 
                         const hasOption = selectedOptions
                             .filter((opt: string): opt is string => typeof opt === 'string')
@@ -183,23 +197,42 @@ const CategoryPage = () => {
                                 productAttr.options.some(o => o.name === opt)
                             );
 
-                        if (!hasOption) return false;
+                        if (!hasOption) {
+                            console.log('❌ Товар не відповідає вибраному атрибуту:', {
+                                productId: product.id,
+                                productName: product.name,
+                                attrName,
+                                selectedOptions,
+                                productOptions: productAttr.options
+                            });
+                            return false;
+                        }
                     }
-
                 }
             }
 
             const price = parseFloat(product.price);
-            if (price < priceRange.min || price > priceRange.max) return false;
+            if (price < priceRange.min || price > priceRange.max) {
+                console.log('❌ Товар не відповідає діапазону цін:', {
+                    productId: product.id,
+                    productName: product.name,
+                    price,
+                    priceRange
+                });
+                return false;
+            }
 
             return true;
         });
     }, [products, selectedSubcategory, selectedAttributes, priceRange]);
 
 
-
     const sortedProducts = useMemo(() => {
         let sorted = [...filteredProducts];
+        console.log('🔍 Sorting products:', {
+            beforeSort: filteredProducts.length,
+            sortOption
+        });
         if (sortOption === 'bestsellers') {
             sorted = sorted.filter(product => product.featured);
         }
@@ -218,19 +251,27 @@ const CategoryPage = () => {
         return sorted;
     }, [filteredProducts, sortOption]);
 
-
     const visibleProducts = useMemo(() => {
         return sortedProducts.slice(0, visibleCount);
     }, [sortedProducts, visibleCount]);
 
-
-    const handleLoadMore = () => {
-        setVisibleCount(prev => prev + 18);
+    const handleLoadMore = async () => {
+        if (isLoadingMore || !hasMore) return;
+        setIsLoadingMore(true);
+        try {
+            const nextPage = currentPage + 1;
+            const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+            const newProducts = await fetchProductsByCategorySlug(slug || null, nextPage, lang);
+            setProducts(prev => [...prev, ...newProducts]);
+            setCurrentPage(nextPage);
+            setHasMore(newProducts.length === 18);
+            setVisibleCount(prev => prev + 18);
+        } catch (err) {
+            console.error('❌ Помилка при завантаженні додаткових товарів:', err);
+        } finally {
+            setIsLoadingMore(false);
+        }
     };
-
-
-
-
 
     const allAttributes = useMemo(() => {
         const attributesMap: Record<string, Set<string>> = {};
@@ -240,20 +281,14 @@ const CategoryPage = () => {
                 options.forEach((opt) => attributesMap[name].add(opt.name));
             });
         });
-        return Object.entries(attributesMap).map(([name, options]) => ({
-            name,
-            slug: name.toLowerCase().replace(/\s+/g, '-'),
-            options: Array.from(options),
-        }));
+        return Object.entries(attributesMap)
+            .map(([name, options]) => ({
+                name,
+                slug: name.toLowerCase().replace(/\s+/g, '-'),
+                options: Array.from(options),
+            }))
+            .filter(attr => attr.name !== 'Розмірна сітка' && attr.slug !== 'pa_rozmirna-sitka');
     }, [products]);
-
-
-
-
-
-
-
-
 
     const applyFilters = () => {
         const params: Record<string, string> = {};
@@ -291,8 +326,6 @@ const CategoryPage = () => {
         setSearchParams(params);
     };
 
-
-
     const allAttributeColors = Array.from(new Set(
         products
             .filter(p => !!p.colorName)
@@ -307,16 +340,23 @@ const CategoryPage = () => {
             .map(c => c.id_variations.variation_atribute_color)
     )).map(colorName => ({
         id_variations: {
-            variation_id: 0, // це опціонально якщо не треба id
+            variation_id: 0,
             variation_atribute_color: colorName,
-            variation_slug: '', // теж якщо потрібно
+            variation_slug: '',
         },
     }));
 
-
-
-
-
+    useEffect(() => {
+        console.log('🔍 Load more button visibility:', {
+            loading,
+            currentPage,
+            hasMore,
+            shouldShow: !loading && hasMore,
+            productsCount: products.length,
+            visibleProductsCount: visibleProducts.length,
+            visibleCount
+        });
+    }, [loading, currentPage, hasMore, products.length, visibleProducts.length, visibleCount]);
 
     return (
         <div className={s.categoryPage}>
@@ -340,7 +380,6 @@ const CategoryPage = () => {
                 />
             </Helmet>
             </HelmetProvider>
-
 
             {category?.parent !== 0 ? (
                 // 🔸 Банер для підкатегорії
@@ -369,7 +408,6 @@ const CategoryPage = () => {
                     <h1 className={s.categoryTitle}>{category?.name || 'Каталог'}</h1>
                 </div>
             )}
-
 
             <div className={s.container}>
                 {subcategories.length > 0 && (
@@ -457,17 +495,18 @@ const CategoryPage = () => {
                                     <p>Товари не знайдено.</p>
                                 )}
                             </div>
-                            {!loading && visibleCount < sortedProducts.length && (
+                            {!loading && hasMore && (
                                 <div className={s.loadMoreWrapper}>
-                                    <button className={s.loadMoreBtn} onClick={handleLoadMore}>
-                                        {t('loadMore')}
+                                    <button 
+                                        className={s.loadMoreBtn} 
+                                        onClick={handleLoadMore}
+                                        disabled={isLoadingMore}
+                                    >
+                                        {isLoadingMore ? t('loading') : t('loadMore')}
                                     </button>
                                 </div>
                             )}
-
                         </div>
-
-
                     </div>
                 </div>
             </div>

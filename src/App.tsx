@@ -18,6 +18,7 @@ import { OrderSuccesWrapper } from './Pages/SuccessPage/OrderSuccesWrapper';
 import FaqPage from './Pages/FaqPage/FaqPage.tsx';
 import PrivacyPolicyPage from './Pages/PrivacyPolicyPage/PrivacyPolicyPage.tsx';
 import NotFoundPage from './components/NotFoundPage/NotFoundPage';
+import { WP_API_URL } from './config/api';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -29,14 +30,10 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-
 import i18n from './i18n';
 
 export const lang = i18n.language === 'ua' ? 'ru' : i18n.language; // WPML використовує 'uk' для української
-export const apiUrlWp = 'https://api.say.in.ua/';
-export const apiUrl = 'https://api.say.in.ua/wp-json/wc/v3/products';
-export const consumerKey = 'ck_49130dfdfc750a8753ce12f98c540d6fc3d7bb77';
-export const consumerSecret = 'cs_6793be5b47938c68448ba978d3aeb661a6a72a3f';
+
 
 export interface SlideData {
     id: number;
@@ -50,21 +47,16 @@ const Layout: React.FC = () => {
 
     const location = useLocation();
 
-    const isCheckoutPage = location.pathname.includes('/checkout'); // або точна перевірка location.pathname === '/checkout'
+    const isCheckoutPage = location.pathname.includes('/checkout');
 
-
-    const lang = location.pathname.startsWith('/ru') ? 'ru' : 'ua';
-
-    useEffect(() => {
-        i18n.changeLanguage(lang);
-    }, [lang]);
 
     const [slides, setSlides] = useState<SlideData[]>([]);
 
     useEffect(() => {
         const fetchSlides = async () => {
             try {
-                const response = await fetch(`${apiUrlWp}wp-json/wp/v2/banner`);
+                const lang = i18n.language === 'ua' || i18n.language === 'uk' ? '' : `?lang=${i18n.language}`;
+                const response = await fetch(`${WP_API_URL}wp-json/wp/v2/banner${lang}`);
                 const data = await response.json();
 
                 const mappedSlides = data.map((item: any) => ({
@@ -83,7 +75,17 @@ const Layout: React.FC = () => {
         };
 
         fetchSlides();
-    }, []);
+    }, [i18n.language]); // 🟢 тільки ця залежність
+
+
+    useEffect(() => {
+        const lang = location.pathname.startsWith('/ru') ? 'ru' : 'ua';
+        if (i18n.language !== lang) {
+            i18n.changeLanguage(lang);
+        }
+    }, [location.pathname]);
+
+
 
 
 

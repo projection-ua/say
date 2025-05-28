@@ -84,9 +84,15 @@ const CartDrawer = () => {
                                                     <p className={s.name}>{item.name}</p>
                                                     {item.attributes && (
                                                         <div className={s.attrs}>
-                                                            {Object.entries(item.attributes).map(([key, value]) => (
-                                                                <p key={key} className={s.attr}>{key}: {value}</p>
-                                                            ))}
+                                                            {Object.entries(item.attributes).map(([key, value]) => {
+                                                                const attr = item.productAttributes?.find(a => a.slug === key);
+                                                                const option = attr?.options?.find(opt => opt.slug === value || opt.name === value);
+                                                                return (
+                                                                    <p key={key} className={s.attr}>
+                                                                        {attr?.name || key}: {option?.name || value}
+                                                                    </p>
+                                                                );
+                                                            })}
                                                         </div>
                                                     )}
                                                 </div>

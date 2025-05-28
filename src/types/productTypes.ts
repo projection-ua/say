@@ -14,7 +14,6 @@ export type ProductInfo = {
     date_created: string;
     categories: Category[];
     price_html: string;
-    attribute_color: AttributeOption[];
     stock_status: string;
     meta_data?: MetaDataItem[];
     variations: Variation[]; // 🔄 Замість number[]
@@ -22,6 +21,7 @@ export type ProductInfo = {
         name: string;
         slug: string;
         options: AttributeOption[];
+        variation: boolean;
     }[];
     featured: boolean;
     quantity: number;
@@ -34,6 +34,18 @@ export type ProductInfo = {
     type: string;
     colorName: string;
     hiddenInCatalog: boolean;
+    productColor?: string;
+    seo?: {
+        title: string;
+        description: string;
+        keywords?: string;
+    };
+    collection_related_products?: {
+        id: number;
+        title: string;
+        link: string;
+    }[];
+    yoast_head_json?: any;
 };
 
 
@@ -76,6 +88,7 @@ export interface Variation {
     images: { src: string }[];
     attributes: {
         name: string;
+        slug: string;
         option: string;
     }[];
 }

@@ -2,7 +2,7 @@ import s from './DeliveryAndPaymentPage.module.css';
 import {Breadcrumbs} from "../../components/Breadcrumbs/Breadcrumbs.tsx";
 
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import {apiUrlWp} from "../../App.tsx";
+import { API_BASE_URL } from '../../config/api';
 import {useLocation} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
@@ -16,9 +16,10 @@ export const DeliveryPage = () => {
 
     useEffect(() => {
         const fetchSeo = async () => {
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/pages?slug=how-to-buy`);
+            const url = `${API_BASE_URL}/page-seo?slug=how-to-buy`;
+            const response = await fetch(url);
             const data = await response.json();
-            setSeoData(data[0]?.yoast_head_json);
+            setSeoData(data);
         };
 
         fetchSeo();
@@ -64,10 +65,10 @@ export const DeliveryPage = () => {
                     {cards.map((card, index) => (
                         <div key={index} className={s.card}>
                             <div className={s.iconTitle}>
-                                <img src={`/icons/${index === 0 ? 'np-icon.png' : index === 1 ? 'ukr-icon.png' : index === 2 ? 'apple-pay.svg' : 'bank-card.svg'}`} alt={card.title} />
+                                <img src={`/icons/${index === 0 ? 'np-icon.png' : index === 1 ? 'apple-pay.svg' : 'bank-card.svg'}`} alt={card.title} />
                                 <h3>{card.title}</h3>
                             </div>
-                            <p>{card.text}</p>
+                            <p dangerouslySetInnerHTML={{ __html: card.text }} />
                         </div>
                     ))}
                 </div>

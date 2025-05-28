@@ -88,6 +88,8 @@
     font-weight: 500;
     line-height: normal;
     transition-duration: 0.3s;
+    text-decoration: none;
+    display: inline-block;
 }
 .optionBtn:hover{
     border-color: #0c1618;
@@ -96,6 +98,21 @@
     background: #003C3A;
     border-color: #003C3A;
     color: #fff;
+}
+
+/* Спеціальні стилі для кольорових посилань */
+.optionBtn[style*="background-color"] {
+    color: transparent;
+    position: relative;
+}
+
+.optionBtn[style*="background-color"]:hover {
+    color: #fff;
+}
+
+.optionBtn[style*="background-color"].active {
+    color: #fff;
+    box-shadow: 0 0 0 2px #003C3A;
 }
 
 .priceWrap {
@@ -744,4 +761,8 @@
     .quantityBtn:hover path{
         fill: #fff;
     }
+}
+
+.hidden {
+    display: none;
 }

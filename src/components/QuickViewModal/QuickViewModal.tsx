@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ProductInfo, Variation } from '../../types/productTypes';
 import s from './QuickViewModal.module.css';
-import { getVariationsByProductId } from '../../services/fetchProductVariations';
+import { fetchProductVariations } from '../../services/fetchProductVariations';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -14,6 +14,7 @@ import {RootState} from "../../store/store.ts";
 import {addToWishlist, removeFromWishlist} from "../../store/slices/wishlistSlice.ts";
 import SizeChartModal from '../../components/SizeChart/SizeChart.tsx';
 import {useTranslation} from "react-i18next";
+import { fbq } from '../../utils/metaPixel';
 
 interface Props {
     product: ProductInfo;
@@ -32,8 +33,6 @@ const QuickViewModal = ({ product, onClose }: Props) => {
     const { t, i18n } = useTranslation();
     const langPrefix = i18n.language === 'ua' ? '/ua' : i18n.language === 'ru' ? '/ru' : '';
 
-    const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
-
     const wishList = useSelector((state: RootState) => state.wishlist.items);
     const isInWishlist    = wishList.some((item) => item.id === product?.id);
     const handleWishlistToggle = () => {
@@ -49,42 +48,57 @@ const QuickViewModal = ({ product, onClose }: Props) => {
     useEffect(() => {
         setMounted(true);
         const fetch = async () => {
-            const result = await getVariationsByProductId(product.id, lang);
+            const result = await fetchProductVariations(product.id);
             setVariations(result);
+
+            // Ініціалізуємо початкові опції тільки для атрибутів, які є в варіаціях
+            const initialOptions: Record<string, string> = {};
+            const variationAttributes = new Set(result.flatMap(v => v.attributes.map(a => a.slug)));
+
+            product.attributes.forEach(attr => {
+                if (variationAttributes.has(attr.slug) && attr.options[0]) {
+                    initialOptions[attr.slug] = attr.options[0].name;
+                }
+            });
+
+            setSelectedOptions(initialOptions);
         };
         fetch();
     }, [product]);
 
     useEffect(() => {
-        const matched = variations.find((variation) => {
-            if (!Array.isArray(variation.attributes)) return false;
+        if (!product || variations.length === 0) return;
 
-            return (
-                variation.attributes.length === Object.keys(selectedOptions).length &&
-                variation.attributes.every(attr => selectedOptions[attr.name] === attr.option)
-            );
+        const matched = variations.find((variation) => {
+            return variation.attributes.every(attr => {
+                const selected = selectedOptions[attr.slug];
+                return selected === attr.option;
+            });
         });
 
         setSelectedVariation(matched || null);
-    }, [selectedOptions, variations]);
+    }, [selectedOptions, variations, product]);
 
-    const handleSelectOption = (name: string, option: string) => {
-        setSelectedOptions(prev => ({ ...prev, [name]: option }));
+    const handleSelectOption = (slug: string, option: string) => {
+        // Знаходимо варіацію з цим значенням атрибута
+        const variationWithOption = variations.find(v => 
+            v.attributes.some(attr => 
+                attr.slug === slug && attr.option === option
+            )
+        );
+
+        if (variationWithOption) {
+            // Оновлюємо всі атрибути з варіації
+            const newOptions = { ...selectedOptions };
+            variationWithOption.attributes.forEach(attr => {
+                newOptions[attr.slug] = attr.option;
+            });
+            setSelectedOptions(newOptions);
+        } else {
+            // Якщо варіацію не знайдено, просто оновлюємо один атрибут
+            setSelectedOptions(prev => ({ ...prev, [slug]: option }));
+        }
     };
-
-    useEffect(() => {
-        if (!product?.attributes) return;
-
-        const initialOptions: Record<string, string> = {};
-
-        product.attributes.forEach(attr => {
-            if (attr.options.length > 0) {
-                initialOptions[attr.name] = attr.options[0].name; // ← взяли ім'я першої опції
-            }
-        });
-
-        setSelectedOptions(initialOptions);
-    }, [product]);
 
     const isOutOfStock = selectedVariation
         ? selectedVariation.stock_status === 'outofstock' || selectedVariation.stock_quantity === 0
@@ -115,7 +129,17 @@ const QuickViewModal = ({ product, onClose }: Props) => {
             attributes: selectedVariation && Object.keys(selectedOptions).length
                 ? selectedOptions
                 : undefined,
+            productAttributes: product.attributes,
         }));
+
+        // Meta Pixel AddToCart event
+        fbq('track', 'AddToCart', {
+            content_ids: [product.id],
+            content_name: product.name,
+            content_type: 'product',
+            value: Number(selectedVariation?.price || product.price),
+            currency: 'UAH',
+        });
 
         onClose();
         dispatch(setCartOpen(true));
@@ -179,22 +203,28 @@ const QuickViewModal = ({ product, onClose }: Props) => {
                             </div>
                         </div>
 
-                        {product.attributes.map((attr) => (
-                            <div key={attr.name} className={s.attributeGroup}>
-                                <h4 className={s.nameAtribute}>{attr.name}</h4>
-                                <div className={s.options}>
-                                    {attr.options.map((opt) => (
-                                        <button
-                                            key={opt.slug}
-                                            className={`${s.optionBtn} ${selectedOptions[attr.name] === opt.name ? s.active : ''}`}
-                                            onClick={() => handleSelectOption(attr.name, opt.name)}
-                                        >
-                                            {opt.name}
-                                        </button>
-                                    ))}
+                        {product.attributes
+                            .filter(attr => attr.variation) // Фільтруємо тільки атрибути з variation: true
+                            .map(attr => (
+                                <div key={attr.name} className={`${s.attributeGroup} ${attr.slug === 'pa_kolir' ? s.hidden : ''}`}>
+                                    <h4 className={s.nameAtribute}>{attr.name}</h4>
+                                    <div className={s.options}>
+                                        {attr.options.map(opt => {
+                                            const key = `${attr.slug}-${opt.slug}`;
+                                            return (
+                                                <button
+                                                    key={key}
+                                                    className={`${s.optionBtn} ${selectedOptions[attr.slug] === opt.name ? s.active : ''}`}
+                                                    onClick={() => handleSelectOption(attr.slug, opt.name)}
+                                                    style={attr.slug === 'pa_kolir' ? { backgroundColor: opt.slug } : undefined}
+                                                >
+                                                    {opt.name}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
 
 
                         <div className={s.stockStatusBlock}>
@@ -285,7 +315,7 @@ const QuickViewModal = ({ product, onClose }: Props) => {
             <SizeChartModal
                 isOpen={isSizeOpen}
                 onClose={() => setSizeOpen(false)}
-                metaData={product?.meta_data ?? []}
+                attributes={product?.attributes ?? []}
             />
         </div>
     );

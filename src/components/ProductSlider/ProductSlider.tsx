@@ -15,6 +15,7 @@ interface ProductSliderProps {
     info: ProductInfo;
     showMarkers?: boolean;
     showThumbnails?: boolean;
+    activeVariationImage?: string;
 }
 
 export const ProductSlider: React.FC<ProductSliderProps> = ({
@@ -22,6 +23,7 @@ export const ProductSlider: React.FC<ProductSliderProps> = ({
                                                                 info,
                                                                 showMarkers = true,
                                                                 showThumbnails = true,
+                                                                activeVariationImage,
                                                             }) => {
     const [currentIndex, setCurrentIndex] = useState<number>(0);
 
@@ -34,6 +36,15 @@ export const ProductSlider: React.FC<ProductSliderProps> = ({
     useEffect(() => {
         setCurrentIndex(0);
     }, [images]);
+
+    useEffect(() => {
+        if (activeVariationImage) {
+            const idx = images.findIndex(img => img === activeVariationImage);
+            if (idx !== -1 && idx !== currentIndex) {
+                setCurrentIndex(idx);
+            }
+        }
+    }, [activeVariationImage, images]);
 
 
 

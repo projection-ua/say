@@ -5,7 +5,7 @@ import "swiper/css/navigation";
 
 import ProductItem from "../ProductItem/ProductItem";
 import { ProductInfo } from "../../types/productTypes";
-import { apiUrl, consumerKey, consumerSecret } from "../../App";
+import { API_BASE_URL } from "../../config/api";
 import s from "./RecommendedProducts.module.css";
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css/pagination';
@@ -27,8 +27,6 @@ export const RecommendedProducts = ({ isVisible }: RecommendedProductsProps) => 
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
 
-
-
     const { i18n } = useTranslation();
 
     const loadRecommendedProducts = useCallback(async () => {
@@ -42,12 +40,7 @@ export const RecommendedProducts = ({ isVisible }: RecommendedProductsProps) => 
                 lang, // 🟢 додали мову
             });
 
-            const response = await fetch(`${apiUrl}?${params}`, {
-                headers: {
-                    Authorization: "Basic " + btoa(`${consumerKey}:${consumerSecret}`),
-                },
-            });
-
+            let response = await fetch(`${API_BASE_URL}/products?${params}`);
             let data = await response.json();
 
             if (!data.length) {
@@ -58,13 +51,8 @@ export const RecommendedProducts = ({ isVisible }: RecommendedProductsProps) => 
                     lang, // 🟢 теж не забуваємо
                 });
 
-                const fallback = await fetch(`${apiUrl}?${fallbackParams}`, {
-                    headers: {
-                        Authorization: "Basic " + btoa(`${consumerKey}:${consumerSecret}`),
-                    },
-                });
-
-                data = await fallback.json();
+                response = await fetch(`${API_BASE_URL}/products?${fallbackParams}`);
+                data = await response.json();
             }
 
             setProducts(data);
@@ -76,12 +64,11 @@ export const RecommendedProducts = ({ isVisible }: RecommendedProductsProps) => 
         }
     }, [i18n.language]);
 
-
     useEffect(() => {
         if (isVisible && !loaded) {
             loadRecommendedProducts();
         }
-    }, [isVisible]);
+    }, [isVisible, loaded, loadRecommendedProducts]);
 
     if (!isVisible || loading) return null;
     if (!products.length) return null;

@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import {useLocation} from "react-router-dom";
 import {useEffect, useState} from "react";
-import {apiUrlWp} from "../../App.tsx";
+import { API_BASE_URL } from '../../config/api';
 
 export interface HomePageProps {
     slides: SlideData[];
@@ -28,22 +28,16 @@ const HomePage : React.FC <HomePageProps> = ({slides}) => {
 
     const [seoData, setSeoData] = useState<any>(null);
 
-
-
-
     useEffect(() => {
         const fetchSeo = async () => {
-            const lang = i18n.language === 'ru' ? '&lang=ru' : ''; // тільки для російської
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/pages?slug=main${lang}`);
+            const lang = i18n.language === 'ru' ? 'ru' : '';
+            const url = `${API_BASE_URL}/page-seo?slug=main${lang ? `&lang=${lang}` : ''}`;
+            const response = await fetch(url);
             const data = await response.json();
-            setSeoData(data[0]?.yoast_head_json);
+            setSeoData(data);
         };
-
         fetchSeo();
     }, [i18n.language]);
-
-
-
 
     return (
         <div className={s.pageWrap}>
@@ -80,10 +74,6 @@ const HomePage : React.FC <HomePageProps> = ({slides}) => {
             </div>
         </div>
     );
-
-
-
-
 };
 
 export default HomePage;

@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import s from './PrivacyPolicyPage.module.css';
 import { Breadcrumbs } from "../../components/Breadcrumbs/Breadcrumbs.tsx";
 import { useTranslation } from "react-i18next";
-import {apiUrlWp} from "../../App.tsx";
+import { API_BASE_URL } from '../../config/api';
 
 interface PolicyItem {
     id: number;
     title: { rendered: string };
-    table_data: { description: string }[];
+    content: { rendered: string };
 }
 
 export const PrivacyPolicy: React.FC = () => {
@@ -17,16 +17,17 @@ export const PrivacyPolicy: React.FC = () => {
 
     useEffect(() => {
         const lang = i18n.language === 'ru' ? 'ru' : '';
-
-        const url = lang
-            ? `${apiUrlWp}wp-json/wp/v2/privat_policy?lang=${lang}`
-            : `${apiUrlWp}wp-json/wp/v2/privat_policy`;
-
+        const url = `${API_BASE_URL}/privacy-policy${lang ? `?lang=${lang}` : ''}`;
         fetch(url)
             .then((res) => res.json())
-            .then((data: PolicyItem[]) => {
-                const reversed = [...data].reverse();
-                setPolicies(reversed);
+            .then((data: PolicyItem[] | any) => {
+                if (Array.isArray(data)) {
+                    const reversed = [...data].reverse();
+                    setPolicies(reversed);
+                } else {
+                    setPolicies([]);
+                    console.error('❌ Очікувався масив, але отримано:', data);
+                }
             })
             .catch((error) => {
                 console.error('❌ Помилка при завантаженні політики:', error);
@@ -62,13 +63,10 @@ export const PrivacyPolicy: React.FC = () => {
                                         <path opacity="0.75" d="M13 7.5L7 1.5L1 7.5" stroke="#0C1618" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                     </svg>
                                 </summary>
-                                <ul className={s.list}>
-                                    {block.table_data.map((item, i) => (
-                                        <li key={i} className={s.item}>
-                                            {item.description}
-                                        </li>
-                                    ))}
-                                </ul>
+                                <div
+                                    className={s.item}
+                                    dangerouslySetInnerHTML={{ __html: block.content.rendered }}
+                                />
                             </details>
                         </div>
                     ))}

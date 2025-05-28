@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux';
 import { ProductInfo, Variation } from '../../types/productTypes';
-import { getVariationsByProductId } from '../../services/fetchProductVariations';
+import { fetchProductVariations } from '../../services/fetchProductVariations';
 import { addToCart } from '../../store/slices/cartSlice';
 import s from './ProductPage.module.css';
 import RelatedProducts from '../../components/RelatedProducts/RelatedProducts';
@@ -15,22 +15,21 @@ import { ReviewsList } from "../../components/ReviewsList/ReviewsList";
 import { fetchReviewsByProductId } from '../../services/fetchReviews';
 import { ReviewerType } from '../../types/reviewTypes';
 import { ReviewPopup } from "../../components/ReviewPopup/ReviewPopup";
-import { addToWishlist } from '../../store/slices/wishlistSlice'; // шляхи підлаштуй
+import { addToWishlist } from '../../store/slices/wishlistSlice';
 import { removeFromWishlist } from '../../store/slices/wishlistSlice';
 import {RootState} from "../../store/store.ts";
 import { Breadcrumbs } from '../../components/Breadcrumbs/Breadcrumbs';
 import SizeChartModal from '../../components/SizeChart/SizeChart.tsx';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import {apiUrlWp, consumerKey, consumerSecret} from "../../App.tsx";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {useTranslation} from "react-i18next";
-
-
 import { Link } from 'react-router-dom';
-
-import { gtagEvent } from '../../gtag';
-import {getProductBySlug} from "../../services/getProductBySlug.ts";
+import { fetchSingleProduct } from "../../services/fetchSingleProduct";
+import { API_BASE_URL } from '../../config/api';
+import axios from 'axios';
+import { gtagEvent } from '../../gtagEvents';
+import { fbq } from '../../utils/metaPixel';
 
 const ProductPage = () => {
     const { slug, colorSlug } = useParams();
@@ -38,18 +37,12 @@ const ProductPage = () => {
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
 
-
-
-
-
     const [quantity, setQuantity] = useState(1);
 
     const incrementQuantity = () => setQuantity((prev) => prev + 1);
     const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
-
     const [seoData, setSeoData] = useState<any>(null);
-
 
     const giftSchema = Yup.object().shape({
         giftFrom: Yup.string().required("Введіть ім'я відправника"),
@@ -58,40 +51,70 @@ const ProductPage = () => {
         giftMessage: Yup.string(),
     });
 
-
     const { t, i18n } = useTranslation();
     const langPrefix = i18n.language === '' ? '' : i18n.language === 'ru' ? '/ru' : '';
 
-
-
-
-
-
-
-
-    useEffect(() => {
-        const fetchSeo = async () => {
-            const lang = i18n.language === 'ru' ? `&lang=ru` : ''; // ✅ для укр нічого не додаємо
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/product?slug=${slug}${lang}`);
-            const data = await response.json();
-            setSeoData(data[0]?.yoast_head_json);
-        };
-
-        fetchSeo();
-    }, [slug, i18n.language]);
-
-
     const navigate = useNavigate();
-
 
     const dispatch = useDispatch();
     const [product, setProduct] = useState<ProductInfo | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [loadingReviews, setLoadingReviews] = useState(true);
+    const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
+    const [reviews, setReviews] = useState<ReviewerType[]>([]);
+    const [reviewsCount, setReviewsCount] = useState(0);
+    const [isSizeOpen, setSizeOpen] = useState(false);
 
-
-    const [hasRedirected, setHasRedirected] = useState(false);
+    const [variations, setVariations] = useState<Variation[]>([]);
+    const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+    const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
 
     useEffect(() => {
-        if (!product?.translations || hasRedirected) return;
+        const fetchProductAndSeo = async () => {
+            setLoading(true);
+            try {
+                if (!slug) {
+                    setProduct(null);
+                    setVariations([]);
+                    setSeoData(null);
+                    return;
+                }
+                const product = await fetchSingleProduct(slug);
+                if (!product) {
+                    setProduct(null);
+                    setVariations([]);
+                    setSeoData(null);
+                    return;
+                }
+                setProduct(product);
+                setSeoData(product.yoast_head_json || null);
+                setSelectedOptions({});
+                setSelectedVariation(null);
+                const fetchedVariations = await fetchProductVariations(product.id);
+                setVariations(fetchedVariations);
+                // Ініціалізуємо початкові опції тільки для атрибутів, які є в варіаціях
+                const initialOptions: Record<string, string> = {};
+                const variationAttributes = new Set(fetchedVariations.flatMap(v => v.attributes.map(a => a.slug)));
+                product.attributes.forEach(attr => {
+                    if (variationAttributes.has(attr.slug) && attr.options[0]) {
+                        initialOptions[attr.slug] = attr.options[0].name;
+                    }
+                });
+                setSelectedOptions(initialOptions);
+            } catch (err) {
+                console.error('❌ Failed to fetch product, variations, or SEO:', err);
+                setProduct(null);
+                setVariations([]);
+                setSeoData(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProductAndSeo();
+    }, [slug, i18n.language]);
+
+    useEffect(() => {
+        if (!product?.translations) return;
 
         const newLang = i18n.language === 'ua' ? 'uk' : i18n.language;
         const translatedId = product.translations[newLang];
@@ -100,188 +123,78 @@ const ProductPage = () => {
 
         const fetchTranslatedProduct = async () => {
             try {
-                const authHeader = 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`);
-
-                const response = await fetch(
-                    `${apiUrlWp}wp-json/wc/v3/products/${translatedId}?lang=${newLang}`,
-                    {
-                        headers: {
-                            'Authorization': authHeader,
-                        },
-                    }
-                );
-
-                const data = await response.json();
+                const response = await axios.get(`${API_BASE_URL}/products/${translatedId}`);
+                const data = response.data;
 
                 if (data?.slug) {
-                    const langPrefix = newLang === 'ru' ? '/ru' : ''; // + '/ua' якщо треба
+                    const langPrefix = newLang === 'ru' ? '/ru' : '';
                     const newUrl = `${langPrefix}/product/${data.slug}`;
                     const currentPath = window.location.pathname.replace(/\/$/, '');
                     const targetPath = newUrl.replace(/\/$/, '');
 
                     if (currentPath !== targetPath) {
                         console.log('🔄 Перенаправлення на:', targetPath);
-                        setHasRedirected(true);
-                        navigate(newUrl);  // 🚀 SPA-перехід без reload
+                        navigate(newUrl);
                     } else {
                         console.log('✅ Вже на правильній сторінці, редірект не потрібен');
                     }
                 }
-
             } catch (error) {
                 console.error('Помилка при завантаженні перекладу товару:', error);
             }
         };
 
         fetchTranslatedProduct();
-    }, [i18n.language, product, hasRedirected]);
+    }, [i18n.language, product]);
 
-
-
-
-
-    const [variations, setVariations] = useState<Variation[]>([]);
-    const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
-    const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
-
-
-    useEffect(() => {
-        if (!product) return;
-
-        const targetItem = selectedVariation ?? product;
-
-        gtagEvent('view_item', {
-            currency: 'UAH',
-            value: +targetItem.price,
-            items: [{
-                item_id: targetItem.id,
-                item_name: product.name,
-                price: +targetItem.price,
-            }]
-        });
-    }, [product, selectedVariation]);
-
-
-
-    const [loading, setLoading] = useState(true);
-    const [loadingReviews, setLoadingReviews] = useState(true);
-
-
-    const [isSizeOpen, setSizeOpen] = useState(false);
-
-    const wishList = useSelector((state: RootState) => state.wishlist.items);
-    const isInWishlist    = wishList.some((item) => item.id === product?.id);
-    const handleWishlistToggle = () => {
-        if (!product) return;
-
-        if (isInWishlist   ) {
-            dispatch(removeFromWishlist(product.id));
-        } else {
-            dispatch(addToWishlist(product));
-        }
-    };
-
-    const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
-
-    const [reviews, setReviews] = useState<ReviewerType[]>([]);
-
-
-
-
-
-
-    useEffect(() => {
-        const loadReviews = async () => {
-            if (!product?.id) return;
-
-            try {
-                const fetchedReviews: ReviewerType[] = await fetchReviewsByProductId(product.id);
-                setReviews(fetchedReviews);
-            } catch (error) {
-                console.error('Помилка при завантаженні відгуків', error);
-            } finally {
-                setLoadingReviews(false); // ✅ додати
-            }
-        };
-
-        loadReviews();
-    }, [product?.id]);
-
-
-    useEffect(() => {
-        const fetchProduct = async () => {
-            setLoading(true);
-
-            try {
-                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
-
-                if (!slug) {
-                    setProduct(null);
-                    setVariations([]);
-                    return;
-                }
-
-                const product = await getProductBySlug(slug, lang);
-
-                if (!product) {
-                    setProduct(null);
-                    setVariations([]);
-                    return;
-                }
-
-                setProduct(product);
-                setSelectedOptions({});
-                setSelectedVariation(null);
-
-                const fetchedVariations = await getVariationsByProductId(product.id, lang);
-                setVariations(fetchedVariations);
-
-                const initialOptions: Record<string, string> = {};
-
-                product.attributes.forEach(attr => {
-                    if (attr.slug === 'pa_kolir' && colorSlug) {
-                        const matchedOption = attr.options.find(opt => opt.slug === colorSlug);
-                        if (matchedOption) {
-                            initialOptions[attr.name] = matchedOption.name;
-                        } else if (attr.options[0]) {
-                            initialOptions[attr.name] = attr.options[0].name;
-                        }
-                    } else if (attr.options[0]) {
-                        initialOptions[attr.name] = attr.options[0].name;
-                    }
-                });
-
-                setSelectedOptions(initialOptions);
-            } catch (err) {
-                console.error('❌ Failed to fetch product or variations:', err);
-                setProduct(null);
-                setVariations([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProduct();
-    }, [slug, colorSlug, i18n.language]);
-
-
-
-
+    // Ефект для обробки colorSlug
     useEffect(() => {
         if (!product || variations.length === 0) return;
 
-        const matched = variations.find((variation) =>
-            variation.attributes.every(attr => selectedOptions[attr.name] === attr.option) &&
-            variation.attributes.length === Object.keys(selectedOptions).length
-        );
+        const allProductAttributes = product.attributes;
+        
+        if (colorSlug) {
+            const colorAttribute = allProductAttributes.find(attr => attr.slug === 'pa_kolir');
+            if (colorAttribute) {
+                const colorOption = colorAttribute.options.find(opt => opt.slug === colorSlug);
+                if (colorOption) {
+                    // Знаходимо варіацію з цим кольором
+                    const variationWithColor = variations.find(v => 
+                        v.attributes.some(attr => 
+                            attr.slug === 'pa_kolir' && attr.option === colorOption.name
+                        )
+                    );
+
+                    if (variationWithColor) {
+                        // Оновлюємо обидва атрибути з варіації
+                        const newOptions = { ...selectedOptions };
+                        variationWithColor.attributes.forEach(attr => {
+                            newOptions[attr.slug] = attr.option;
+                        });
+                        setSelectedOptions(newOptions);
+                    }
+                }
+            }
+        }
+    }, [colorSlug, product, variations]);
+
+    // Ефект для пошуку варіації
+    useEffect(() => {
+        if (!product || variations.length === 0) return;
+
+        const matched = variations.find((variation) => {
+            return variation.attributes.every(attr => {
+                const selected = selectedOptions[attr.slug];
+                return selected === attr.option;
+            });
+        });
 
         setSelectedVariation(matched || null);
     }, [selectedOptions, variations, product]);
 
-    const handleSelectOption = (name: string, option: string) => {
-        setSelectedOptions(prev => ({ ...prev, [name]: option }));
+    const handleSelectOption = (slug: string, option: string) => {
+        setSelectedOptions(prev => ({ ...prev, [slug]: option }));
     };
-
 
     const handleAddToCart = async () => {
         if (!product) return;
@@ -328,14 +241,24 @@ const ProductPage = () => {
             image: product.images?.[0]?.src || '',
             variationId: selectedVariation?.id,
             attributes: Object.keys(selectedOptions).length ? selectedOptions : undefined,
+            productAttributes: product.attributes,
             meta_data,
         }));
 
         dispatch(setCartOpen(true));
+
+        if (product) {
+            fbq('track', 'AddToCart', {
+                content_ids: [product.id],
+                content_name: product.name,
+                content_type: 'product',
+                value: Number(selectedVariation?.price || product.price),
+                currency: 'UAH',
+            });
+        }
     };
 
     const isGiftCertificate = product?.categories?.some(cat => cat.slug === 'gift-certificate');
-
 
     const formik = useFormik({
         initialValues: {
@@ -369,6 +292,7 @@ const ProductPage = () => {
                 image: product.images?.[0]?.src || '',
                 variationId: selectedVariation?.id,
                 attributes: Object.keys(selectedOptions).length ? selectedOptions : undefined,
+                productAttributes: product.attributes,
                 meta_data: isGiftCertificate
                     ? [
                         { key: 'gift_from', value: values.giftFrom },
@@ -382,39 +306,92 @@ const ProductPage = () => {
         }
     });
 
+    const wishList = useSelector((state: RootState) => state.wishlist.items);
+    const isInWishlist    = wishList.some((item) => item.id === product?.id);
+    const handleWishlistToggle = () => {
+        if (!product) return;
 
+        if (isInWishlist   ) {
+            dispatch(removeFromWishlist(product.id));
+        } else {
+            dispatch(addToWishlist(product));
+        }
+    };
 
+    useEffect(() => {
+        const loadReviews = async () => {
+            if (!product?.id) return;
 
+            try {
+                const fetchedReviews: ReviewerType[] = await fetchReviewsByProductId(product.id);
+                setReviews(fetchedReviews);
+                setReviewsCount(fetchedReviews.length);
+            } catch (error) {
+                console.error('Помилка при завантаженні відгуків', error);
+            } finally {
+                setLoadingReviews(false); // ✅ додати
+            }
+        };
 
+        loadReviews();
+    }, [product?.id]);
 
+    useEffect(() => {
+        if (product) {
+            gtagEvent('view_item', {
+                items: [{
+                    id: product.id,
+                    name: product.name,
+                    category: product.categories?.[0]?.name || '',
+                    price: product.price,
+                    currency: 'UAH',
+                }],
+            });
+        }
+    }, [product]);
 
+    useEffect(() => {
+        if (product) {
+            fbq('track', 'PageView');
+            fbq('track', 'ViewContent', {
+                content_ids: [product.id],
+                content_name: product.name,
+                content_type: 'product',
+                value: Number(product.price),
+                currency: 'UAH',
+            });
+        }
+    }, [product]);
 
     if (loading || !product) return <Loader />;
 
-
-    const doglyad = product.meta_data?.find((meta) => meta.key === '_doglyad')?.value;
-
+    const doglyad = product.meta_data?.find((meta) => meta.key === 'doglyad')?.value;
 
     return (
         <>
             <HelmetProvider>
             <Helmet>
                 <title>{seoData?.title || 'Say'}</title>
-                <link rel="canonical" href={currentUrl} />
-
+                <link rel="canonical" href={seoData?.og_url || currentUrl} />
                 {seoData?.og_title && <meta property="og:title" content={seoData.og_title} />}
                 {seoData?.og_description && <meta property="og:description" content={seoData.og_description} />}
-                <meta property="og:url" content={currentUrl} />
-
+                <meta property="og:url" content={seoData?.og_url || currentUrl} />
                 {seoData?.og_locale && <meta property="og:locale" content={seoData.og_locale} />}
                 {seoData?.og_type && <meta property="og:type" content={seoData.og_type} />}
                 {seoData?.og_site_name && <meta property="og:site_name" content={seoData.og_site_name} />}
                 {seoData?.twitter_card && <meta name="twitter:card" content={seoData.twitter_card} />}
-
-                <meta
+                {seoData?.robots && (
+                  <meta
                     name="robots"
-                    content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
-                />
+                    content={[
+                      seoData.robots.index,
+                      seoData.robots.follow,
+                      seoData.robots['max-snippet'],
+                      seoData.robots['max-image-preview'],
+                      seoData.robots['max-video-preview'],
+                    ].filter(Boolean).join(', ')}
+                  />
+                )}
             </Helmet>
             </HelmetProvider>
 
@@ -448,10 +425,11 @@ const ProductPage = () => {
                                         </svg>
                                     ))}
                                 </div>
-                                <a href="#reviews" className={s.reviewText}>{t('product.reviews')} {product.rating_count}</a>
+                                <a href="#reviews" className={s.reviewText}>{t('product.reviews')} {reviewsCount}</a>
                             </div>
 
                             <div className={s.stockStatusBlock}>
+
                                 {selectedVariation ? (
                                     // Якщо варіація обрана — показуємо статус варіації
                                     selectedVariation.stock_status === 'outofstock' || selectedVariation.stock_quantity === 0 ? (
@@ -487,19 +465,42 @@ const ProductPage = () => {
                         {/* Атрибути */}
                         {product.attributes.length > 0 && (
                             <div className={s.attributes}>
-                                {product.attributes.map(attr => (
-                                    <div key={attr.name} className={s.attributeGroup}>
+
+
+                                {/* Додаємо відображення collection_related_products як атрибутів */}
+                                {product.collection_related_products && product.collection_related_products.length > 0 && (
+                                    <div className={s.attributeGroup}>
+                                        <h4 className={s.nameAtribute}>{t('product.colorProducts')}</h4>
+                                        <div className={s.options}>
+                                            {product.collection_related_products.map((item: any) => (
+                                                <Link
+                                                    key={item.id}
+                                                    to={item.link}
+                                                    className={`${s.optionBtn} ${item.id === product.id ? s.active : ''}`}
+                                                >
+                                                    {item.title}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+
+                                {product.attributes
+                                    .filter(attr => attr.variation) // Фільтруємо тільки атрибути з variation: true
+                                    .map(attr => (
+                                    <div key={attr.name} className={`${s.attributeGroup} ${attr.slug === 'pa_kolir' ? s.hidden : ''}`}>
                                         <h4 className={s.nameAtribute}>{attr.name}</h4>
                                         <div className={s.options}>
                                             {attr.options.map(opt => {
                                                 const key = `${attr.slug}-${opt.slug}`;
-
                                                 if (attr.slug === 'pa_kolir') {
                                                     return (
                                                         <Link
                                                             key={key}
-                                                            to={`${langPrefix}/product/${slug}/${opt.slug}`}
-                                                            className={`${s.optionBtn} ${colorSlug === opt.slug ? s.active : ''}`}
+                                                            to={`${langPrefix}/product/${product.slug}/${opt.slug}`}
+                                                            className={`${s.optionBtn} ${selectedOptions[attr.slug] === opt.name ? s.active : ''}`}
+                                                            style={{ backgroundColor: opt.slug }}
                                                         >
                                                             {opt.name}
                                                         </Link>
@@ -508,8 +509,8 @@ const ProductPage = () => {
                                                     return (
                                                         <button
                                                             key={key}
-                                                            className={`${s.optionBtn} ${selectedOptions[attr.name] === opt.name ? s.active : ''}`}
-                                                            onClick={() => handleSelectOption(attr.name, opt.name)}
+                                                            className={`${s.optionBtn} ${selectedOptions[attr.slug] === opt.name ? s.active : ''}`}
+                                                            onClick={() => handleSelectOption(attr.slug, opt.name)}
                                                         >
                                                             {opt.name}
                                                         </button>
@@ -519,6 +520,8 @@ const ProductPage = () => {
                                         </div>
                                     </div>
                                 ))}
+
+                                
                             </div>
                         )}
 
@@ -578,6 +581,7 @@ const ProductPage = () => {
                                 </div>
                             </form>
                         )}
+
 
 
                         {!isGiftCertificate && (
@@ -730,7 +734,7 @@ const ProductPage = () => {
                     <SizeChartModal
                         isOpen={isSizeOpen}
                         onClose={() => setSizeOpen(false)}
-                        metaData={product?.meta_data ?? []}
+                        attributes={product?.attributes}
                     />
                 )}
             </div>

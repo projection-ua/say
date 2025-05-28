@@ -1,24 +1,19 @@
 import axios from 'axios';
-import { apiUrl, consumerKey, consumerSecret } from '../App';
 import { ProductInfo } from '../types/productTypes';
+import { API_BASE_URL } from '../config/api';
 
 export const getRelatedProducts = async (
     categoryIds: number[],
-    excludeProductId: number,
+    currentProductId: number,
     lang: string
 ): Promise<ProductInfo[]> => {
     try {
-        const response = await axios.get<ProductInfo[]>(`${apiUrl}`, {
-            auth: {
-                username: consumerKey,
-                password: consumerSecret,
-            },
+        const response = await axios.get<ProductInfo[]>(`${API_BASE_URL}/products`, {
             params: {
-                per_page: 12,
+                category: categoryIds.join(','),
+                per_page: 8,
                 lang,
-                category: categoryIds.join(','), // 🎯 потрібні категорії
-                exclude: excludeProductId,       // ❌ виключаємо сам товар
-                status: 'publish',
+                exclude: currentProductId,
             },
         });
 

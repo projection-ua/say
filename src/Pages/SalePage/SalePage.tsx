@@ -10,7 +10,7 @@ import Loader from '../../components/Loader/Loader';
 import {getProductsSale} from "../../services/fetchSaleProducts.ts";
 
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import {apiUrlWp} from "../../App.tsx";
+import { API_BASE_URL } from '../../config/api';
 import {useLocation} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 
@@ -32,11 +32,11 @@ const SalePage = () => {
 
     useEffect(() => {
         const fetchSeo = async () => {
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/pages?slug=promotions-discounts`);
+            const url = `${API_BASE_URL}/page-seo?slug=promotions-discounts`;
+            const response = await fetch(url);
             const data = await response.json();
-            setSeoData(data[0]?.yoast_head_json);
+            setSeoData(data);
         };
-
         fetchSeo();
     }, []);
 

@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { updateQuantity, removeFromCart, clearCart } from '../../store/slices/cartSlice';
 import { useNavigate } from 'react-router-dom';
-import { apiUrlWp, consumerKey, consumerSecret } from '../../App';
 import { useState, useEffect } from 'react';
 import s from './CheckoutPage.module.css';
 import Select from 'react-select';
@@ -14,6 +13,8 @@ import { LoaderMini } from "../../components/LoaderMini/LoaderMini";
 import { StepNavigation } from '../../components/StepNavigation/StepNavigation';
 import {useTranslation} from "react-i18next";
 import { gtagEvent } from '../../gtag';
+import { API_BASE_URL } from '../../config/api';
+import { fbq } from '../../utils/metaPixel';
 
 
 interface ShippingMethod {
@@ -154,14 +155,21 @@ const CheckoutPage: React.FC = () => {
                 price: +item.price,
             })),
         });
+
+        fbq('track', 'InitiateCheckout', {
+            value: items.reduce((sum, item) => sum + (item.sale_price ?? item.price) * item.quantity, 0),
+            currency: 'UAH',
+            content_ids: items.map(item => item.id),
+            content_type: 'product',
+        });
     }, []);
 
 
 
     const deliveryTypeOptions = [
-        { value: 'warehouse', label: 'Відділення' },
-        { value: 'courier', label: 'Курʼєр' },
-        { value: 'postomat', label: 'Поштомат' }, // 🆕 новий тип доставки
+        { value: 'courier', label: t('checkout.deliveryType.courier') },
+        { value: 'warehouse', label: t('checkout.deliveryType.warehouse') },
+        { value: 'postomat', label: t('checkout.deliveryType.postomat') },
     ];
 
 
@@ -233,37 +241,33 @@ const CheckoutPage: React.FC = () => {
     useEffect(() => {
         (async () => {
             try {
-                setIsLoadingCheckoutData(true); // 👉 Перед початком — лоадінг
+                setIsLoadingCheckoutData(true);
 
-                const shippingResponse = await fetch(`${apiUrlWp}wp-json/wc/v3/shipping/zones/1/methods`, {
-                    headers: { Authorization: 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`) },
-                });
-                const paymentResponse = await fetch(`${apiUrlWp}wp-json/wc/v3/payment_gateways`, {
-                    headers: { Authorization: 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`) },
-                });
-                const warehouseResponse = await fetch(`${apiUrlWp}wp-json/responses/v1/np_warehouses`, {
-                    headers: { Authorization: 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`) },
-                });
+                const [shippingResponse, paymentResponse, warehouseResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/shipping-methods`),
+                    fetch(`${API_BASE_URL}/payment-methods`),
+                    fetch(`${API_BASE_URL}/np-warehouses`)
+                ]);
 
                 const shippingData = await shippingResponse.json();
                 const paymentData = await paymentResponse.json();
                 const warehouseData = await warehouseResponse.json();
 
                 setShippingMethods(shippingData);
-                setPaymentMethods(paymentData.filter((p: PaymentMethod) => p.enabled));
-                setNpLocations(Array.isArray(warehouseData) ? warehouseData : []);
+                setPaymentMethods(paymentData);
+                setNpLocations(warehouseData);
 
-                // ✅ Автовибір першого способу доставки
                 if (shippingData.length > 0) {
                     formik.setFieldValue('shippingMethod', shippingData[0].id.toString());
                 }
-
             } catch (error) {
-                console.error('Помилка при завантаженні даних доставки:', error);
+                console.error('Error loading checkout data:', error);
+                setErrorMessage(t('checkout.errors.loading'));
             } finally {
-                setIsLoadingCheckoutData(false); // 👉 Після завантаження — вимикаємо лоадінг
+                setIsLoadingCheckoutData(false);
             }
         })();
+    // eslint-disable-next-line
     }, []);
 
 
@@ -327,7 +331,7 @@ const CheckoutPage: React.FC = () => {
             giftCard: '',
             newsletter: false,
             acceptTerms: true,
-            deliveryType: 'warehouse',
+            deliveryType: 'courier',
             warehouseId: '',
         },
         validationSchema,
@@ -407,11 +411,10 @@ const CheckoutPage: React.FC = () => {
 
 
                 // Відправка замовлення до WooCommerce
-                const response = await fetch(`${apiUrlWp}wp-json/wc/v3/orders`, {
+                const response = await fetch(`${API_BASE_URL}/orders`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`),
                     },
                     body: JSON.stringify(orderData),
                 });
@@ -430,11 +433,10 @@ const CheckoutPage: React.FC = () => {
                 // Після успішного створення замовлення
                 if (values.paymentMethod === 'mono_gateway') {
                     try {
-                        const payResponse = await fetch(`${apiUrlWp}wp-json/plata/v1/pay`, {
+                        const payResponse = await fetch(`${API_BASE_URL}/pay`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                Authorization: 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`),
                             },
                             body: JSON.stringify({ order_id: responseData.id }),
                         });
@@ -515,14 +517,10 @@ const CheckoutPage: React.FC = () => {
         console.log('🔍 Перевірка купону:', formik.values.coupon);
 
         try {
-            const response = await fetch(`${apiUrlWp}wp-json/wc/v3/coupons?code=${formik.values.coupon}`, {
-                headers: {
-                    Authorization: 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`),
-                },
-            });
+            const response = await fetch(`${API_BASE_URL}/coupons?code=${formik.values.coupon}`);
 
             const data = await response.json();
-            console.log('📦 Отримані дані купону:', data);
+            console.log('✅ Отримані дані купону:', data);
 
             if (!response.ok || !Array.isArray(data) || data.length === 0) {
                 throw new Error('Купон не знайдено або недійсний');
@@ -592,11 +590,7 @@ const CheckoutPage: React.FC = () => {
         console.log('🎁 Перевірка подарункового сертифікату:', formik.values.giftCard);
 
         try {
-            const response = await fetch(`${apiUrlWp}wp-json/wc/v3/coupons?code=${formik.values.giftCard}`, {
-                headers: {
-                    Authorization: 'Basic ' + btoa(`${consumerKey}:${consumerSecret}`),
-                },
-            });
+            const response = await fetch(`${API_BASE_URL}/coupons?code=${formik.values.giftCard}`);
 
             const data = await response.json();
             console.log('📦 Отримані дані сертифікату:', data);
@@ -643,6 +637,14 @@ const CheckoutPage: React.FC = () => {
         }
     };
 
+    const handlePaymentMethodChange = () => {
+        fbq('track', 'AddPaymentInfo', {
+            value: items.reduce((sum, item) => sum + (item.sale_price ?? item.price) * item.quantity, 0),
+            currency: 'UAH',
+            content_ids: items.map(item => item.id),
+            content_type: 'product',
+        });
+    };
 
     return (
         <>
@@ -965,7 +967,10 @@ const CheckoutPage: React.FC = () => {
                                                                 name="paymentMethod"
                                                                 value={method.id}
                                                                 checked={formik.values.paymentMethod === method.id}
-                                                                onChange={formik.handleChange}
+                                                                onChange={e => {
+                                                                    formik.handleChange(e);
+                                                                    handlePaymentMethodChange();
+                                                                }}
                                                             />
                                                             <div
                                                                 className={s.titlePayment}
@@ -1172,423 +1177,433 @@ const CheckoutPage: React.FC = () => {
                                                 </>
                                             )}
 
-                                            {formik.values.deliveryType === 'warehouse' && (
-                                                <>
-                                                    <div className={s.inputRow}>
-                                                        <div className={s.inputField}>
-                                                            <Select
-                                                                placeholder={t('checkout.chooseCity')}
-                                                                options={allCityOptions}
-                                                                filterOption={filterCityOptions}
-                                                                value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
-                                                                onChange={(option) => {
-                                                                    const value = option?.value || '';
-                                                                    formik.setFieldValue('shippingCity', value);
-                                                                    setSelectedCity(value);
-                                                                    formik.setFieldValue('shippingStreet', '');
-                                                                    formik.setFieldValue('warehouseId', '');
-                                                                }}
-                                                                isSearchable
-                                                                classNamePrefix="custom-select"
-                                                            />
-                                                            {formik.touched.shippingCity && formik.errors.shippingCity && (
-                                                                <div className={s.errorText}>{formik.errors.shippingCity}</div>
-                                                            )}
-                                                        </div>
-
-                                                        {selectedCity && (
-                                                            <>
+                                                    {formik.values.deliveryType === 'warehouse' && (
+                                                        <>
+                                                            <div className={s.inputRow}>
                                                                 <div className={s.inputField}>
                                                                     <Select
-                                                                        placeholder={t('checkout.chooseWarehouse')}
-                                                                        options={getFilteredWarehouses(formik.values.deliveryType)}
-                                                                        value={
-                                                                            formik.values.warehouseId
-                                                                                ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
-                                                                                : null
-                                                                        }
-                                                                        onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
+                                                                        placeholder={t('checkout.chooseCity')}
+                                                                        options={allCityOptions}
+                                                                        filterOption={filterCityOptions}
+                                                                        value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
+                                                                        onChange={(option) => {
+                                                                            const value = option?.value || '';
+                                                                            formik.setFieldValue('shippingCity', value);
+                                                                            setSelectedCity(value);
+                                                                            formik.setFieldValue('shippingStreet', '');
+                                                                            formik.setFieldValue('warehouseId', '');
+                                                                        }}
                                                                         isSearchable
                                                                         classNamePrefix="custom-select"
                                                                     />
-                                                                    {formik.touched.warehouseId && formik.errors.warehouseId && (
-                                                                        <div className={s.errorText}>{formik.errors.warehouseId}</div>
+                                                                    {formik.touched.shippingCity && formik.errors.shippingCity && (
+                                                                        <div className={s.errorText}>{formik.errors.shippingCity}</div>
                                                                     )}
                                                                 </div>
 
-                                                                <button
-                                                                    className={s.mapBtn}
-                                                                    onClick={() => setShowMapPopup(true)}
-                                                                >
-                                                                    {t('checkout.chooseOnMap')}
-                                                                </button>
+                                                                {selectedCity && (
+                                                                    <>
+                                                                        <div className={s.inputField}>
+                                                                            <Select
+                                                                                placeholder={t('checkout.chooseWarehouse')}
+                                                                                options={getFilteredWarehouses(formik.values.deliveryType)}
+                                                                                value={
+                                                                                    formik.values.warehouseId
+                                                                                        ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
+                                                                                        : null
+                                                                                }
+                                                                                onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
+                                                                                isSearchable
+                                                                                classNamePrefix="custom-select"
+                                                                            />
+                                                                            {formik.touched.warehouseId && formik.errors.warehouseId && (
+                                                                                <div className={s.errorText}>{formik.errors.warehouseId}</div>
+                                                                            )}
+                                                                        </div>
 
-                                                                {showMapPopup && (
-                                                                    <NovaPoshtaMapPopup
-                                                                        cities={npLocations}
-                                                                        selectedCity={selectedCity}
-                                                                        deliveryType={formik.values.deliveryType}
-                                                                        onClose={() => setShowMapPopup(false)}
-                                                                        onSelect={(warehouse) => {
-                                                                            formik.setFieldValue('warehouseId', warehouse);
-                                                                            setShowMapPopup(false);
-                                                                        }}
-                                                                        onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)}
-                                                                    />
+                                                                        <button
+                                                                            className={s.mapBtn}
+                                                                            onClick={() => setShowMapPopup(true)}
+                                                                        >
+                                                                            {t('checkout.chooseOnMap')}
+                                                                        </button>
+
+                                                                        {showMapPopup && (
+                                                                            <NovaPoshtaMapPopup
+                                                                                cities={npLocations}
+                                                                                selectedCity={selectedCity}
+                                                                                deliveryType={formik.values.deliveryType}
+                                                                                onClose={() => setShowMapPopup(false)}
+                                                                                onSelect={(warehouse) => {
+                                                                                    formik.setFieldValue('warehouseId', warehouse);
+                                                                                    setShowMapPopup(false);
+                                                                                }}
+                                                                                onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)}
+                                                                            />
+                                                                        )}
+                                                                    </>
                                                                 )}
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </>
-                                            )}
+                                                            </div>
+                                                        </>
+                                                    )}
 
-                                            {formik.values.deliveryType === 'postomat' && (
-                                                <>
-                                                    <div className={s.inputRow}>
-                                                        <div className={s.inputField}>
-                                                            <Select
-                                                                placeholder={t('checkout.chooseCity')}
-                                                                options={allCityOptions}
-                                                                filterOption={filterCityOptions}
-                                                                value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
-                                                                onChange={(option) => {
-                                                                    const value = option?.value || '';
-                                                                    formik.setFieldValue('shippingCity', value);
-                                                                    setSelectedCity(value);
-                                                                    formik.setFieldValue('shippingStreet', '');
-                                                                    formik.setFieldValue('warehouseId', '');
-                                                                }}
-                                                                isSearchable
-                                                                classNamePrefix="custom-select"
-                                                            />
-                                                            {formik.touched.shippingCity && formik.errors.shippingCity && (
-                                                                <div className={s.errorText}>{formik.errors.shippingCity}</div>
-                                                            )}
-                                                        </div>
-
-                                                        {selectedCity && (
-                                                            <>
+                                                    {formik.values.deliveryType === 'postomat' && (
+                                                        <>
+                                                            <div className={s.inputRow}>
                                                                 <div className={s.inputField}>
                                                                     <Select
-                                                                        placeholder={t('checkout.choosePostomat')}
-                                                                        options={getFilteredWarehouses(formik.values.deliveryType)}
-                                                                        value={
-                                                                            formik.values.warehouseId
-                                                                                ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
-                                                                                : null
-                                                                        }
-                                                                        onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
+                                                                        placeholder={t('checkout.chooseCity')}
+                                                                        options={allCityOptions}
+                                                                        filterOption={filterCityOptions}
+                                                                        value={allCityOptions.find(opt => opt.value === formik.values.shippingCity) || null}
+                                                                        onChange={(option) => {
+                                                                            const value = option?.value || '';
+                                                                            formik.setFieldValue('shippingCity', value);
+                                                                            setSelectedCity(value);
+                                                                            formik.setFieldValue('shippingStreet', '');
+                                                                            formik.setFieldValue('warehouseId', '');
+                                                                        }}
                                                                         isSearchable
                                                                         classNamePrefix="custom-select"
                                                                     />
-                                                                    {formik.touched.warehouseId && formik.errors.warehouseId && (
-                                                                        <div className={s.errorText}>{formik.errors.warehouseId}</div>
+                                                                    {formik.touched.shippingCity && formik.errors.shippingCity && (
+                                                                        <div className={s.errorText}>{formik.errors.shippingCity}</div>
                                                                     )}
                                                                 </div>
 
-                                                                <button
-                                                                    className={s.mapBtn}
-                                                                    onClick={() => setShowMapPopup(true)}
-                                                                >
-                                                                    {t('checkout.chooseOnMap')}
-                                                                </button>
+                                                                {selectedCity && (
+                                                                    <>
+                                                                        <div className={s.inputField}>
+                                                                            <Select
+                                                                                placeholder={t('checkout.choosePostomat')}
+                                                                                options={getFilteredWarehouses(formik.values.deliveryType)}
+                                                                                value={
+                                                                                    formik.values.warehouseId
+                                                                                        ? { value: formik.values.warehouseId, label: formik.values.warehouseId }
+                                                                                        : null
+                                                                                }
+                                                                                onChange={(option) => formik.setFieldValue('warehouseId', option?.value || '')}
+                                                                                isSearchable
+                                                                                classNamePrefix="custom-select"
+                                                                            />
+                                                                            {formik.touched.warehouseId && formik.errors.warehouseId && (
+                                                                                <div className={s.errorText}>{formik.errors.warehouseId}</div>
+                                                                            )}
+                                                                        </div>
 
-                                                                {showMapPopup && (
-                                                                    <NovaPoshtaMapPopup
-                                                                        cities={npLocations}
-                                                                        selectedCity={selectedCity}
-                                                                        deliveryType={formik.values.deliveryType}
-                                                                        onClose={() => setShowMapPopup(false)}
-                                                                        onSelect={(warehouse) => {
-                                                                            formik.setFieldValue('warehouseId', warehouse);
-                                                                            setShowMapPopup(false);
-                                                                        }}
-                                                                        onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)}
-                                                                    />
+                                                                        <button
+                                                                            className={s.mapBtn}
+                                                                            onClick={() => setShowMapPopup(true)}
+                                                                        >
+                                                                            {t('checkout.chooseOnMap')}
+                                                                        </button>
+
+                                                                        {showMapPopup && (
+                                                                            <NovaPoshtaMapPopup
+                                                                                cities={npLocations}
+                                                                                selectedCity={selectedCity}
+                                                                                deliveryType={formik.values.deliveryType}
+                                                                                onClose={() => setShowMapPopup(false)}
+                                                                                onSelect={(warehouse) => {
+                                                                                    formik.setFieldValue('warehouseId', warehouse);
+                                                                                    setShowMapPopup(false);
+                                                                                }}
+                                                                                onTabChange={(newType) => formik.setFieldValue('deliveryType', newType)}
+                                                                            />
+                                                                        )}
+                                                                    </>
                                                                 )}
-                                                            </>
-                                                        )}
-                                                    </div>
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </>
                                             )}
-                                        </>
-                                    )}
-                                </div>
-
-                                <div className={s.paymentInfo}>
-                                    <h2>{t('checkout.paymentTitle')}</h2>
-
-                                    {isLoadingCheckoutData ? (
-                                        <div className={s.checkoutLoader}>
-                                            <LoaderMini />
                                         </div>
-                                    ) : (
-                                        <>
-                                            <div className={s.paymentRow}>
-                                                {paymentMethods.map((method) => (
-                                                    <label key={method.id}>
-                                                        <input
-                                                            type="radio"
-                                                            name="paymentMethod"
-                                                            value={method.id}
-                                                            checked={formik.values.paymentMethod === method.id}
-                                                            onChange={formik.handleChange}
-                                                        />
-                                                        <div
-                                                            className={s.titlePayment}
-                                                            dangerouslySetInnerHTML={{ __html: method.title }}
-                                                        />
-                                                    </label>
-                                                ))}
-                                            </div>
 
-                                            {formik.touched.paymentMethod && formik.errors.paymentMethod && (
-                                                <div className={s.errorText}>{formik.errors.paymentMethod}</div>
+                                        <div className={s.paymentInfo}>
+                                            <h2>{t('checkout.paymentTitle')}</h2>
+
+                                            {isLoadingCheckoutData ? (
+                                                <div className={s.checkoutLoader}>
+                                                    <LoaderMini />
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className={s.paymentRow}>
+                                                        {paymentMethods.map((method) => (
+                                                            <label key={method.id}>
+                                                                <input
+                                                                    type="radio"
+                                                                    name="paymentMethod"
+                                                                    value={method.id}
+                                                                    checked={formik.values.paymentMethod === method.id}
+                                                                    onChange={e => {
+                                                                        formik.handleChange(e);
+                                                                        handlePaymentMethodChange();
+                                                                    }}
+                                                                />
+                                                                <div
+                                                                    className={s.titlePayment}
+                                                                    dangerouslySetInnerHTML={{ __html: method.title }}
+                                                                />
+                                                            </label>
+                                                        ))}
+                                                    </div>
+
+                                                    {formik.touched.paymentMethod && formik.errors.paymentMethod && (
+                                                        <div className={s.errorText}>{formik.errors.paymentMethod}</div>
+                                                    )}
+                                                </>
                                             )}
-                                        </>
-                                    )}
 
-                                    <div className={s.desctiptionOrder}>
-                                        <h2>{t('checkout.commentTitle')}</h2>
-                                        <textarea placeholder={t('checkout.commentPlaceholder')} {...formik.getFieldProps('comment')} />
+                                            <div className={s.desctiptionOrder}>
+                                                <h2>{t('checkout.commentTitle')}</h2>
+                                                <textarea placeholder={t('checkout.commentPlaceholder')} {...formik.getFieldProps('comment')} />
 
-                                        <button type="submit" className={s.submitButton} disabled={isSubmitting}>
-                                            {isSubmitting ? t('checkout.sending') : t('checkout.confirmOrder')}
-                                        </button>
-                                    </div>
-
-                                    <div className={s.checkboxRow}>
-                                        <label>
-                                            <input type="checkbox" {...formik.getFieldProps('newsletter')} />
-                                            {t('checkout.subscribeNewsletter')}
-                                        </label>
-                                        <label>
-                                            <input type="checkbox" {...formik.getFieldProps('acceptTerms')} />
-                                            {t('checkout.acceptTerms')}
-                                        </label>
-                                        {formik.touched.acceptTerms && formik.errors.acceptTerms && (
-                                            <div className={s.errorText}>{formik.errors.acceptTerms}</div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </form>
-
-                    <div className={s.checkoutSummary}>
-                        <div className={s.headingSummaryWrap}>
-                            <h3 className={s.headingSummary}>{t('checkout.totalToPay')}</h3>
-                            <p className={s.priceMain}>{items.reduce((sum, item) => sum + (item.sale_price || item.price) * item.quantity, 0).toLocaleString()} ₴</p>
-                        </div>
-                        <div className={s.cartItems}>
-                            {items.map((item) => (
-                                <div key={`${item.id}-${item.variationId || 'base'}`} className={s.cartItem}>
-                                    <div className={s.cartItemLeft}><img src={item.image} alt={item.name} /></div>
-                                    <div className={s.cartItemCenter}>
-                                        <div className={s.skuPriceWrap}>
-                                            <p className={s.skuText}><span className={s.skuItem}>{t('checkout.sku')}:</span> {item.sku} {item.sku}</p>
-                                            <button className={s.delateItem} type="button" onClick={() => dispatch(removeFromCart(item))}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                                    <path d="M1.51863 15.6603L8.00044 9.17851L14.4823 15.6603L15.6608 14.4818L9.17895 8L15.6608 1.51819L14.4823 0.339676L8.00044 6.82149L1.51863 0.339677L0.340119 1.51819L6.82193 8L0.340119 14.4818L1.51863 15.6603Z" fill="#003C3A"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <p className={s.titleProductItem}>{item.name}</p>
-                                        <div className={s.priceQuanityWrap}>
-                                            <div className={s.quantityControls}>
-                                                <button
-                                                    onClick={() => dispatch(updateQuantity({
-                                                        id: item.id,
-                                                        variationId: item.variationId,
-                                                        quantity: item.quantity - 1,
-                                                    }))}
-                                                    disabled={item.quantity <= 1}
-                                                >
-                                                    <svg width="14" height="2" viewBox="0 0 14 2" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M13.05 0.5V0.45H13L7.5 0.45H6.5L1 0.45H0.95V0.5V1.5V1.55H1L6.5 1.55L7.5 1.55L13 1.55H13.05V1.5V0.5Z" fill="#003C3A" stroke="#003C3A" stroke-width="0.1"/>
-                                                    </svg>
-                                                </button>
-                                                <span>{item.quantity}</span>
-                                                <button
-                                                    onClick={() => dispatch(updateQuantity({
-                                                        id: item.id,
-                                                        variationId: item.variationId,
-                                                        quantity: item.quantity + 1,
-                                                    }))}
-                                                >
-                                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M13.05 6.5V6.45H13L7.55 6.45V1V0.95H7.5H6.5H6.45V1V6.45H1H0.95V6.5V7.5V7.55H1H6.45L6.45 13V13.05H6.5H7.5H7.55V13L7.55 7.55L13 7.55H13.05V7.5V6.5Z" fill="#003C3A" stroke="#003C3A" stroke-width="0.1"/>
-                                                    </svg>
+                                                <button type="submit" className={s.submitButton} disabled={isSubmitting}>
+                                                    {isSubmitting ? t('checkout.sending') : t('checkout.confirmOrder')}
                                                 </button>
                                             </div>
-                                            <div className={s.priceBlock}>
-                                                {item.sale_price && item.sale_price < item.regular_price ? (
-                                                    <>
-                                                        <p className={s.salePrice}>
-                                                            {(item.price * item.quantity).toLocaleString()} ₴
-                                                        </p>
-                                                        <p className={s.oldPrice}>
-                                                            {(item.regular_price * item.quantity).toLocaleString()} ₴
-                                                        </p>
-                                                    </>
-                                                ) : (
-                                                    <p className={s.priceItem}>
-                                                        {(item.price * item.quantity).toLocaleString()} ₴
-                                                    </p>
+
+                                            <div className={s.checkboxRow}>
+                                                <label>
+                                                    <input type="checkbox" {...formik.getFieldProps('newsletter')} />
+                                                    {t('checkout.subscribeNewsletter')}
+                                                </label>
+                                                <label>
+                                                    <input type="checkbox" {...formik.getFieldProps('acceptTerms')} />
+                                                    {t('checkout.acceptTerms')}
+                                                </label>
+                                                {formik.touched.acceptTerms && formik.errors.acceptTerms && (
+                                                    <div className={s.errorText}>{formik.errors.acceptTerms}</div>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
+                                )}
+                            </form>
+
+                            <div className={s.checkoutSummary}>
+                                <div className={s.headingSummaryWrap}>
+                                    <h3 className={s.headingSummary}>{t('checkout.totalToPay')}</h3>
+                                    <p className={s.priceMain}>{items.reduce((sum, item) => sum + (item.sale_price || item.price) * item.quantity, 0).toLocaleString()} ₴</p>
                                 </div>
-                            ))}
-                        </div>
-
-
-
-                        <div className={`${s.wrapCoupon} ${isCouponOpen ? s.active : ''}`}>
-                            <button className={s.accordionToggle} onClick={() => setCouponOpen(!isCouponOpen)}>
-                                {t('checkout.addPromoCode')}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                                    <g clipPath="url(#clip0_2368_15893)">
-                                        <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
-                                    </g>
-                                    <defs>
-                                        <clipPath id="clip0_2368_15893">
-                                            <rect width="22" height="22" fill="white"/>
-                                        </clipPath>
-                                    </defs>
-                                </svg>
-                            </button>
-
-                            {isCouponOpen && (
-                                <div className={s.couponWrapper}>
-                                    <div className={s.inputWrap}>
-                                        <input
-                                            type="text"
-                                            {...formik.getFieldProps('coupon')}
-                                            placeholder={t('checkout.promoPlaceholder')}
-                                            className={s.couponInput}
-                                        />
-                                        <button
-                                            type="button"
-                                            className={s.checkBtn}
-                                            onClick={checkCoupon}
-                                            disabled={isCheckingCoupon}
-                                        >
-                                            {isCheckingCoupon ? t('checkout.checkingPromo') : t('checkout.checkPromo')}
-                                        </button>
-                                    </div>
-
-                                    {couponValid && couponAmount && (
-                                        <p className={s.couponSuccess}>
-                                            {t('checkout.discountApplied', { amount: couponAmount })}
-                                        </p>
-                                    )}
-
-                                    {couponError && (
-                                        <p className={s.couponError}>{couponError}</p>
-                                    )}
+                                <div className={s.cartItems}>
+                                    {items.map((item) => (
+                                        <div key={`${item.id}-${item.variationId || 'base'}`} className={s.cartItem}>
+                                            <div className={s.cartItemLeft}><img src={item.image} alt={item.name} /></div>
+                                            <div className={s.cartItemCenter}>
+                                                <div className={s.skuPriceWrap}>
+                                                    <p className={s.skuText}><span className={s.skuItem}>{t('checkout.sku')}:</span> {item.sku}</p>
+                                                    <button className={s.delateItem} type="button" onClick={() => dispatch(removeFromCart(item))}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                            <path d="M1.51863 15.6603L8.00044 9.17851L14.4823 15.6603L15.6608 14.4818L9.17895 8L15.6608 1.51819L14.4823 0.339676L8.00044 6.82149L1.51863 0.339677L0.340119 1.51819L6.82193 8L0.340119 14.4818L1.51863 15.6603Z" fill="#003C3A"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <p className={s.titleProductItem}>{item.name}</p>
+                                                <div className={s.priceQuanityWrap}>
+                                                    <div className={s.quantityControls}>
+                                                        <button
+                                                            onClick={() => dispatch(updateQuantity({
+                                                                id: item.id,
+                                                                variationId: item.variationId,
+                                                                quantity: item.quantity - 1,
+                                                            }))}
+                                                            disabled={item.quantity <= 1}
+                                                        >
+                                                            <svg width="14" height="2" viewBox="0 0 14 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M13.05 0.5V0.45H13L7.5 0.45H6.5L1 0.45H0.95V0.5V1.5V1.55H1L6.5 1.55L7.5 1.55L13 1.55H13.05V1.5V0.5Z" fill="#003C3A" stroke="#003C3A" stroke-width="0.1"/>
+                                                            </svg>
+                                                        </button>
+                                                        <span>{item.quantity}</span>
+                                                        <button
+                                                            onClick={() => dispatch(updateQuantity({
+                                                                id: item.id,
+                                                                variationId: item.variationId,
+                                                                quantity: item.quantity + 1,
+                                                            }))}
+                                                        >
+                                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M13.05 6.5V6.45H13L7.55 6.45V1V0.95H7.5H6.5H6.45V1V6.45H1H0.95V6.5V7.5V7.55H1H6.45L6.45 13V13.05H6.5H7.5H7.55V13L7.55 7.55L13 7.55H13.05V7.5V6.5Z" fill="#003C3A" stroke="#003C3A" stroke-width="0.1"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <div className={s.priceBlock}>
+                                                        {item.sale_price && item.sale_price < item.regular_price ? (
+                                                            <>
+                                                                <p className={s.salePrice}>
+                                                                    {(item.price * item.quantity).toLocaleString()} ₴
+                                                                </p>
+                                                                <p className={s.oldPrice}>
+                                                                    {(item.regular_price * item.quantity).toLocaleString()} ₴
+                                                                </p>
+                                                            </>
+                                                        ) : (
+                                                            <p className={s.priceItem}>
+                                                                {(item.price * item.quantity).toLocaleString()} ₴
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            )}
-                        </div>
 
 
 
-                        <div className={`${s.wrapCoupon} ${isGiftOpen ? s.active : ''}`}>
-                            <button className={s.accordionToggle} onClick={() => setGiftOpen(!isGiftOpen)}>
-                                {t('checkout.giftCertificate')}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                                    <g clipPath="url(#clip0_2368_15893)">
-                                        <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
-                                    </g>
-                                    <defs>
-                                        <clipPath id="clip0_2368_15893">
-                                            <rect width="22" height="22" fill="white"/>
-                                        </clipPath>
-                                    </defs>
-                                </svg>
-                            </button>
+                                <div className={`${s.wrapCoupon} ${isCouponOpen ? s.active : ''}`}>
+                                    <button className={s.accordionToggle} onClick={() => setCouponOpen(!isCouponOpen)}>
+                                        {t('checkout.addPromoCode')}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                            <g clipPath="url(#clip0_2368_15893)">
+                                                <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
+                                            </g>
+                                            <defs>
+                                                <clipPath id="clip0_2368_15893">
+                                                    <rect width="22" height="22" fill="white"/>
+                                                </clipPath>
+                                            </defs>
+                                        </svg>
+                                    </button>
 
-                            {isGiftOpen && (
-                                <div className={s.couponWrap}>
-                                    <div className={s.inputWrap}>
-                                        <input
-                                            type="text"
-                                            {...formik.getFieldProps('giftCard')}
-                                            placeholder={t('checkout.giftPlaceholder')}
-                                            className={s.couponInput}
-                                        />
+                                    {isCouponOpen && (
+                                        <div className={s.couponWrapper}>
+                                            <div className={s.inputWrap}>
+                                                <input
+                                                    type="text"
+                                                    {...formik.getFieldProps('coupon')}
+                                                    placeholder={t('checkout.promoPlaceholder')}
+                                                    className={s.couponInput}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className={s.checkBtn}
+                                                    onClick={checkCoupon}
+                                                    disabled={isCheckingCoupon}
+                                                >
+                                                    {isCheckingCoupon ? t('checkout.checkingPromo') : t('checkout.checkPromo')}
+                                                </button>
+                                            </div>
 
-                                        <button
-                                            type="button"
-                                            className={s.checkBtn}
-                                            onClick={checkGiftCard}
-                                            disabled={isCheckingGift}
-                                        >
-                                            {isCheckingGift ? t('checkout.checkingGift') : t('checkout.checkGift')}
-                                        </button>
-                                    </div>
+                                                    {couponValid && couponAmount && (
+                                                        <p className={s.couponSuccess}>
+                                                            {t('checkout.discountApplied', { amount: couponAmount })}
+                                                        </p>
+                                                    )}
 
-                                    {giftValid && (
-                                        <div className={s.validText}>
-                                            {t('checkout.giftValid', { amount: giftAmount?.toLocaleString() })}
+                                                    {couponError && (
+                                                        <p className={s.couponError}>{couponError}</p>
+                                                    )}
                                         </div>
                                     )}
+                                </div>
 
-                                    {giftValid === false && giftError && (
-                                        <div className={s.errorText}>
-                                            {t('checkout.giftInvalid', { error: giftError })}
+
+
+                                <div className={`${s.wrapCoupon} ${isGiftOpen ? s.active : ''}`}>
+                                    <button className={s.accordionToggle} onClick={() => setGiftOpen(!isGiftOpen)}>
+                                        {t('checkout.giftCertificate')}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                            <g clipPath="url(#clip0_2368_15893)">
+                                                <path d="M22.002 10.0833L11.9186 10.0833V0L10.0853 0V10.0833H0.00195312L0.00195312 11.9167H10.0853L10.0853 22H11.9186L11.9186 11.9167L22.002 11.9167V10.0833Z" fill="#1A1A1A"/>
+                                            </g>
+                                            <defs>
+                                                <clipPath id="clip0_2368_15893">
+                                                    <rect width="22" height="22" fill="white"/>
+                                                </clipPath>
+                                            </defs>
+                                        </svg>
+                                    </button>
+
+                                    {isGiftOpen && (
+                                        <div className={s.couponWrap}>
+                                            <div className={s.inputWrap}>
+                                                <input
+                                                    type="text"
+                                                    {...formik.getFieldProps('giftCard')}
+                                                    placeholder={t('checkout.giftPlaceholder')}
+                                                    className={s.couponInput}
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    className={s.checkBtn}
+                                                    onClick={checkGiftCard}
+                                                    disabled={isCheckingGift}
+                                                >
+                                                    {isCheckingGift ? t('checkout.checkingGift') : t('checkout.checkGift')}
+                                                </button>
+                                            </div>
+
+                                                    {giftValid && (
+                                                        <div className={s.validText}>
+                                                            {t('checkout.giftValid', { amount: giftAmount?.toLocaleString() })}
+                                                        </div>
+                                                    )}
+
+                                                    {giftValid === false && giftError && (
+                                                        <div className={s.errorText}>
+                                                            {t('checkout.giftInvalid', { error: giftError })}
+                                                        </div>
+                                                    )}
                                         </div>
                                     )}
                                 </div>
-                            )}
-                        </div>
 
 
 
 
-                        <div className={s.checkoutSummaryBlock}>
-                            <div className={s.summaryLine}>
-                                <span>{t('checkout.orderAmount')}</span>
-                                <span className={s.spanBlack}>{subtotal.toLocaleString()} ₴</span>
+                                <div className={s.checkoutSummaryBlock}>
+                                    <div className={s.summaryLine}>
+                                        <span>{t('checkout.orderAmount')}</span>
+                                        <span className={s.spanBlack}>{subtotal.toLocaleString()} ₴</span>
+                                    </div>
+
+                                    <div className={s.summaryLine}>
+                                        <span>{t('checkout.couponDiscount')}</span>
+                                        <span className={s.spanGray}>
+                                            {appliedCouponDiscount > 0 ? `-${appliedCouponDiscount.toLocaleString()} ₴` : '0 ₴'}
+                                        </span>
+                                    </div>
+
+                                    <div className={s.summaryLine}>
+                                        <span>{t('checkout.giftCertificateAmount')}</span>
+                                        <span className={s.spanGray}>
+                                            {appliedGiftCard > 0 ? `-${appliedGiftCard.toLocaleString()} ₴` : '0 ₴'}
+                                        </span>
+                                    </div>
+
+                                    <div className={s.summaryLine}>
+                                        <span>{t('checkout.productDiscount')}</span>
+                                        <span className={s.spanGray}>
+                                            {discountProducts > 0 ? `${discountProducts.toLocaleString()} ₴` : '0 ₴'}
+                                        </span>
+                                    </div>
+
+                                    <div className={s.summaryLine}>
+                                        <span>{t('checkout.shippingCost')}</span>
+                                        <span className={s.spanBlack}>
+                                            {shippingCost > 0 ? `${shippingCost.toLocaleString()} ₴` : t('checkout.shippingByTariff')}
+                                        </span>
+                                    </div>
+
+                                    <div className={s.summaryLine}>
+                                        <span>{t('checkout.deliveryTermin')}</span>
+                                        <span className={s.spanBlack}>
+                                            {t('checkout.deliveryTerminResult')}
+                                        </span>
+                                    </div>
+
+                                    <div className={s.checkoutTotal}>
+                                        <h3 className={s.headingSummary}>{t('checkout.finalTotal')}</h3>
+                                        <p className={s.priceMain}>{finalTotal.toLocaleString()} ₴</p>
+                                    </div>
+                                </div>
+
+
                             </div>
-
-                            <div className={s.summaryLine}>
-                                <span>{t('checkout.couponDiscount')}</span>
-                                <span className={s.spanGray}>
-                                    {appliedCouponDiscount > 0 ? `-${appliedCouponDiscount.toLocaleString()} ₴` : '0 ₴'}
-                                </span>
-                            </div>
-
-                            <div className={s.summaryLine}>
-                                <span>{t('checkout.giftCertificateAmount')}</span>
-                                <span className={s.spanGray}>
-                                    {appliedGiftCard > 0 ? `-${appliedGiftCard.toLocaleString()} ₴` : '0 ₴'}
-                                </span>
-                            </div>
-
-                            <div className={s.summaryLine}>
-                                <span>{t('checkout.productDiscount')}</span>
-                                <span className={s.spanGray}>
-                                    {discountProducts > 0 ? `${discountProducts.toLocaleString()} ₴` : '0 ₴'}
-                                </span>
-                            </div>
-
-                            <div className={s.summaryLine}>
-                                <span>{t('checkout.shippingCost')}</span>
-                                <span className={s.spanBlack}>
-                                    {shippingCost > 0 ? `${shippingCost.toLocaleString()} ₴` : t('checkout.shippingByTariff')}
-                                </span>
-                            </div>
-
-                            <div className={s.checkoutTotal}>
-                                <h3 className={s.headingSummary}>{t('checkout.finalTotal')}</h3>
-                                <p className={s.priceMain}>{finalTotal.toLocaleString()} ₴</p>
-                            </div>
-                        </div>
-
-
-                    </div>
                 </div>
             </div>
         </>

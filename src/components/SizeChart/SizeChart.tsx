@@ -1,8 +1,7 @@
-// src/components/SizeChartModal/SizeChartModal.tsx
-
 import React, { useState } from 'react';
 import s from './SizeChart.module.css';
 import {useTranslation} from "react-i18next";
+import { AttributeOption } from '../../types/productTypes.ts';
 
 interface SizeEntry {
     bust: string;
@@ -11,15 +10,16 @@ interface SizeEntry {
     size: string;
 }
 
-interface MetaDataItem {
-    key: string;
-    value: string;
+interface ProductAttribute {
+    name: string;
+    slug: string;
+    options: AttributeOption[];
 }
 
 interface Props {
     isOpen: boolean;
     onClose: () => void;
-    metaData?: MetaDataItem[];
+    attributes?: ProductAttribute[];
 }
 
 
@@ -101,10 +101,10 @@ const SIZE_GRIDS: Record<string, Record<string, SizeEntry[]>> = {
     },
 };
 
-const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, metaData }) => {
+const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, attributes }) => {
     const [tab, setTab] = useState<'grid' | 'help'>('grid');
     const [type, setType] = useState<'panties' | 'bra'>('panties');
-
+    const { t } = useTranslation();
 
     // ✅ Мапа ключів
     const SIZE_GRID_KEYS: Record<string, string> = {
@@ -126,18 +126,12 @@ const SizeChartModal: React.FC<Props> = ({ isOpen, onClose, metaData }) => {
         'бодістокінги': 'bodystockings',
     };
 
+    const rawKey = attributes
+        ?.find(attr => attr.slug === 'pa_rozmirna-sitka')
+        ?.options?.[0]?.name || '';
 
-    const rawKey = metaData?.find((m) => m.key === '_rozmirna_sitka')?.value || '';
     const sizeGridKey = SIZE_GRID_KEYS[rawKey] || 'full_set';
-
-    // Отримуємо об'єкт із усіма розмірами
-    const sizeGridSet = SIZE_GRIDS[sizeGridKey] || SIZE_GRIDS['full_set'];
-
-
-
-
-
-    const { t } = useTranslation();
+    const sizeGridSet = SIZE_GRIDS[sizeGridKey];
 
     if (!isOpen) return null;
 

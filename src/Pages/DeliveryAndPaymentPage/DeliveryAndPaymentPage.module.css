@@ -137,3 +137,8 @@
         font-size: 4.26vw;
     }
 }
+
+.card a{
+    color: #0C1618 !important;
+    border-bottom: 1px solid #0C1618 !important;
+}

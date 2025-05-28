@@ -202,7 +202,7 @@ const CatalogFilters = ({
                         </div>
                         {openBlocks[blockId] && (
                             <ul className={s.optionsList}>
-                                {(attr.slug === "pa_kolir" || attr.slug === 'kolir'
+                                {(attr.slug === "pa_kolir"
                                         ? attributeColor.map((color) => {
                                             const colorName = color.id_variations.variation_atribute_color;
 
@@ -218,7 +218,10 @@ const CatalogFilters = ({
                                                         <input
                                                             type="checkbox"
                                                             checked={selectedAttributes[attr.name]?.includes(colorName) || false}
-                                                            onChange={() => handleAttributeToggle(attr.name, colorName)}
+                                                            onChange={() => {
+                                                                console.log(`✅ Зміна фільтру: атрибут = ${attr.name}, значення = ${colorName}`);
+                                                                handleAttributeToggle(attr.name, colorName);
+                                                            }}
                                                         />
                                                         {colorName}
                                                     </label>
@@ -231,7 +234,10 @@ const CatalogFilters = ({
                                                     <input
                                                         type="checkbox"
                                                         checked={selectedAttributes[attr.name]?.includes(opt) || false}
-                                                        onChange={() => handleAttributeToggle(attr.name, opt)}
+                                                        onChange={() => {
+                                                            console.log(`✅ Зміна фільтру: атрибут = ${attr.name}, значення = ${opt}`);
+                                                            handleAttributeToggle(attr.name, opt);
+                                                        }}
                                                     />
                                                     {opt}
                                                 </label>

@@ -24,7 +24,7 @@ export const ReviewItem: FC<ReviewItemPropType> = ({
 
       <div className={s.reviewerContent}>
         <div className="mb-[0.8vw]">
-          <StarRating rating={reviewerRating.toString()} />
+          <StarRating rating={Number(reviewerRating || 0).toString()} />
         </div>
 
           <ul className={s.iamgeList}>

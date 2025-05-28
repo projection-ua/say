@@ -1,7 +1,7 @@
 // ✅ src/services/fetchSliderProducts.ts
 import axios from 'axios';
 import { ProductInfo } from '../types/productTypes';
-import { apiUrl, consumerKey, consumerSecret } from '../App';
+import { API_BASE_URL } from '../config/api';
 import i18n from 'i18next';
 
 export const fetchSliderProducts = async (
@@ -25,8 +25,7 @@ export const fetchSliderProducts = async (
             params.order = 'desc';
         }
 
-        const response = await axios.get<ProductInfo[]>(`${apiUrl}`, {
-            auth: { username: consumerKey, password: consumerSecret },
+        const response = await axios.get<ProductInfo[]>(`${API_BASE_URL}/products`, {
             params,
         });
 

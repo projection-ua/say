@@ -9,77 +9,41 @@ import CatalogFilters from '../../components/CatalogFilters/CatalogFilters';
 import Loader from '../../components/Loader/Loader';
 import {useTranslation} from "react-i18next";
 
-
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import {apiUrlWp} from "../../App.tsx";
+import { API_BASE_URL } from '../../config/api';
 import {useLocation} from "react-router-dom";
 import {getProductsNews} from "../../services/fetchNewsProducts.ts";
-
 
 const NewPage = () => {
     const [products, setProducts] = useState<ProductInfo[]>([]);
     const [loading, setLoading] = useState(true);
     const [subcategories, setSubcategories] = useState<CategoryInfo[]>([]);
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const { t, i18n } = useTranslation();
-
     const [searchParams, setSearchParams] = useSearchParams();
-
     const location = useLocation();
     const currentUrl = `${window.location.origin}${location.pathname}`;
-
     const [seoData, setSeoData] = useState<any>(null);
 
     useEffect(() => {
         const fetchSeo = async () => {
-            const response = await fetch(`${apiUrlWp}wp-json/wp/v2/pages?slug=news`);
+            const url = `${API_BASE_URL}/page-seo?slug=news`;
+            const response = await fetch(url);
             const data = await response.json();
-            setSeoData(data[0]?.yoast_head_json);
+            setSeoData(data);
         };
-
         fetchSeo();
     }, []);
-
-
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isSortOpen, setIsSortOpen] = useState(false);
     const [sortOption, setSortOption] = useState(() => searchParams.get('sort') || 'default');
-    const [visibleCount, setVisibleCount] = useState(18);
 
-
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
-
-                const [allProducts, categories] = await Promise.all([
-                    getProductsNews({ lang, onSale: true }), // ⬅️ оновлений запит
-                    getCategories(lang),
-                ]);
-
-                setProducts(allProducts);
-                setSubcategories(
-                    categories.filter(cat => cat.parent === 0 && !['без категорії', 'без категории'].includes(cat.name.toLowerCase()))
-                );
-                setVisibleCount(18);
-            } catch (err) {
-                console.error('❌ Помилка при завантаженні:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [i18n.language]);
-
-
-
-
+    // Local state for filters (like CategoryPage)
     const [selectedSubcategory, setSelectedSubcategory] = useState(() => searchParams.get('subcat') || null);
     const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string[]>>(() => {
         const result: Record<string, string[]> = {};
@@ -95,6 +59,7 @@ const NewPage = () => {
         max: parseFloat(searchParams.get('max') || '10000'),
     });
 
+    // Apply filters: update searchParams from local state
     const applyFilters = () => {
         const params: Record<string, string> = {};
         if (selectedSubcategory) params.subcat = selectedSubcategory;
@@ -106,22 +71,77 @@ const NewPage = () => {
         if (sortOption !== 'default') {
             params.sort = sortOption;
         }
-
         setSearchParams(params);
         if (isMobile) setIsFilterOpen(false);
     };
 
+    // Reset filters: clear local state and searchParams
     const resetFilters = () => {
         setSelectedSubcategory(null);
         setSelectedAttributes({});
         setPriceRange({ min: 0, max: 10000 });
+        setSortOption('default');
         setSearchParams({});
     };
+
+    // When searchParams change, update local state (for browser navigation)
+    useEffect(() => {
+        setSelectedSubcategory(searchParams.get('subcat') || null);
+        const attrs: Record<string, string[]> = {};
+        searchParams.forEach((value, key) => {
+            if (key.startsWith('attr_')) {
+                attrs[key.replace('attr_', '')] = value.split(',');
+            }
+        });
+        setSelectedAttributes(attrs);
+        setPriceRange({
+            min: parseFloat(searchParams.get('min') || '0'),
+            max: parseFloat(searchParams.get('max') || '10000'),
+        });
+        setSortOption(searchParams.get('sort') || 'default');
+    }, [searchParams]);
+
+    // Fetch products when searchParams or language change
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+                const params: any = {
+                    lang,
+                    isNew: true,
+                    page: 1,
+                    perPage: 18,
+                };
+                if (searchParams.get('subcat')) params.subcat = searchParams.get('subcat');
+                searchParams.forEach((value, key) => {
+                    if (key.startsWith('attr_')) params.selectedAttributes = { ...params.selectedAttributes, [key.replace('attr_', '')]: value.split(',') };
+                });
+                if (searchParams.get('min')) params.min = searchParams.get('min');
+                if (searchParams.get('max')) params.max = searchParams.get('max');
+                if (searchParams.get('sort')) params.sort = searchParams.get('sort');
+                const [firstBatch, categories] = await Promise.all([
+                    getProductsNews(params),
+                    getCategories(lang),
+                ]);
+                setProducts(firstBatch);
+                setSubcategories(
+                    categories.filter(cat => cat.parent === 0 && !['без категорії', 'без категории'].includes(cat.name.toLowerCase()))
+                );
+                setCurrentPage(1);
+                setHasMore(firstBatch.length === 18);
+            } catch (err) {
+                console.error('❌ Помилка при завантаженні:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [i18n.language, searchParams]);
 
     const handleSortChange = (option: string) => {
         setSortOption(option);
         setIsSortOpen(false);
-
         const params = new URLSearchParams(searchParams);
         if (option === 'default') {
             params.delete('sort');
@@ -131,43 +151,58 @@ const NewPage = () => {
         setSearchParams(params);
     };
 
-    const filteredProducts = useMemo(() => {
-        const catalogProducts = products.filter(p => !p.hiddenInCatalog); // 👈 фільтр прихованих
+    const handleLoadMore = async () => {
+        if (isLoadingMore || !hasMore) return;
+        setIsLoadingMore(true);
+        try {
+            const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
+            const nextPage = currentPage + 1;
+            const newProducts = await getProductsNews({ lang, isNew: true, page: nextPage, perPage: 18 });
+            setProducts(prev => [...prev, ...newProducts]);
+            setCurrentPage(nextPage);
+            setHasMore(newProducts.length === 18);
+        } catch (err) {
+            console.error('❌ Помилка при завантаженні додаткових товарів:', err);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    };
 
+    const filteredProducts = useMemo(() => {
+        const catalogProducts = products.filter(p => !p.hiddenInCatalog);
         return catalogProducts.filter((product) => {
             if (selectedSubcategory) {
                 const hasSubcategory = product.categories?.some(cat => cat.slug === selectedSubcategory);
                 if (!hasSubcategory) return false;
             }
-
             const hasActiveAttributes = Object.values(selectedAttributes).some(options => options.length > 0);
             if (hasActiveAttributes) {
                 for (const [attrName, selectedOptions] of Object.entries(selectedAttributes)) {
                     if (!selectedOptions.length) continue;
-
-                    if (attrName === 'Колір') {
-                        if (!selectedOptions.includes(product.colorName)) {
-                            return false;
-                        }
+                    if (attrName === 'Колір' || attrName === 'Цвет') {
+                        // Collect all possible color values from the product
+                        const productColors = [
+                            (product.productColor || '').toLowerCase().trim(),
+                            (product.colorName || '').toLowerCase().trim(),
+                            ...((product.attributes?.find(a => a.name === 'Колір')?.options.map(o => o.name.toLowerCase().trim())) || [])
+                        ].filter(Boolean);
+                        const selectedColors = selectedOptions.map(c => c.toLowerCase().trim());
+                        const hasSelectedColor = productColors.some(color => selectedColors.includes(color));
+                        if (!hasSelectedColor) return false;
                     } else {
                         const productAttr = product.attributes.find(attr => attr.name === attrName);
                         if (!productAttr) return false;
-
                         const hasOption = selectedOptions
                             .filter((opt: string): opt is string => typeof opt === 'string')
                             .some((opt: string) =>
                                 productAttr.options.some(o => o.name === opt)
                             );
-
                         if (!hasOption) return false;
                     }
-
                 }
             }
-
             const price = parseFloat(product.price);
             if (price < priceRange.min || price > priceRange.max) return false;
-
             return true;
         });
     }, [products, selectedSubcategory, selectedAttributes, priceRange]);
@@ -192,34 +227,22 @@ const NewPage = () => {
         return sorted;
     }, [filteredProducts, sortOption]);
 
-
-
-
     const allAttributes = useMemo(() => {
         const attributesMap: Record<string, Set<string>> = {};
         products.forEach((product) => {
             product.attributes.forEach(({ name, options }) => {
-                if (!attributesMap[name]) attributesMap[name] = new Set();
-                options.forEach((opt) => attributesMap[name].add(opt.name));
+                if (name !== 'Розмірна сітка') {
+                    if (!attributesMap[name]) attributesMap[name] = new Set();
+                    options.forEach((opt) => attributesMap[name].add(opt.name));
+                }
             });
         });
         return Object.entries(attributesMap).map(([name, options]) => ({
             name,
-            slug: name.toLowerCase().replace(/\s+/g, '-'), // ← генеруємо slug
+            slug: name.toLowerCase().replace(/\s+/g, '-'),
             options: Array.from(options),
         }));
     }, [products]);
-
-
-
-    const visibleProducts = useMemo(() => {
-        return sortedProducts.slice(0, visibleCount);
-    }, [sortedProducts, visibleCount]);
-
-    const handleLoadMore = () => {
-        setVisibleCount(prev => prev + 18);
-    };
-
 
     const allAttributeColors = Array.from(new Set(
         products
@@ -235,48 +258,40 @@ const NewPage = () => {
             .map(c => c.id_variations.variation_atribute_color)
     )).map(colorName => ({
         id_variations: {
-            variation_id: 0, // це опціонально якщо не треба id
+            variation_id: 0,
             variation_atribute_color: colorName,
-            variation_slug: '', // теж якщо потрібно
+            variation_slug: '',
         },
     }));
 
-
+    const visibleProducts = useMemo(() => sortedProducts.slice(0, 32), [sortedProducts]);
 
     return (
         <div className={s.categoryPage}>
-
             <HelmetProvider>
             <Helmet>
                 <title>{seoData?.title || 'Say'}</title>
                 <link rel="canonical" href={currentUrl} />
-
                 {seoData?.og_title && <meta property="og:title" content={seoData.og_title} />}
                 {seoData?.og_description && <meta property="og:description" content={seoData.og_description} />}
                 <meta property="og:url" content={currentUrl} />
-
                 {seoData?.og_locale && <meta property="og:locale" content={seoData.og_locale} />}
                 {seoData?.og_type && <meta property="og:type" content={seoData.og_type} />}
                 {seoData?.og_site_name && <meta property="og:site_name" content={seoData.og_site_name} />}
                 {seoData?.twitter_card && <meta name="twitter:card" content={seoData.twitter_card} />}
-
                 <meta
                     name="robots"
                     content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
                 />
             </Helmet>
             </HelmetProvider>
-
-
             <div
                 className={s.heroBanner}
                 style={{ backgroundImage: `url('/images/offer-img.jpg')` }}
             >
                 <h1 className={s.categoryTitle}>Новинки</h1>
             </div>
-
             <div className={s.container}>
-
                 <div className={s.contentWrapper}>
                     <div className={s.filtersTop}>
                         {isMobile && (
@@ -292,7 +307,6 @@ const NewPage = () => {
                                 <h3 className={s.titleFilter}>{t('title_filter')}</h3>
                             </div>
                         )}
-
                         <div className={`${s.sortWrapper} ${isSortOpen ? s.active : ''}`}>
                             <button className={s.sortButton} onClick={() => setIsSortOpen(prev => !prev)}>
                                 {t('sort_heading')}
@@ -302,7 +316,6 @@ const NewPage = () => {
                                     </svg>
                                 </span>
                             </button>
-
                             {isSortOpen && (
                                 <div className={s.sortDropdown}>
                                     <button onClick={() => handleSortChange('bestsellers')}>{t('sort.bestsellers')}</button>
@@ -314,7 +327,6 @@ const NewPage = () => {
                             )}
                         </div>
                     </div>
-
                     <div className={s.productListWrapper}>
                         {!isMobile && (
                             <div className={s.sortingBar}>
@@ -335,7 +347,6 @@ const NewPage = () => {
                                 </div>
                             </div>
                         )}
-
                         <div className={s.wrapProducts}>
                             <div className={s.productGrid}>
                                 {loading ? (
@@ -348,20 +359,17 @@ const NewPage = () => {
                                     <p>Товари не знайдено.</p>
                                 )}
                             </div>
-                            {!loading && visibleProducts.length < sortedProducts.length && (
+                            {!loading && hasMore && (
                                 <div className={s.loadMoreWrapper}>
-                                    <button className={s.loadMoreBtn} onClick={handleLoadMore}>
-                                        {t('loadMore')}
+                                    <button className={s.loadMoreBtn} onClick={handleLoadMore} disabled={isLoadingMore}>
+                                        {isLoadingMore ? t('loading') : t('loadMore')}
                                     </button>
                                 </div>
                             )}
                         </div>
-
-
                     </div>
                 </div>
             </div>
-
             {isMobile && isFilterOpen && (
                 <div className={s.popupOverlay}>
                     <div className={s.popupContent}>
@@ -373,7 +381,6 @@ const NewPage = () => {
                                 </svg>
                             </button>
                         </div>
-
                         <CatalogFilters
                             subcategories={subcategories}
                             allAttributes={allAttributes}
@@ -392,7 +399,6 @@ const NewPage = () => {
                     </div>
                 </div>
             )}
-
         </div>
     );
 };

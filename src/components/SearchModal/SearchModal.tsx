@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ProductInfo } from '../../types/productTypes';
 import { CategoryInfo } from '../../types/categoryTypes';
-import { apiUrlWp, consumerKey, consumerSecret } from '../../App';
+import { API_BASE_URL } from '../../config/api';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -33,9 +33,9 @@ export const SearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
             try {
                 const [productsRes, categoriesRes] = await Promise.all([
-                    fetch(`${apiUrlWp}wp-json/wc/v3/products?search=${encodeURIComponent(query)}&per_page=4&lang=${lang}&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`)
+                    fetch(`${API_BASE_URL}/products?search=${encodeURIComponent(query)}&per_page=4&lang=${lang}`)
                         .then(res => res.json()),
-                    fetch(`${apiUrlWp}wp-json/wc/v3/products/categories?search=${encodeURIComponent(query)}&per_page=3&lang=${lang}&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`)
+                    fetch(`${API_BASE_URL}/products/categories?search=${encodeURIComponent(query)}&per_page=3&lang=${lang}`)
                         .then(res => res.json()),
                 ]);
 

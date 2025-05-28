@@ -1,10 +1,8 @@
 import s from './Footer.module.css';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-
-import { apiUrlWp, consumerKey, consumerSecret } from "../../App";
+import { API_BASE_URL } from '../../config/api';
 import {useTranslation, Trans} from "react-i18next";
-
 
 const Footer = () => {
 
@@ -13,36 +11,22 @@ const Footer = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         const form = e.currentTarget;
         const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
         const email = emailInput.value.trim();
-
         if (!email) {
             toast.warn('Введіть email!');
             return;
         }
-
-        const formData = new FormData();
-        formData.append('email', email);
-
-        const credentials = btoa(`${consumerKey}:${consumerSecret}`);
-        const url = `${apiUrlWp}wp-json/responses/v1/save-email`;
-
-        console.log("🔍 Відправляємо запит на:", url);
-        console.log("📦 FormData payload:", email);
-
         try {
-            const response = await fetch(url, {
+            const response = await fetch(`${API_BASE_URL}/subscribe-email`, {
                 method: 'POST',
                 headers: {
-                    Authorization: `Basic ${credentials}`,
+                    'Content-Type': 'application/json',
                 },
-                body: formData,
+                body: JSON.stringify({ email }),
             });
-
             const data = await response.json();
-
             if (response.ok) {
                 toast.success(`Email збережено: ${data.email}`);
                 emailInput.value = '';
@@ -163,7 +147,7 @@ const Footer = () => {
             <div className={s.bottom}>
                 <p>{t('footer.copyright')}</p>
                 <p>
-                    {t('footer.developedBy')} <a href="https://beforeafter.agency" target="_blank">{t('footer.developedByLink')}</a>
+                    {t('footer.developedBy')} <a href="https://www.instagram.com/before_after.agency" target="_blank">{t('footer.developedByLink')}</a>
                 </p>
                 <div className={s.payment}>
                     <img src="/icons/privat24.svg" alt="Privat24" />

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { apiUrl, consumerKey, consumerSecret } from '../../App.tsx';
+import { API_BASE_URL } from '../../config/api';
 import { CategoryInfo } from '../../types/categoryTypes';
 
 // 🔥 Отримати ВСІ категорії
@@ -12,11 +12,9 @@ export const fetchCategories = createAsyncThunk<
     'categories/fetchCategories',
     async (lang, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${apiUrl}/categories`, {
-                auth: { username: consumerKey, password: consumerSecret },
+            const response = await axios.get(`${API_BASE_URL}/products/categories`, {
                 params: { per_page: 100, lang },
             });
-
             return Array.isArray(response.data) ? response.data : [];
         } catch (err) {
             console.error('Error fetching categories:', err);

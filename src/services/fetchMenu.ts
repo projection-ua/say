@@ -1,12 +1,14 @@
 import axios from 'axios';
-import {apiUrlWp} from "../App.tsx";
+import { API_BASE_URL } from '../config/api';
 
-export const getMenu = async (slug = 'main-menu') => {
+export const fetchMenu = async (lang: string = 'uk') => {
     try {
-        const res = await axios.get(`${apiUrlWp}/wp-json/menus/v1/menus/${slug}`);
-        return res.data.items; // масив пунктів меню
-    } catch (err) {
-        console.error('Помилка отримання меню:', err);
+        const response = await axios.get(`${API_BASE_URL}/menu`, {
+            params: { lang }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('❌ Error fetching menu:', error);
         return [];
     }
 };

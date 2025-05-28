@@ -11,4 +11,10 @@ export interface CartItem {
     attributes?: Record<string, string>;
     meta_data?: { key: string; value: string }[];
     isGiftCertificate?: boolean;
+    productAttributes?: {
+        name: string;
+        slug: string;
+        options: { name: string; slug: string }[];
+        variation?: boolean;
+    }[];
 }

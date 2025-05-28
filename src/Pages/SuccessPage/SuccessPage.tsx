@@ -1,7 +1,9 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import s from "./SuccessPage.module.css";
 import { Link } from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import { gtagEvent } from '../../gtagEvents';
+import { fbq } from '../../utils/metaPixel';
 
 interface LineItem {
     name: string;
@@ -66,6 +68,25 @@ export const OrderSucces: FC<SuccesProps> = ({ data }) => {
         return sum + item.quantity * item.price;
     }, 0) || 0;
 
+    // Google Ads Conversion Event
+    useEffect(() => {
+        if (data) {
+            gtagEvent('conversion', {
+                send_to: 'AW-17084467495/abcd1234', // заміни abcd1234 на ідентифікатор конверсії з Google Ads
+                value: totalAmount,
+                currency: 'UAH',
+                transaction_id: data.number
+            });
+            // Meta Pixel Purchase event
+            fbq('track', 'Purchase', {
+                value: totalAmount,
+                currency: 'UAH',
+                content_ids: data.line_items.map(item => (item as any).product_id),
+                content_type: 'product',
+                transaction_id: data.number
+            });
+        }
+    }, [data, totalAmount]);
 
     return (
         <div className={s.succesCard}>

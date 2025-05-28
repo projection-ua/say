@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Formik, Field, Form } from "formik";
 import { Link } from "react-router-dom";
 import s from "./ReviewPopup.module.css";
-import { apiUrlWp, consumerKey, consumerSecret } from "../../App";
+import { API_BASE_URL } from '../../config/api';
 import { FaStar } from "react-icons/fa";
 import {useTranslation} from "react-i18next";
 
@@ -71,17 +71,13 @@ export const ReviewPopup: React.FC<CartPopupProps> = ({ onClose, product_id }) =
         formData.append("media[]", file);
       });
 
-      const credentials = btoa(`${consumerKey}:${consumerSecret}`);
-      const url = `${apiUrlWp}wp-json/responses/v1/add-review`;
+      const url = `${API_BASE_URL}/add-review`;
 
       console.log("🔍 Відправляємо запит на:", url);
       console.log("📦 FormData payload:", formData);
 
       const response = await fetch(url, {
         method: "POST",
-        headers: {
-          Authorization: `Basic ${credentials}`,
-        },
         body: formData,
       });
 
@@ -100,8 +96,6 @@ export const ReviewPopup: React.FC<CartPopupProps> = ({ onClose, product_id }) =
       setError(err.message || "Щось пішло не так");
     }
   };
-
-
 
   const handleChange = (
       e: React.ChangeEvent<HTMLTextAreaElement>,
