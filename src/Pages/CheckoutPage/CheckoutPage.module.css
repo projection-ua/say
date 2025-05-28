@@ -19,6 +19,7 @@
 .mapBtn{
     display: flex;
     min-width: 9.89vw;
+
     padding: 1.04vw 1.25vw;
     justify-content: center;
     align-items: center;
